@@ -1,12 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Zap, Menu, X } from "lucide-react";
+import { Zap, Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   const isLanding = location.pathname === "/";
 
@@ -44,12 +46,25 @@ const Navbar = () => {
             </div>
 
             <div className="hidden md:flex items-center gap-3">
-              <Link to="/login">
-                <Button variant="ghost" size="sm">Log in</Button>
-              </Link>
-              <Link to="/login">
-                <Button size="sm">Get Started</Button>
-              </Link>
+              {user ? (
+                <>
+                  <Link to="/session/demo">
+                    <Button variant="ghost" size="sm">Session</Button>
+                  </Link>
+                  <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
+                    <LogOut className="w-3.5 h-3.5" /> Sign out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login">
+                    <Button variant="ghost" size="sm">Log in</Button>
+                  </Link>
+                  <Link to="/login">
+                    <Button size="sm">Get Started</Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             <button
@@ -66,9 +81,15 @@ const Navbar = () => {
             <Link to="/teacher">
               <Button variant="ghost" size="sm">Dashboard</Button>
             </Link>
-            <Link to="/">
-              <Button variant="ghost" size="sm">Home</Button>
-            </Link>
+            {user ? (
+              <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
+                <LogOut className="w-3.5 h-3.5" /> Sign out
+              </Button>
+            ) : (
+              <Link to="/login">
+                <Button variant="ghost" size="sm">Log in</Button>
+              </Link>
+            )}
           </div>
         )}
       </div>
@@ -90,12 +111,20 @@ const Navbar = () => {
             </a>
           ))}
           <div className="flex flex-col gap-2 mt-3">
-            <Link to="/login" onClick={() => setMobileOpen(false)}>
-              <Button variant="ghost" size="sm" className="w-full">Log in</Button>
-            </Link>
-            <Link to="/login" onClick={() => setMobileOpen(false)}>
-              <Button size="sm" className="w-full">Get Started</Button>
-            </Link>
+            {user ? (
+              <Button variant="ghost" size="sm" className="w-full gap-1.5" onClick={() => { signOut(); setMobileOpen(false); }}>
+                <LogOut className="w-3.5 h-3.5" /> Sign out
+              </Button>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full">Log in</Button>
+                </Link>
+                <Link to="/login" onClick={() => setMobileOpen(false)}>
+                  <Button size="sm" className="w-full">Get Started</Button>
+                </Link>
+              </>
+            )}
           </div>
         </motion.div>
       )}

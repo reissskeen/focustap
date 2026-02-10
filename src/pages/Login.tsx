@@ -1,17 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Zap, Mail, ArrowRight, Check } from "lucide-react";
+import { Zap, Mail, ArrowRight, Check, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showCanvasDebug, setCanvasDebugClicks] = useState(0);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) navigate("/session/demo", { replace: true });
+  }, [user, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) setSent(true);
+    if (!email) return;
+
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.origin,
+      },
+    });
+    setLoading(false);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    setSent(true);
+  };
+
+  const handleCanvasSSO = () => {
+    // Stub: Canvas LTI 1.3 + OIDC flow
+    // When Canvas admin access is available, this will redirect to:
+    // /api/lti/launch which handles the OIDC login initiation
+    toast.info("Canvas LMS SSO is not yet configured. Contact your admin to enable LTI 1.3 integration.");
   };
 
   return (
@@ -48,8 +82,8 @@ const Login = () => {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full gap-2">
-                  Send Magic Link <ArrowRight className="w-4 h-4" />
+                <Button type="submit" className="w-full gap-2" disabled={loading}>
+                  {loading ? "Sending…" : <>Send Magic Link <ArrowRight className="w-4 h-4" /></>}
                 </Button>
               </form>
 
@@ -62,9 +96,23 @@ const Login = () => {
                 </div>
               </div>
 
-              <Button variant="outline" className="w-full gap-2" asChild>
-                <a href="#">Sign in with Canvas LMS</a>
+              <Button variant="outline" className="w-full gap-2" onClick={handleCanvasSSO}>
+                Sign in with Canvas LMS
               </Button>
+
+              {/* Hidden Canvas debug: tap the logo 5 times to reveal config panel */}
+              {showCanvasDebug >= 5 && (
+                <div className="mt-4 p-3 rounded-lg border border-dashed border-muted-foreground/30 text-xs text-muted-foreground space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span className="font-medium">Canvas LTI 1.3 Config (Admin)</span>
+                  </div>
+                  <p>OIDC Login URL: <code className="text-foreground">{window.location.origin}/api/lti/login</code></p>
+                  <p>Launch URL: <code className="text-foreground">{window.location.origin}/api/lti/launch</code></p>
+                  <p>JWKS URL: <code className="text-foreground">{window.location.origin}/api/lti/jwks</code></p>
+                  <p>Redirect URI: <code className="text-foreground">{window.location.origin}/api/lti/callback</code></p>
+                </div>
+              )}
             </>
           ) : (
             <div className="text-center py-4">
@@ -75,11 +123,22 @@ const Login = () => {
               <p className="text-sm text-muted-foreground">
                 We sent a magic link to <strong>{email}</strong>
               </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mt-4"
+                onClick={() => setSent(false)}
+              >
+                Use a different email
+              </Button>
             </div>
           )}
         </div>
 
-        <p className="text-xs text-muted-foreground text-center mt-6">
+        <p
+          className="text-xs text-muted-foreground text-center mt-6 cursor-default"
+          onClick={() => setCanvasDebugClicks((c) => c + 1)}
+        >
           By signing in, you agree to FocusTap's privacy policy.
         </p>
       </motion.div>
