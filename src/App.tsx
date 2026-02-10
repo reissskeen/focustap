@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import StudentSession from "./pages/StudentSession";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import Launch from "./pages/Launch";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -27,6 +28,9 @@ const App = () => (
             } />
             <Route path="/teacher" element={
               <ProtectedRoute><TeacherDashboard /></ProtectedRoute>
+            } />
+            <Route path="/launch" element={
+              <ProtectedRoute><Launch /></ProtectedRoute>
             } />
             <Route path="/login" element={<Login />} />
             <Route path="*" element={<NotFound />} />

@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      courses: {
+        Row: {
+          created_at: string
+          id: string
+          lms_course_id: string | null
+          name: string
+          section: string | null
+          teacher_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lms_course_id?: string | null
+          name: string
+          section?: string | null
+          teacher_user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lms_course_id?: string | null
+          name?: string
+          section?: string | null
+          teacher_user_id?: string
+        }
+        Relationships: []
+      }
+      note_docs: {
+        Row: {
+          content_json: Json | null
+          created_at: string
+          id: string
+          session_id: string
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content_json?: Json | null
+          created_at?: string
+          id?: string
+          session_id: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content_json?: Json | null
+          created_at?: string
+          id?: string
+          session_id?: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "note_docs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -43,6 +108,116 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      rooms: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          room_tag: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          room_tag: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          room_tag?: string
+        }
+        Relationships: []
+      }
+      sessions: {
+        Row: {
+          course_id: string
+          created_at: string
+          created_by: string
+          end_time: string | null
+          id: string
+          late_join_cutoff: string | null
+          room_id: string | null
+          start_time: string
+          status: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          created_by: string
+          end_time?: string | null
+          id?: string
+          late_join_cutoff?: string | null
+          room_id?: string | null
+          start_time?: string
+          status?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          created_by?: string
+          end_time?: string | null
+          id?: string
+          late_join_cutoff?: string | null
+          room_id?: string | null
+          start_time?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_sessions: {
+        Row: {
+          focus_seconds: number
+          id: string
+          joined_at: string
+          last_heartbeat: string | null
+          session_id: string
+          submitted_at: string | null
+          user_id: string
+        }
+        Insert: {
+          focus_seconds?: number
+          id?: string
+          joined_at?: string
+          last_heartbeat?: string | null
+          session_id: string
+          submitted_at?: string | null
+          user_id: string
+        }
+        Update: {
+          focus_seconds?: number
+          id?: string
+          joined_at?: string
+          last_heartbeat?: string | null
+          session_id?: string
+          submitted_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_sessions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

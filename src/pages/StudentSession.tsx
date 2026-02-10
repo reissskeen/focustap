@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { BookOpen, Send, Download, Copy, Check } from "lucide-react";
@@ -7,19 +7,51 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import FocusTimer from "@/components/FocusTimer";
 import NotesEditor from "@/components/NotesEditor";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 const StudentSession = () => {
   const { sessionId } = useParams();
   const [submitted, setSubmitted] = useState(false);
   const [copied, setCopied] = useState(false);
   const [notesContent, setNotesContent] = useState<object | null>(null);
-
-  const sessionInfo = {
-    course: "AP Computer Science",
-    teacher: "Ms. Rodriguez",
-    date: "Feb 10, 2026",
+  const [sessionInfo, setSessionInfo] = useState({
+    course: "Loading…",
+    teacher: "",
+    date: format(new Date(), "MMM d, yyyy"),
     session: sessionId || "demo",
-  };
+  });
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      if (!sessionId) return;
+      const { data } = await supabase
+        .from("sessions")
+        .select("id, start_time, course_id, courses(name, section, teacher_user_id)")
+        .eq("id", sessionId)
+        .maybeSingle();
+
+      if (data) {
+        const course = data.courses as any;
+        let teacherName = "Unknown Teacher";
+        if (course?.teacher_user_id) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("display_name")
+            .eq("user_id", course.teacher_user_id)
+            .maybeSingle();
+          teacherName = profile?.display_name ?? "Unknown Teacher";
+        }
+        setSessionInfo({
+          course: course?.name ?? "Unknown Course",
+          teacher: teacherName,
+          date: format(new Date(data.start_time), "MMM d, yyyy"),
+          session: sessionId,
+        });
+      }
+    };
+    fetchSession();
+  }, [sessionId]);
 
   const handleSubmit = () => {
     setSubmitted(true);
