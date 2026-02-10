@@ -1,0 +1,115 @@
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, Clock } from "lucide-react";
+
+interface FocusTimerProps {
+  sessionActive: boolean;
+  onFocusUpdate?: (seconds: number) => void;
+}
+
+const FocusTimer = ({ sessionActive, onFocusUpdate }: FocusTimerProps) => {
+  const [focusSeconds, setFocusSeconds] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startTracking = useCallback(() => {
+    if (intervalRef.current) return;
+    intervalRef.current = setInterval(() => {
+      setFocusSeconds((prev) => {
+        const next = prev + 1;
+        onFocusUpdate?.(next);
+        return next;
+      });
+    }, 1000);
+  }, [onFocusUpdate]);
+
+  const stopTracking = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!sessionActive) {
+      stopTracking();
+      return;
+    }
+
+    const handleVisibility = () => {
+      const visible = document.visibilityState === "visible";
+      setIsVisible(visible);
+      if (visible) startTracking();
+      else stopTracking();
+    };
+
+    const handleFocus = () => { setIsVisible(true); startTracking(); };
+    const handleBlur = () => { setIsVisible(false); stopTracking(); };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("blur", handleBlur);
+
+    if (document.visibilityState === "visible") startTracking();
+
+    return () => {
+      stopTracking();
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, [sessionActive, startTracking, stopTracking]);
+
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
+
+  const status = !sessionActive ? "inactive" : isVisible ? "active" : "paused";
+  const statusLabel = status === "active" ? "Focused" : status === "paused" ? "Paused" : "Inactive";
+  const statusColor = status === "active" ? "bg-focus-active" : status === "paused" ? "bg-focus-paused" : "bg-focus-inactive";
+
+  return (
+    <div className="glass-card rounded-xl p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">Focus Time</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <motion.div
+            className={`w-2.5 h-2.5 rounded-full ${statusColor}`}
+            animate={status === "active" ? { scale: [1, 1.3, 1] } : {}}
+            transition={{ repeat: Infinity, duration: 2 }}
+          />
+          <span className="text-xs font-medium text-muted-foreground">{statusLabel}</span>
+        </div>
+      </div>
+
+      <div className="text-center">
+        <motion.div
+          className={`inline-flex items-center justify-center w-28 h-28 rounded-full border-4 ${
+            status === "active" ? "border-focus-active focus-pulse" : status === "paused" ? "border-focus-paused" : "border-focus-inactive"
+          }`}
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
+        >
+          <span className="font-display text-3xl font-bold">{formatTime(focusSeconds)}</span>
+        </motion.div>
+      </div>
+
+      <div className="flex items-center justify-center gap-1.5 mt-4 text-xs text-muted-foreground">
+        {isVisible ? (
+          <><Eye className="w-3.5 h-3.5" /> Tab active</>
+        ) : (
+          <><EyeOff className="w-3.5 h-3.5" /> Tab hidden — focus paused</>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default FocusTimer;
