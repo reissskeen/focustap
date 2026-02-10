@@ -118,13 +118,16 @@ const TeacherDashboard = () => {
             >
               <div className="glass-card rounded-xl p-8 flex flex-col items-center">
                 <QRCodeSVG
-                  value="https://focustap.app/launch?session_id=demo-123"
+                  value={`${window.location.origin}/launch?session_id=demo-123`}
                   size={200}
                   bgColor="transparent"
                   fgColor="hsl(200 25% 10%)"
                   level="M"
                 />
                 <p className="mt-4 text-sm text-muted-foreground">Scan to join session</p>
+                <p className="mt-1 text-xs text-muted-foreground font-mono break-all max-w-[250px] text-center">
+                  {window.location.origin}/launch?session_id=demo-123
+                </p>
               </div>
             </motion.div>
           )}
