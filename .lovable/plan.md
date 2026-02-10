@@ -1,98 +1,83 @@
 
 
-# Session Launch & Entry Points
+# Teacher: Start Session Flow
 
-## What exists today
-- A hardcoded QR code in the Teacher Dashboard pointing to `https://focustap.app/launch?session_id=demo-123` (non-functional)
-- LTI endpoint URLs displayed as text stubs on the login page (non-functional)
-- A `/session/:sessionId` frontend route that renders the student note-taking page with hardcoded demo data
-- No database tables for courses, sessions, or rooms
-- No backend edge function for launch resolution
+## Overview
+Replace the hardcoded teacher dashboard with a real session management flow. Teachers will select a course, configure optional settings, and start a session that writes to the database. The QR code and live roster will use real data.
 
-## What needs to be built
+## What will be built
 
-### 1. Database Tables (migration)
+### 1. Course Management (lightweight)
+- On first visit, if no courses exist, show a "Create Course" form (name + section)
+- Course selector dropdown for teachers with multiple courses
+- Courses are stored in the existing `courses` table
 
-Create the following tables with RLS policies:
+### 2. Start Session Dialog
+A modal/dialog triggered by the "Start Session" button with:
+- **Course selector** (pre-filled if only one course)
+- **Room assignment** (optional dropdown of existing rooms)
+- **Session duration** (optional, in minutes -- e.g. 45, 60, 90, or custom)
+- **Late-join cutoff** (optional, in minutes after start -- e.g. 10, 15, or none)
+- "Start" button that inserts a row into `sessions` with `status = 'active'`
 
-- **courses** -- id, name, section, lms_course_id, teacher_user_id, created_at
-- **rooms** -- id, name, room_tag (the NFC/QR identifier), created_at
-- **sessions** -- id, course_id (FK to courses), room_id (FK to rooms, nullable), start_time, end_time, late_join_cutoff (nullable), status (enum: active/ended), created_by (user_id), created_at
-- **student_sessions** -- id, user_id, session_id (FK), focus_seconds (default 0), joined_at, last_heartbeat, submitted_at (nullable)
-- **note_docs** -- id, user_id, session_id (FK), content_json (jsonb), created_at, updated_at, submitted_at (nullable)
+### 3. Active Session View
+Once a session is started:
+- Header shows real course name, section, and date
+- QR code uses the real session ID: `/launch?session_id={real_uuid}`
+- "End Session" button updates the session's `status` to `ended`
+- Live roster queries `student_sessions` joined with `profiles` for display names
+- Stats (student count, active count, avg focus) computed from real `student_sessions` data
 
-RLS policies:
-- Teachers can read/create/update sessions for their own courses
-- Students can read sessions they've joined; can insert/update their own student_sessions and note_docs
-- Courses visible to enrolled users (simplified for MVP: visible to all authenticated users)
-
-### 2. Backend Edge Function: `launch`
-
-Create `supabase/functions/launch/index.ts` that:
-
-1. Accepts GET requests with query params: `session_id`, `course_id` + `section_id`, or `room_id`
-2. Resolves to an active session using priority order:
-   - **session_id** -- direct lookup in sessions table where status = 'active'
-   - **course_id + section_id** -- find course by lms_course_id + section, then find active session for that course
-   - **room_id** -- find room by room_tag, then find active session assigned to that room where current time is within start/end window
-3. Returns JSON with the resolved session ID and metadata, or an error message ("No active class session")
-4. Requires authentication (checks auth token)
-
-### 3. Frontend `/launch` Route
-
-Create `src/pages/Launch.tsx`:
-
-1. A protected route that reads query params from the URL
-2. Calls the `launch` edge function with those params
-3. On success: redirects to `/session/{resolved_session_id}`
-4. On failure: shows a clean "No active class session" message with a retry option and link back to home
-
-### 4. Update Existing Components
-
-- **App.tsx** -- add `/launch` route
-- **TeacherDashboard.tsx** -- update QR code to use real launch URL with the project's preview domain
-- **StudentSession.tsx** -- fetch session metadata from the database instead of using hardcoded values
+### 4. Pre-Session State
+When no session is active:
+- Show a landing state with the "Start Session" button prominently
+- Display past sessions summary (optional, simple list)
 
 ## Technical Details
 
-### Edge Function Structure
+### Database
+No new tables needed -- uses existing `courses`, `sessions`, `student_sessions`, and `profiles` tables.
+
+The teacher must have the `teacher` role in `user_roles` to create courses and sessions (enforced by RLS).
+
+### Component Structure
 
 ```text
-supabase/functions/launch/index.ts
+TeacherDashboard.tsx
+  |-- CourseSelector (dropdown of teacher's courses + "Add Course" option)
+  |-- StartSessionDialog (dialog with duration/cutoff settings)
+  |-- ActiveSessionView (QR, stats, live roster)
+  |-- EmptyState (no active session prompt)
 ```
 
-- CORS headers included
-- JWT verification disabled in config.toml (validated in code)
-- Uses Supabase service role client to query sessions
-- Returns: `{ session_id, course_name, teacher_name }` or `{ error: "No active class session" }`
+All components will live in the `TeacherDashboard.tsx` file to keep things simple, extracted into local sub-components.
 
-### Launch Flow
+### Key Queries
+- Fetch teacher's courses: `supabase.from('courses').select('*').eq('teacher_user_id', user.id)`
+- Create session: `supabase.from('sessions').insert({ course_id, room_id, start_time, end_time, late_join_cutoff, status: 'active', created_by: user.id })`
+- End session: `supabase.from('sessions').update({ status: 'ended', end_time: now() }).eq('id', sessionId)`
+- Live roster: `supabase.from('student_sessions').select('*, profiles!inner(display_name)').eq('session_id', activeSessionId)` -- note: this requires the service role or adjusted RLS; teachers already have a SELECT policy on `student_sessions` for their own sessions
+- Fetch rooms: `supabase.from('rooms').select('*')` (for optional room assignment)
 
+### QR Code
+Once a session is created, the QR code will render:
 ```text
-User taps QR/NFC/Canvas link
-        |
-        v
-  /launch?param=value
-        |
-        v
-  Launch page calls edge function
-        |
-        v
-  Edge function resolves session
-        |
-    +---+---+
-    |       |
-  Found   Not found
-    |       |
-    v       v
-  Redirect  "No active
-  to        class session"
-  /session/id
+{window.location.origin}/launch?session_id={session.id}
 ```
 
-### Migration SQL highlights
+### Realtime (live roster)
+Subscribe to `student_sessions` changes for the active session to update the roster without polling:
+```typescript
+supabase.channel('roster')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'student_sessions', filter: `session_id=eq.${sessionId}` }, handler)
+  .subscribe()
+```
 
-- Session status uses a text check (`active` / `ended`) rather than enum for flexibility
-- `student_sessions` has a unique constraint on (user_id, session_id) to prevent duplicate joins
-- Enable realtime on `student_sessions` for the teacher live view (future)
+### Flow
+1. Teacher lands on `/teacher` -- sees course selector + "Start Session" button
+2. Clicks "Start Session" -- dialog opens with settings
+3. Confirms -- session row inserted, dashboard switches to active view
+4. QR code is live, students scan and join
+5. Roster updates in real time
+6. Teacher clicks "End Session" -- session status set to `ended`, view resets
 
