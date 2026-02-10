@@ -12,12 +12,13 @@ import {
   Heading2,
   CheckSquare,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
 interface NotesEditorProps {
   initialContent?: object | null;
   onContentChange?: (json: object) => void;
   readOnly?: boolean;
+  cacheKey?: string; // e.g. "notes-{userId}-{sessionId}" for offline cache
 }
 
 const ToolbarButton = ({
@@ -40,9 +41,35 @@ const ToolbarButton = ({
   </button>
 );
 
-const NotesEditor = ({ initialContent, onContentChange, readOnly = false }: NotesEditorProps) => {
+const NotesEditor = ({ initialContent, onContentChange, readOnly = false, cacheKey }: NotesEditorProps) => {
   const autosaveRef = useRef<ReturnType<typeof setTimeout>>();
   const initialContentLoaded = useRef(false);
+  const pendingSyncRef = useRef(false);
+
+  // Offline cache helpers
+  const cacheContent = useCallback(
+    (json: object) => {
+      if (!cacheKey) return;
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify(json));
+      } catch {}
+    },
+    [cacheKey]
+  );
+
+  const getCachedContent = useCallback((): object | null => {
+    if (!cacheKey) return null;
+    try {
+      const raw = localStorage.getItem(cacheKey);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, [cacheKey]);
+
+  const clearCache = useCallback(() => {
+    if (cacheKey) localStorage.removeItem(cacheKey);
+  }, [cacheKey]);
 
   const editor = useEditor({
     extensions: [
@@ -53,21 +80,51 @@ const NotesEditor = ({ initialContent, onContentChange, readOnly = false }: Note
     ],
     editable: !readOnly,
     onUpdate: ({ editor }) => {
+      const json = editor.getJSON();
+
+      // Always cache locally for offline resilience
+      cacheContent(json);
+
       if (autosaveRef.current) clearTimeout(autosaveRef.current);
       autosaveRef.current = setTimeout(() => {
-        const json = editor.getJSON();
-        onContentChange?.(json);
+        if (navigator.onLine) {
+          onContentChange?.(json);
+          clearCache();
+        } else {
+          pendingSyncRef.current = true;
+        }
       }, 2000);
     },
   });
 
-  // Load initial content once editor and content are ready
+  // Sync pending changes when coming back online
   useEffect(() => {
-    if (editor && initialContent && !initialContentLoaded.current) {
+    const handleOnline = () => {
+      if (!pendingSyncRef.current || !editor) return;
+      const json = editor.getJSON();
+      onContentChange?.(json);
+      clearCache();
+      pendingSyncRef.current = false;
+    };
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, [editor, onContentChange, clearCache]);
+
+  // Load initial content (prefer server content, fall back to cache)
+  useEffect(() => {
+    if (!editor || initialContentLoaded.current) return;
+    const serverContent = initialContent && Object.keys(initialContent).length > 0 ? initialContent : null;
+    const cached = getCachedContent();
+    const content = serverContent ?? cached;
+    if (content) {
       initialContentLoaded.current = true;
-      editor.commands.setContent(initialContent as any);
+      editor.commands.setContent(content as any);
+      // If we loaded from cache and server had nothing, mark pending sync
+      if (!serverContent && cached) pendingSyncRef.current = true;
+    } else {
+      initialContentLoaded.current = true;
     }
-  }, [editor, initialContent]);
+  }, [editor, initialContent, getCachedContent]);
 
   // Sync readOnly prop
   useEffect(() => {
