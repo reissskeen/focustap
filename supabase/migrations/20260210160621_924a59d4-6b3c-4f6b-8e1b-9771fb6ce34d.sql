@@ -1,0 +1,1 @@
+ALTER TABLE public.note_docs ADD CONSTRAINT note_docs_user_id_session_id_key UNIQUE (user_id, session_id);

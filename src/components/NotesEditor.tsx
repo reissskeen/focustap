@@ -15,6 +15,7 @@ import {
 import { useEffect, useRef } from "react";
 
 interface NotesEditorProps {
+  initialContent?: object | null;
   onContentChange?: (json: object) => void;
   readOnly?: boolean;
 }
@@ -39,8 +40,9 @@ const ToolbarButton = ({
   </button>
 );
 
-const NotesEditor = ({ onContentChange, readOnly = false }: NotesEditorProps) => {
+const NotesEditor = ({ initialContent, onContentChange, readOnly = false }: NotesEditorProps) => {
   const autosaveRef = useRef<ReturnType<typeof setTimeout>>();
+  const initialContentLoaded = useRef(false);
 
   const editor = useEditor({
     extensions: [
@@ -58,6 +60,19 @@ const NotesEditor = ({ onContentChange, readOnly = false }: NotesEditorProps) =>
       }, 2000);
     },
   });
+
+  // Load initial content once editor and content are ready
+  useEffect(() => {
+    if (editor && initialContent && !initialContentLoaded.current) {
+      initialContentLoaded.current = true;
+      editor.commands.setContent(initialContent as any);
+    }
+  }, [editor, initialContent]);
+
+  // Sync readOnly prop
+  useEffect(() => {
+    if (editor) editor.setEditable(!readOnly);
+  }, [editor, readOnly]);
 
   useEffect(() => {
     return () => {
