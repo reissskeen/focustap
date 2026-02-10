@@ -222,6 +222,7 @@ const StudentSession = () => {
                 initialContent={initialContent}
                 onContentChange={handleContentChange}
                 readOnly={submitted}
+                cacheKey={user ? `notes-${user.id}-${sessionId}` : undefined}
               />
             </motion.div>
 
