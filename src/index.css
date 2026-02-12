@@ -181,3 +181,37 @@
   @apply text-muted-foreground pointer-events-none float-left h-0;
   content: attr(data-placeholder);
 }
+
+/* TipTap table styles */
+.tiptap table {
+  @apply border-collapse w-full mb-4;
+}
+
+.tiptap table td,
+.tiptap table th {
+  @apply border border-border p-2 min-w-[80px] text-sm;
+}
+
+.tiptap table th {
+  @apply bg-muted font-semibold text-left;
+}
+
+.tiptap table .selectedCell {
+  @apply bg-primary/10;
+}
+
+.tiptap blockquote {
+  @apply border-l-4 border-primary/30 pl-4 italic my-2 text-muted-foreground;
+}
+
+.tiptap hr {
+  @apply border-border my-4;
+}
+
+.tiptap img {
+  @apply max-w-full h-auto rounded-lg my-2;
+}
+
+.tiptap h3 {
+  @apply text-lg font-semibold mb-2;
+}
