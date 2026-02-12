@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Play, Plus, BookOpen } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -16,6 +17,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import StartSessionDialog from "@/components/teacher/StartSessionDialog";
 import CreateCourseForm from "@/components/teacher/CreateCourseForm";
 import ActiveSessionView from "@/components/teacher/ActiveSessionView";
+import ImportCanvasCourses from "@/components/teacher/ImportCanvasCourses";
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
@@ -79,6 +81,10 @@ const TeacherDashboard = () => {
     setShowCreateCourse(false);
   };
 
+  const handleCanvasImported = (imported: Tables<"courses">[]) => {
+    setCourses((prev) => [...prev, ...imported]);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -129,6 +135,7 @@ const TeacherDashboard = () => {
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
+                      <ImportCanvasCourses onCoursesImported={handleCanvasImported} />
                       <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowCreateCourse(true)}>
                         <Plus className="w-4 h-4" /> Add Course
                       </Button>
@@ -142,7 +149,12 @@ const TeacherDashboard = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {courses.map((course) => (
                       <div key={course.id} className="glass-card rounded-xl p-5 space-y-1">
-                        <h3 className="font-display font-semibold">{course.name}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-display font-semibold">{course.name}</h3>
+                          {course.lms_course_id && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Canvas</Badge>
+                          )}
+                        </div>
                         {course.section && (
                           <p className="text-sm text-muted-foreground">{course.section}</p>
                         )}
