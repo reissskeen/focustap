@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Zap, Mail, Lock, ArrowRight, Eye, EyeOff, UserPlus, LogIn } from "lucide-react";
+import { Zap, Mail, Lock, ArrowRight, Eye, EyeOff, UserPlus, LogIn, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,12 +11,13 @@ import { toast } from "sonner";
 
 type AuthMode = "login" | "signup";
 
-const Login = () => {
+const TeacherLogin = () => {
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [accessCode, setAccessCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
@@ -32,8 +33,6 @@ const Login = () => {
       const roles = (data || []).map((r) => r.role);
       if (roles.includes("teacher") || roles.includes("admin")) {
         navigate("/teacher", { replace: true });
-      } else {
-        navigate("/student", { replace: true });
       }
     };
     checkRole();
@@ -45,18 +44,41 @@ const Login = () => {
 
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
 
     if (error) {
+      setLoading(false);
       toast.error(error.message);
       return;
     }
-    toast.success("Welcome back!");
+
+    // After login, verify the user has teacher role
+    const { data: { user: loggedInUser } } = await supabase.auth.getUser();
+    if (!loggedInUser) {
+      setLoading(false);
+      toast.error("Login failed");
+      return;
+    }
+
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", loggedInUser.id);
+
+    const userRoles = (roles || []).map((r) => r.role);
+    if (!userRoles.includes("teacher") && !userRoles.includes("admin")) {
+      await supabase.auth.signOut();
+      setLoading(false);
+      toast.error("This account does not have professor access. Use the student login instead.");
+      return;
+    }
+
+    setLoading(false);
+    toast.success("Welcome back, Professor!");
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!email || !password || !accessCode) return;
 
     if (password.length < 6) {
       toast.error("Password must be at least 6 characters");
@@ -68,32 +90,57 @@ const Login = () => {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+
+    // Sign up the user first
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: {
-          display_name: displayName || email.split("@")[0],
-        },
+        data: { display_name: displayName || email.split("@")[0] },
       },
     });
-    setLoading(false);
 
-    if (error) {
-      toast.error(error.message);
+    if (signUpError) {
+      setLoading(false);
+      toast.error(signUpError.message);
       return;
     }
-    toast.success("Account created! Check your email to verify, then log in.");
-    setMode("login");
-    setPassword("");
-    setConfirmPassword("");
+
+    // Now assign teacher role via edge function
+    const session = signUpData.session;
+    if (!session) {
+      setLoading(false);
+      toast.error("Account created but session not available. Please log in.");
+      setMode("login");
+      return;
+    }
+
+    const { data: fnData, error: fnError } = await supabase.functions.invoke(
+      "assign-teacher-role",
+      {
+        body: { access_code: accessCode },
+      }
+    );
+
+    if (fnError || fnData?.error) {
+      // Rollback: sign out and inform
+      await supabase.auth.signOut();
+      setLoading(false);
+      toast.error(fnData?.error || "Invalid access code. Account was not granted professor access.");
+      return;
+    }
+
+    setLoading(false);
+    toast.success("Professor account created!");
+    navigate("/teacher", { replace: true });
   };
 
   const switchMode = () => {
     setMode(mode === "login" ? "signup" : "login");
     setPassword("");
     setConfirmPassword("");
+    setAccessCode("");
   };
 
   return (
@@ -110,7 +157,6 @@ const Login = () => {
           FocusTap
         </Link>
 
-        {/* Mode Tabs */}
         <div className="flex rounded-lg bg-muted p-1 mb-6">
           <button
             onClick={() => setMode("login")}
@@ -144,12 +190,12 @@ const Login = () => {
             transition={{ duration: 0.2 }}
           >
             <h1 className="font-display text-xl font-bold mb-1 text-center">
-              {mode === "login" ? "Welcome back" : "Create your account"}
+              {mode === "login" ? "Professor Login" : "Professor Registration"}
             </h1>
             <p className="text-sm text-muted-foreground text-center mb-6">
               {mode === "login"
-                ? "Enter your credentials to continue"
-                : "Sign up with your school email"}
+                ? "Sign in to your professor account"
+                : "Create a professor account with your access code"}
             </p>
 
             <form onSubmit={mode === "login" ? handleLogin : handleSignup} className="space-y-4">
@@ -159,7 +205,7 @@ const Login = () => {
                   <Input
                     id="displayName"
                     type="text"
-                    placeholder="Your name"
+                    placeholder="Prof. Smith"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                   />
@@ -173,7 +219,7 @@ const Login = () => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="you@school.edu"
+                    placeholder="you@university.edu"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
@@ -207,22 +253,40 @@ const Login = () => {
               </div>
 
               {mode === "signup" && (
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="confirmPassword"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="pl-10"
-                      required
-                      minLength={6}
-                    />
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="confirmPassword"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="pl-10"
+                        required
+                        minLength={6}
+                      />
+                    </div>
                   </div>
-                </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="accessCode">Access Code</Label>
+                    <div className="relative">
+                      <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="accessCode"
+                        type="password"
+                        placeholder="Enter professor access code"
+                        value={accessCode}
+                        onChange={(e) => setAccessCode(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+                </>
               )}
 
               <Button type="submit" className="w-full gap-2" disabled={loading}>
@@ -231,7 +295,7 @@ const Login = () => {
                 ) : mode === "login" ? (
                   <>Log In <ArrowRight className="w-4 h-4" /></>
                 ) : (
-                  <>Create Account <ArrowRight className="w-4 h-4" /></>
+                  <>Create Professor Account <ArrowRight className="w-4 h-4" /></>
                 )}
               </Button>
             </form>
@@ -246,9 +310,9 @@ const Login = () => {
         </p>
 
         <p className="text-xs text-muted-foreground text-center mt-3">
-          Professor?{" "}
-          <Link to="/teacher-login" className="text-primary hover:underline font-medium">
-            Go to professor login
+          Student?{" "}
+          <Link to="/login" className="text-primary hover:underline font-medium">
+            Go to student login
           </Link>
         </p>
       </motion.div>
@@ -256,4 +320,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default TeacherLogin;
