@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Zap, Clock, Wifi, WifiOff, Play, Loader2 } from "lucide-react";
+import { BookOpen, Zap, Clock, Wifi, WifiOff, Play, Loader2, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
@@ -143,7 +143,12 @@ const StudentDashboard = () => {
                 {courses.length} class{courses.length !== 1 ? "es" : ""} enrolled
               </p>
             </div>
-            <ConnectionIndicator status={activeSession ? heartbeatStatus : "idle"} />
+            <div className="flex items-center gap-3">
+              <Button size="sm" className="gap-1.5" onClick={() => navigate("/join")}>
+                <Plus className="w-4 h-4" /> Join Class
+              </Button>
+              <ConnectionIndicator status={activeSession ? heartbeatStatus : "idle"} />
+            </div>
           </motion.div>
 
           {/* Stats Row */}
