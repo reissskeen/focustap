@@ -88,14 +88,14 @@ const Index = () => {
               no monitoring, no hardware. Just engagement data that matters.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/session/demo">
+              <Link to="/login?mode=login">
                 <Button size="lg" className="text-base px-8 gap-2">
-                  Try Student View <ArrowRight className="w-4 h-4" />
+                  Student Login <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
-              <Link to="/teacher">
+              <Link to="/teacher-login?mode=login">
                 <Button size="lg" variant="outline" className="text-base px-8">
-                  Teacher Dashboard
+                  Professor Login
                 </Button>
               </Link>
             </div>
