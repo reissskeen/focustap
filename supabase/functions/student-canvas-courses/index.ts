@@ -95,9 +95,36 @@ Deno.serve(async (req) => {
       if (session?.course_id) joinedCourseIds.add(session.course_id);
     }
 
+    // Check which courses the student is waitlisted for
+    const { data: waitlistEntries } = await supabase
+      .from("course_waitlist")
+      .select("course_id")
+      .eq("user_id", userId);
+
+    const waitlistedCourseIds = new Set<string>();
+    for (const w of waitlistEntries || []) {
+      waitlistedCourseIds.add(w.course_id);
+    }
+
+    // Check which platform courses have active sessions
+    const platformCourseIds = (existingCourses || []).map((c: any) => c.id);
+    const { data: activeSessions } = platformCourseIds.length > 0
+      ? await supabase
+          .from("sessions")
+          .select("id, course_id")
+          .in("course_id", platformCourseIds)
+          .eq("status", "active")
+      : { data: [] };
+
+    const activeSessionMap = new Map<string, string>();
+    for (const s of activeSessions || []) {
+      activeSessionMap.set(s.course_id, s.id);
+    }
+
     const courses = allCourses.map((cc: any) => {
       const lmsId = String(cc.id);
       const matchedCourse = (existingCourses || []).find((ec: any) => ec.lms_course_id === lmsId);
+      const activeSessionId = matchedCourse ? activeSessionMap.get(matchedCourse.id) || null : null;
       return {
         canvas_course_id: lmsId,
         name: cc.name,
@@ -106,6 +133,8 @@ Deno.serve(async (req) => {
         platform_course_id: matchedCourse?.id || null,
         platform_course_name: matchedCourse?.name || null,
         already_joined: matchedCourse ? joinedCourseIds.has(matchedCourse.id) : false,
+        waitlisted: matchedCourse ? waitlistedCourseIds.has(matchedCourse.id) : false,
+        active_session_id: activeSessionId,
       };
     });
 
