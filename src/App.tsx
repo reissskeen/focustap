@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 import Index from "./pages/Index";
 import StudentSession from "./pages/StudentSession";
 import StudentDashboard from "./pages/StudentDashboard";
@@ -26,19 +27,19 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/student" element={
-              <ProtectedRoute><StudentDashboard /></ProtectedRoute>
+              <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><StudentDashboard /></RoleProtectedRoute>
             } />
             <Route path="/session/:sessionId" element={
-              <ProtectedRoute><StudentSession /></ProtectedRoute>
+              <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><StudentSession /></RoleProtectedRoute>
             } />
             <Route path="/teacher" element={
-              <ProtectedRoute><TeacherDashboard /></ProtectedRoute>
+              <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/login"><TeacherDashboard /></RoleProtectedRoute>
             } />
             <Route path="/launch" element={
-              <ProtectedRoute><Launch /></ProtectedRoute>
+              <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/login"><Launch /></RoleProtectedRoute>
             } />
             <Route path="/join" element={
-              <ProtectedRoute><JoinClass /></ProtectedRoute>
+              <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><JoinClass /></RoleProtectedRoute>
             } />
             <Route path="/login" element={<Login />} />
             <Route path="*" element={<NotFound />} />
