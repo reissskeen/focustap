@@ -11,6 +11,7 @@ import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import Launch from "./pages/Launch";
 import Login from "./pages/Login";
+import JoinClass from "./pages/JoinClass";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,9 @@ const App = () => (
             } />
             <Route path="/launch" element={
               <ProtectedRoute><Launch /></ProtectedRoute>
+            } />
+            <Route path="/join" element={
+              <ProtectedRoute><JoinClass /></ProtectedRoute>
             } />
             <Route path="/login" element={<Login />} />
             <Route path="*" element={<NotFound />} />
