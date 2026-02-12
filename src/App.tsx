@@ -9,6 +9,7 @@ import RoleProtectedRoute from "@/components/RoleProtectedRoute";
 import Index from "./pages/Index";
 import StudentSession from "./pages/StudentSession";
 import StudentDashboard from "./pages/StudentDashboard";
+import CourseWorkspace from "./pages/CourseWorkspace";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import Launch from "./pages/Launch";
 import Login from "./pages/Login";
@@ -32,6 +33,9 @@ const App = () => (
             } />
             <Route path="/session/:sessionId" element={
               <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><StudentSession /></RoleProtectedRoute>
+            } />
+            <Route path="/course/:courseId" element={
+              <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><CourseWorkspace /></RoleProtectedRoute>
             } />
             <Route path="/teacher" element={
               <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><TeacherDashboard /></RoleProtectedRoute>

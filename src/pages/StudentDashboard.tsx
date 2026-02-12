@@ -244,6 +244,9 @@ const StudentDashboard = () => {
                       {course.section && (
                         <p className="text-sm text-muted-foreground">{course.section}</p>
                       )}
+                      <Button variant="ghost" size="sm" className="gap-1.5 mt-2 text-primary" onClick={() => navigate(`/course/${course.id}`)}>
+                        Enter Class →
+                      </Button>
                     </div>
                   ))}
                 </div>

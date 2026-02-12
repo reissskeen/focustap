@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Play, Clock, Loader2, Bell, BellOff, CheckCircle2 } from "lucide-react";
+import { BookOpen, Play, Clock, Loader2, Bell, BellOff, CheckCircle2, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -179,15 +179,17 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
                     />
                     <span className="text-xs font-medium text-focus-active">Live Now</span>
                   </div>
-                  <Button
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => handleJoinSession(course)}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
-                    Join
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => handleJoinSession(course)}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+                      Join Session
+                    </Button>
+                  </div>
                 </>
               ) : isOnPlatform ? (
                 <>
@@ -226,6 +228,18 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
                 </div>
               )}
             </div>
+
+            {/* Enter Class button - always available for prototype */}
+            {isOnPlatform && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="w-full gap-1.5 mt-1 text-primary"
+                onClick={() => navigate(`/course/${course.platform_course_id}`)}
+              >
+                <ArrowRight className="w-3.5 h-3.5" /> Enter Class
+              </Button>
+            )}
           </motion.div>
         );
       })}
