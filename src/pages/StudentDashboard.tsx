@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Zap, Clock, Wifi, WifiOff, Play, Loader2, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import ImportCanvasCourses from "@/components/student/ImportCanvasCourses";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -147,6 +148,7 @@ const StudentDashboard = () => {
               <Button size="sm" className="gap-1.5" onClick={() => navigate("/join")}>
                 <Plus className="w-4 h-4" /> Join Class
               </Button>
+              <ImportCanvasCourses onCoursesImported={() => window.location.reload()} />
               <ConnectionIndicator status={activeSession ? heartbeatStatus : "idle"} />
             </div>
           </motion.div>
