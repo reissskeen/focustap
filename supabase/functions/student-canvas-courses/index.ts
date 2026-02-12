@@ -37,7 +37,6 @@ Deno.serve(async (req) => {
   }
 
   const userId = claimsData.claims.sub as string;
-  const userEmail = claimsData.claims.email as string;
 
   const canvasBaseUrl = Deno.env.get("CANVAS_BASE_URL");
   const canvasApiToken = Deno.env.get("CANVAS_API_TOKEN");
@@ -50,56 +49,41 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Search for user in Canvas by email
-    const searchUrl = `${canvasBaseUrl}/api/v1/users?search_term=${encodeURIComponent(userEmail)}&per_page=5`;
-    const userRes = await fetch(searchUrl, {
-      headers: { Authorization: `Bearer ${canvasApiToken}` },
-    });
+    // Fetch all courses via pagination using /users/self/courses
+    const allCourses: any[] = [];
+    let url: string | null = `${canvasBaseUrl}/api/v1/users/self/courses?enrollment_state=active&per_page=50&include[]=term`;
 
-    if (!userRes.ok) {
-      return new Response(
-        JSON.stringify({ error: "Failed to search Canvas for your account" }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    while (url) {
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${canvasApiToken}` },
+      });
+
+      if (!res.ok) {
+        const body = await res.text();
+        return new Response(
+          JSON.stringify({ error: `Canvas API error`, status: res.status, canvas_response: body }),
+          { status: res.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const data = await res.json();
+      allCourses.push(...data);
+
+      // Parse Link header for pagination
+      const linkHeader = res.headers.get("Link");
+      url = null;
+      if (linkHeader) {
+        const nextMatch = linkHeader.match(/<([^>]+)>;\s*rel="next"/);
+        if (nextMatch) url = nextMatch[1];
+      }
     }
 
-    const canvasUsers = await userRes.json();
-    
-    // Find exact email match
-    const canvasUser = canvasUsers.find(
-      (u: any) => u.email?.toLowerCase() === userEmail.toLowerCase() || u.login_id?.toLowerCase() === userEmail.toLowerCase()
-    );
-
-    if (!canvasUser) {
-      return new Response(
-        JSON.stringify({ error: "No Canvas account found for your email", courses: [] }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Get student's Canvas courses (as student enrollment)
-    const coursesUrl = `${canvasBaseUrl}/api/v1/users/${canvasUser.id}/courses?enrollment_type=student&enrollment_state=active&state[]=available&per_page=50&include[]=term`;
-    const coursesRes = await fetch(coursesUrl, {
-      headers: { Authorization: `Bearer ${canvasApiToken}` },
-    });
-
-    if (!coursesRes.ok) {
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch Canvas courses" }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const canvasCourses = await coursesRes.json();
-
-    // Get existing courses in our system to show which ones are already imported
+    // Check which courses exist on our platform
     const { data: existingCourses } = await supabase
       .from("courses")
       .select("id, name, section, lms_course_id");
 
-    const existingLmsIds = new Set((existingCourses || []).map((c: any) => c.lms_course_id).filter(Boolean));
-
-    // Check which courses the student has already joined via student_sessions
+    // Check which courses the student already joined
     const { data: studentSessions } = await supabase
       .from("student_sessions")
       .select("session_id, sessions(course_id)")
@@ -111,8 +95,7 @@ Deno.serve(async (req) => {
       if (session?.course_id) joinedCourseIds.add(session.course_id);
     }
 
-    // Map Canvas courses and indicate availability
-    const courses = canvasCourses.map((cc: any) => {
+    const courses = allCourses.map((cc: any) => {
       const lmsId = String(cc.id);
       const matchedCourse = (existingCourses || []).find((ec: any) => ec.lms_course_id === lmsId);
       return {
@@ -120,7 +103,6 @@ Deno.serve(async (req) => {
         name: cc.name,
         course_code: cc.course_code || null,
         term: cc.term?.name || null,
-        // Whether a course exists in our platform matching this Canvas course
         platform_course_id: matchedCourse?.id || null,
         platform_course_name: matchedCourse?.name || null,
         already_joined: matchedCourse ? joinedCourseIds.has(matchedCourse.id) : false,
@@ -134,7 +116,7 @@ Deno.serve(async (req) => {
   } catch (err) {
     console.error("Canvas student courses error:", err);
     return new Response(
-      JSON.stringify({ error: "Internal error fetching Canvas courses" }),
+      JSON.stringify({ error: "Internal error fetching Canvas courses", detail: String(err) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
