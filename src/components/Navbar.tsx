@@ -1,9 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Zap, Menu, X, LogOut } from "lucide-react";
+import { Zap, Menu, X, LogOut, ChevronDown, GraduationCap, BookOpen } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const location = useLocation();
@@ -47,23 +55,38 @@ const Navbar = () => {
 
             <div className="hidden md:flex items-center gap-3">
               {user ? (
-                <>
-                  <Link to="/session/demo">
-                    <Button variant="ghost" size="sm">Session</Button>
-                  </Link>
-                  <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
-                    <LogOut className="w-3.5 h-3.5" /> Sign out
-                  </Button>
-                </>
+                <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
+                  <LogOut className="w-3.5 h-3.5" /> Sign out
+                </Button>
               ) : (
-                <>
-                  <Link to="/login">
-                    <Button variant="ghost" size="sm">Log in</Button>
-                  </Link>
-                  <Link to="/login">
-                    <Button size="sm">Get Started</Button>
-                  </Link>
-                </>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" className="gap-1.5">
+                      Get Started <ChevronDown className="w-3.5 h-3.5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuLabel className="flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4" /> Student
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link to="/login?mode=login" className="w-full cursor-pointer">Log in</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/login?mode=signup" className="w-full cursor-pointer">Sign up</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel className="flex items-center gap-2">
+                      <BookOpen className="w-4 h-4" /> Professor
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link to="/teacher-login?mode=login" className="w-full cursor-pointer">Log in</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/teacher-login?mode=signup" className="w-full cursor-pointer">Sign up</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
 
@@ -117,11 +140,19 @@ const Navbar = () => {
               </Button>
             ) : (
               <>
-                <Link to="/login" onClick={() => setMobileOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full">Log in</Button>
+                <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5 mt-1"><GraduationCap className="w-3.5 h-3.5" /> Student</p>
+                <Link to="/login?mode=login" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full justify-start">Log in</Button>
                 </Link>
-                <Link to="/login" onClick={() => setMobileOpen(false)}>
-                  <Button size="sm" className="w-full">Get Started</Button>
+                <Link to="/login?mode=signup" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full justify-start">Sign up</Button>
+                </Link>
+                <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5 mt-2"><BookOpen className="w-3.5 h-3.5" /> Professor</p>
+                <Link to="/teacher-login?mode=login" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full justify-start">Log in</Button>
+                </Link>
+                <Link to="/teacher-login?mode=signup" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full justify-start">Sign up</Button>
                 </Link>
               </>
             )}
