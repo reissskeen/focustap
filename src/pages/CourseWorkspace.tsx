@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  BookOpen, ArrowLeft, Save, Plus, Trash2, FileText, FileSpreadsheet,
-  Presentation, Download, Loader2, FolderOpen, Check,
+  BookOpen, ArrowLeft, Plus, Trash2, FileText, FileSpreadsheet,
+  Presentation, Download, Loader2, FolderOpen, Wifi, WifiOff,
+  Plug, PlugZap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,8 +24,10 @@ import {
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import NotesEditor from "@/components/NotesEditor";
+import FocusTimer from "@/components/FocusTimer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHeartbeat } from "@/hooks/useHeartbeat";
 import { exportToDocx, exportToXlsx, exportToPptx } from "@/lib/exportNotes";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -49,7 +52,18 @@ const CourseWorkspace = () => {
   const [loading, setLoading] = useState(true);
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [newTitle, setNewTitle] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Connection/check-in state
+  const [connected, setConnected] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [connecting, setConnecting] = useState(false);
+
+  // Heartbeat - only active when connected
+  const { status: heartbeatStatus, focusSeconds } = useHeartbeat({
+    sessionId: sessionId ?? undefined,
+    userId: user?.id,
+    enabled: connected && !!sessionId,
+  });
 
   // Fetch course info + notes
   useEffect(() => {
@@ -74,7 +88,6 @@ const CourseWorkspace = () => {
       }));
       setNotes(mapped);
 
-      // Auto-select first or create default
       if (mapped.length > 0) {
         setActiveNoteId(mapped[0].id);
         setInitialContent(mapped[0].content_json as object | null);
@@ -83,6 +96,64 @@ const CourseWorkspace = () => {
     };
     load();
   }, [courseId, user]);
+
+  // Connect: find or create session, then join it
+  const handleConnect = async () => {
+    if (!courseId || !user) return;
+    setConnecting(true);
+    try {
+      // 1. Look for an active session for this course
+      let { data: session } = await supabase
+        .from("sessions")
+        .select("id")
+        .eq("course_id", courseId)
+        .eq("status", "active")
+        .maybeSingle();
+
+      // 2. If none, create one (prototype mode)
+      if (!session) {
+        const { data: newSession, error: createErr } = await supabase
+          .from("sessions")
+          .insert({
+            course_id: courseId,
+            created_by: user.id,
+            status: "active",
+          })
+          .select("id")
+          .single();
+        if (createErr) throw createErr;
+        session = newSession;
+      }
+
+      // 3. Join the session (upsert student_sessions)
+      const { error: joinErr } = await supabase
+        .from("student_sessions")
+        .upsert(
+          {
+            user_id: user.id,
+            session_id: session!.id,
+            joined_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id,session_id" }
+        );
+      if (joinErr) throw joinErr;
+
+      setSessionId(session!.id);
+      setConnected(true);
+      toast.success("Connected! You're checked in and focus tracking has started.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to connect");
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  // Disconnect
+  const handleDisconnect = async () => {
+    setConnected(false);
+    setSessionId(null);
+    toast.info("Disconnected from class session");
+  };
 
   // Switch active note
   const switchNote = (note: NoteDoc) => {
@@ -141,7 +212,6 @@ const CourseWorkspace = () => {
         .eq("id", activeNoteId)
         .eq("user_id", user.id);
       setSaveStatus(error ? "error" : "saved");
-      // Update local state
       setNotes((prev) =>
         prev.map((n) => (n.id === activeNoteId ? { ...n, content_json: json, updated_at: new Date().toISOString() } : n))
       );
@@ -149,7 +219,7 @@ const CourseWorkspace = () => {
     [activeNoteId, user]
   );
 
-  // Save to Files (upload JSON to storage)
+  // Save to Files
   const saveToFiles = async () => {
     if (!user || !courseId || !activeNoteId) return;
     const activeNote = notes.find((n) => n.id === activeNoteId);
@@ -199,15 +269,63 @@ const CourseWorkspace = () => {
               </Button>
               <BookOpen className="w-5 h-5 text-primary" />
               <h1 className="font-display text-2xl font-bold">{courseName}</h1>
-              <div className="ml-auto flex items-center gap-2">
+              <div className="ml-auto flex items-center gap-3">
+                {connected && (
+                  <div className="flex items-center gap-2">
+                    {heartbeatStatus === "connected" ? (
+                      <Wifi className="w-3.5 h-3.5 text-focus-active" />
+                    ) : (
+                      <WifiOff className="w-3.5 h-3.5 text-destructive" />
+                    )}
+                    <span className="text-xs text-muted-foreground">
+                      {heartbeatStatus === "connected" ? "Connected" : "Reconnecting…"}
+                    </span>
+                  </div>
+                )}
                 {saveLabel && <span className="text-xs text-muted-foreground">{saveLabel}</span>}
               </div>
             </div>
           </motion.div>
 
+          {/* Connect Banner */}
+          {!connected && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="mb-6"
+            >
+              <div className="glass-card rounded-xl p-8 text-center border-2 border-dashed border-primary/30">
+                <motion.div
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                >
+                  <Plug className="w-12 h-12 text-primary mx-auto mb-4" />
+                  <h2 className="font-display text-xl font-bold mb-2">Ready to check in?</h2>
+                  <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+                    Connect to start your focus tracking, log attendance, and let your professor know you're here.
+                  </p>
+                  <Button
+                    size="lg"
+                    className="gap-2 px-8"
+                    onClick={handleConnect}
+                    disabled={connecting}
+                  >
+                    {connecting ? (
+                      <><Loader2 className="w-5 h-5 animate-spin" /> Connecting…</>
+                    ) : (
+                      <><PlugZap className="w-5 h-5" /> Connect</>
+                    )}
+                  </Button>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Main Layout */}
-          <div className="grid lg:grid-cols-[250px_1fr] gap-6">
-            {/* Sidebar - Notes List + Files */}
+          <div className="grid lg:grid-cols-[250px_1fr_300px] gap-6">
+            {/* Sidebar - Notes List */}
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
               <div className="glass-card rounded-xl p-4">
                 <div className="flex items-center justify-between mb-3">
@@ -288,6 +406,60 @@ const CourseWorkspace = () => {
                       <Plus className="w-4 h-4 mr-1" /> New Note
                     </Button>
                   </div>
+                </div>
+              )}
+            </motion.div>
+
+            {/* Right Sidebar - Focus & Connection */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 }}
+              className="space-y-4"
+            >
+              {connected && (
+                <>
+                  <FocusTimer sessionActive={connected} onFocusUpdate={() => {}} />
+
+                  <div className="glass-card rounded-xl p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <motion.div
+                        className="w-2.5 h-2.5 rounded-full bg-focus-active"
+                        animate={{ scale: [1, 1.3, 1] }}
+                        transition={{ repeat: Infinity, duration: 1.5 }}
+                      />
+                      <span className="text-sm font-semibold text-focus-active">Checked In</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Your attendance is being logged and your professor can see you're active.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full gap-2 text-destructive hover:text-destructive"
+                      onClick={handleDisconnect}
+                    >
+                      <WifiOff className="w-3.5 h-3.5" /> Disconnect
+                    </Button>
+                  </div>
+                </>
+              )}
+
+              {!connected && (
+                <div className="glass-card rounded-xl p-5 text-center">
+                  <Plug className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">
+                    Connect to start focus tracking and log attendance
+                  </p>
+                  <Button
+                    size="sm"
+                    className="mt-3 gap-1.5"
+                    onClick={handleConnect}
+                    disabled={connecting}
+                  >
+                    {connecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <PlugZap className="w-3.5 h-3.5" />}
+                    Connect
+                  </Button>
                 </div>
               )}
             </motion.div>
