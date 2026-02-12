@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BookOpen, Send, Download, Copy, Check, Loader2 } from "lucide-react";
+import { BookOpen, Send, Download, Copy, Check, Loader2, Wifi, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
@@ -9,6 +9,7 @@ import FocusTimer from "@/components/FocusTimer";
 import NotesEditor from "@/components/NotesEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHeartbeat } from "@/hooks/useHeartbeat";
 import { format } from "date-fns";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -28,9 +29,14 @@ const StudentSession = () => {
     session: sessionId || "demo",
   });
 
-  const heartbeatRef = useRef<ReturnType<typeof setTimeout>>();
-  const lastHeartbeatSeconds = useRef(0);
   const editorRef = useRef<{ getText: () => string } | null>(null);
+
+  // Heartbeat system
+  const { status: heartbeatStatus } = useHeartbeat({
+    sessionId,
+    userId: user?.id,
+    enabled: !submitted && !loading,
+  });
 
   // Fetch session info
   useEffect(() => {
@@ -123,22 +129,9 @@ const StudentSession = () => {
     [sessionId, user, submitted]
   );
 
-  // Focus heartbeat — throttle to every 15s
-  const handleFocusUpdate = useCallback(
-    (seconds: number) => {
-      if (!sessionId || !user || submitted) return;
-      if (seconds - lastHeartbeatSeconds.current < 15) return;
-      lastHeartbeatSeconds.current = seconds;
-
-      supabase
-        .from("student_sessions")
-        .update({ focus_seconds: seconds, last_heartbeat: new Date().toISOString() })
-        .eq("user_id", user.id)
-        .eq("session_id", sessionId)
-        .then();
-    },
-    [sessionId, user, submitted]
-  );
+  // Focus update is now handled by useHeartbeat hook
+  // FocusTimer is kept for visual display only
+  const handleFocusUpdate = useCallback(() => {}, []);
 
   // Submit notes
   const handleSubmit = async () => {
@@ -200,9 +193,16 @@ const StudentSession = () => {
             <div className="flex items-center gap-3 mb-1">
               <BookOpen className="w-5 h-5 text-primary" />
               <h1 className="font-display text-2xl font-bold">{sessionInfo.course}</h1>
-              {saveLabel && (
-                <span className="text-xs text-muted-foreground ml-auto">{saveLabel}</span>
-              )}
+              <div className="ml-auto flex items-center gap-2">
+                {heartbeatStatus === "connected" ? (
+                  <Wifi className="w-3.5 h-3.5 text-focus-active" />
+                ) : heartbeatStatus === "disconnected" ? (
+                  <WifiOff className="w-3.5 h-3.5 text-destructive" />
+                ) : null}
+                {saveLabel && (
+                  <span className="text-xs text-muted-foreground">{saveLabel}</span>
+                )}
+              </div>
             </div>
             <p className="text-sm text-muted-foreground">
               {sessionInfo.teacher} · {sessionInfo.date}

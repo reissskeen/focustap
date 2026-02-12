@@ -17,7 +17,21 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) navigate("/session/demo", { replace: true });
+    if (!user) return;
+    // Redirect based on role
+    const checkRole = async () => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+      const roles = (data || []).map((r) => r.role);
+      if (roles.includes("teacher") || roles.includes("admin")) {
+        navigate("/teacher", { replace: true });
+      } else {
+        navigate("/student", { replace: true });
+      }
+    };
+    checkRole();
   }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {

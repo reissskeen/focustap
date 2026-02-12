@@ -8,6 +8,13 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
+import {
+  getActivityStatus,
+  getAttendanceStatus,
+  exportRosterCSV,
+  type StudentActivityStatus,
+  type AttendanceStatus,
+} from "./AttendanceHelpers";
 
 interface RosterStudent {
   id: string;
@@ -30,9 +37,26 @@ const formatTime = (s: number) => {
   return `${m}:${String(sec).padStart(2, "0")}`;
 };
 
-const StatusDot = ({ isActive }: { isActive: boolean }) => (
-  <div className={`w-2.5 h-2.5 rounded-full ${isActive ? "bg-focus-active" : "bg-focus-inactive"}`} />
-);
+const StatusDot = ({ status }: { status: StudentActivityStatus }) => {
+  const color =
+    status === "active" ? "bg-focus-active" :
+    status === "paused" ? "bg-focus-paused" :
+    "bg-destructive";
+  return <div className={`w-2.5 h-2.5 rounded-full ${color}`} />;
+};
+
+const AttendanceBadge = ({ status }: { status: AttendanceStatus }) => {
+  const config = {
+    present: "bg-focus-active/15 text-focus-active",
+    late: "bg-focus-paused/15 text-focus-paused",
+    absent: "bg-destructive/15 text-destructive",
+  }[status];
+  return (
+    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${config} capitalize`}>
+      {status}
+    </span>
+  );
+};
 
 const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionViewProps) => {
   const [showQR, setShowQR] = useState(true);
@@ -106,10 +130,8 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
     onSessionEnded();
   };
 
-  const activeCount = roster.filter((s) => {
-    if (!s.last_heartbeat) return false;
-    return Date.now() - new Date(s.last_heartbeat).getTime() < 60000;
-  }).length;
+  const activeCount = roster.filter((s) => getActivityStatus(s.last_heartbeat) === "active").length;
+  const pausedCount = roster.filter((s) => getActivityStatus(s.last_heartbeat) === "paused").length;
 
   const avgFocus = roster.length
     ? Math.round(roster.reduce((sum, s) => sum + s.focus_seconds, 0) / roster.length)
@@ -201,7 +223,12 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
       >
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="font-display font-semibold">Live Roster</h2>
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-xs"
+            onClick={() => exportRosterCSV(roster, session.start_time, session.late_join_cutoff, course.name)}
+          >
             <Download className="w-3.5 h-3.5" /> Export CSV
           </Button>
         </div>
@@ -217,6 +244,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                 <tr className="border-b bg-muted/30">
                   <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Student</th>
                   <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Status</th>
+                  <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Attendance</th>
                   <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Focus Time</th>
                   <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Joined</th>
                   <th className="text-right text-xs font-medium text-muted-foreground px-4 py-3">Actions</th>
@@ -224,9 +252,9 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
               </thead>
               <tbody>
                 {roster.map((student) => {
-                  const isActive =
-                    !!student.last_heartbeat &&
-                    Date.now() - new Date(student.last_heartbeat).getTime() < 60000;
+                  const activity = getActivityStatus(student.last_heartbeat);
+                  const attendance = getAttendanceStatus(student.joined_at, session.start_time, session.late_join_cutoff);
+                  const activityLabel = activity === "active" ? "Active" : activity === "paused" ? "Paused" : "Disconnected";
                   return (
                     <tr key={student.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
                       <td className="px-4 py-3">
@@ -234,9 +262,12 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <StatusDot isActive={isActive} />
-                          <span className="text-sm text-muted-foreground">{isActive ? "Active" : "Idle"}</span>
+                          <StatusDot status={activity} />
+                          <span className="text-sm text-muted-foreground">{activityLabel}</span>
                         </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <AttendanceBadge status={attendance} />
                       </td>
                       <td className="px-4 py-3">
                         <span className="font-mono text-sm">{formatTime(student.focus_seconds)}</span>
