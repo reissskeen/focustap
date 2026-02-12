@@ -100,18 +100,44 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
     if (!course.active_session_id) return;
     setActionLoading(course.canvas_course_id);
     try {
-      // Upsert student_session
       const { error } = await supabase
         .from("student_sessions")
         .upsert(
           { user_id: userId, session_id: course.active_session_id },
           { onConflict: "user_id,session_id" }
         );
-
       if (error) throw error;
       navigate(`/session/${course.active_session_id}`);
     } catch (err: any) {
       toast.error(err.message || "Failed to join session");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // For prototype: auto-create platform course if needed, then navigate
+  const handleEnterClass = async (course: CanvasCourse) => {
+    setActionLoading(course.canvas_course_id);
+    try {
+      let courseId = course.platform_course_id;
+      if (!courseId) {
+        // Auto-create a course record for this Canvas course
+        const { data, error } = await supabase
+          .from("courses")
+          .insert({
+            name: course.name,
+            section: course.course_code,
+            lms_course_id: course.canvas_course_id,
+            teacher_user_id: userId, // prototype: student creates it
+          })
+          .select("id")
+          .single();
+        if (error) throw error;
+        courseId = data.id;
+      }
+      navigate(`/course/${courseId}`);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to enter class");
     } finally {
       setActionLoading(null);
     }
@@ -230,16 +256,16 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
             </div>
 
             {/* Enter Class button - always available for prototype */}
-            {isOnPlatform && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="w-full gap-1.5 mt-1 text-primary"
-                onClick={() => navigate(`/course/${course.platform_course_id}`)}
-              >
-                <ArrowRight className="w-3.5 h-3.5" /> Enter Class
-              </Button>
-            )}
+            <Button
+              size="sm"
+              variant="ghost"
+              className="w-full gap-1.5 mt-1 text-primary"
+              onClick={() => handleEnterClass(course)}
+              disabled={isLoading}
+            >
+              {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowRight className="w-3.5 h-3.5" />}
+              Enter Class
+            </Button>
           </motion.div>
         );
       })}
