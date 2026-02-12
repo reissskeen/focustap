@@ -43,20 +43,13 @@ const FocusTimer = ({ sessionActive, onFocusUpdate }: FocusTimerProps) => {
       else stopTracking();
     };
 
-    const handleFocus = () => { setIsVisible(true); startTracking(); };
-    const handleBlur = () => { setIsVisible(false); stopTracking(); };
-
     document.addEventListener("visibilitychange", handleVisibility);
-    window.addEventListener("focus", handleFocus);
-    window.addEventListener("blur", handleBlur);
 
     if (document.visibilityState === "visible") startTracking();
 
     return () => {
       stopTracking();
       document.removeEventListener("visibilitychange", handleVisibility);
-      window.removeEventListener("focus", handleFocus);
-      window.removeEventListener("blur", handleBlur);
     };
   }, [sessionActive, startTracking, stopTracking]);
 

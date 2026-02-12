@@ -100,14 +100,6 @@ export function useHeartbeat({
     intervalRef.current = setInterval(sendHeartbeat, intervalMs);
 
     document.addEventListener("visibilitychange", handleVisibility);
-    window.addEventListener("focus", () => {
-      isVisibleRef.current = true;
-      startFocusTick();
-    });
-    window.addEventListener("blur", () => {
-      isVisibleRef.current = false;
-      stopFocusTick();
-    });
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
