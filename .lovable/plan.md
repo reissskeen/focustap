@@ -1,52 +1,103 @@
 
 
-# Canvas LMS Course Import for Professors
+# Student Session Page — Full Integration
 
-## Overview
-Add a "Import from Canvas" button on the teacher dashboard that automatically pulls the professor's courses from your school's Canvas LMS and adds them to the app. Professors just click a button and select which courses to import -- no manual course creation needed.
+## Current State
+The UI components (Notes Editor, Focus Timer, Session Info, Submit button) all exist visually, but none are connected to the database. No student_session record is created, notes aren't saved, and focus time isn't tracked server-side.
 
-## How It Works
-1. Professor clicks "Import from Canvas" on their dashboard
-2. The app matches the professor to their Canvas account using their email address
-3. Their Canvas courses are fetched and displayed in a selection dialog
-4. Professor picks which courses to import, and they appear on the dashboard ready to use
+## What Will Be Built
 
-## Setup Required
-Two pieces of information from your school's Canvas admin are needed:
-- **Canvas Base URL** -- your school's Canvas address (e.g. `https://yourschool.instructure.com`)
-- **Canvas Admin API Token** -- an admin-level access token that can look up any instructor's courses
+### 1. Student Session Join (on page load)
+When a student navigates to `/session/:id`:
+- Upsert a `student_sessions` record (user_id + session_id) with `joined_at = now()`
+- Upsert a `note_docs` record for the student and session
+- Load existing `note_docs.content_json` into the editor (for page refreshes)
+- Check if already submitted -- if so, lock the editor to read-only
 
-These will be stored securely as backend secrets.
+### 2. Notes Auto-Save
+- The NotesEditor already debounces content changes (2s delay)
+- Wire `onContentChange` to update `note_docs.content_json` in the database
+- Show a subtle "Saving..." / "Saved" indicator
+
+### 3. Focus Heartbeat
+- Every 15 seconds while the tab is focused, update `student_sessions`:
+  - `focus_seconds` = local counter value
+  - `last_heartbeat` = now()
+- This uses the existing FocusTimer's `onFocusUpdate` callback
+
+### 4. Submit Notes
+- On submit: update `note_docs.submitted_at` and `student_sessions.submitted_at` to `now()`
+- Lock the editor to read-only
+- Stop focus tracking
+
+### 5. Copy to Clipboard
+- Extract plain text from the TipTap editor and copy to clipboard using the Clipboard API
+
+### 6. Responsive Layout
+- Desktop/Chromebook (1024px+): side-by-side split view using CSS grid (already works with `lg:grid-cols`)
+- Mobile/tablet: stacked layout with notes on top, timer and actions below (already works as grid fallback)
+- No changes needed -- the current grid approach handles this correctly
 
 ## Technical Details
 
-### 1. Store Canvas Secrets
-Add two new secrets:
-- `CANVAS_BASE_URL` -- the school's Canvas instance URL
-- `CANVAS_API_TOKEN` -- admin API token for Canvas
+### Database Operations (all from the frontend using the Supabase client)
 
-### 2. New Backend Function: `canvas-courses`
-A backend function that:
-- Authenticates the professor via their login token
-- Looks up their email from the profiles table
-- Calls Canvas API: `GET /api/v1/accounts/self/users?search_term={email}` to find the Canvas user
-- Fetches that user's courses: `GET /api/v1/users/{canvas_user_id}/courses?enrollment_type=teacher`
-- Returns the list of Canvas courses (id, name, course_code) to the frontend
+**Join session (on mount):**
+```
+supabase.from('student_sessions').upsert({ user_id, session_id, joined_at: now() }, { onConflict: 'user_id,session_id' })
+supabase.from('note_docs').upsert({ user_id, session_id }, { onConflict: 'user_id,session_id' })
+```
 
-### 3. New Backend Function: `canvas-import`
-A backend function that:
-- Receives a list of selected Canvas course IDs and names
-- Creates entries in the `courses` table with `lms_course_id` set to the Canvas course ID
-- Skips any courses already imported (matching on `lms_course_id`)
-- Returns the newly created courses
+Note: The `student_sessions` table already has a unique constraint on (user_id, session_id). A similar unique constraint will need to be added to `note_docs` for the upsert to work.
 
-### 4. Teacher Dashboard UI Updates
-- Add an "Import from Canvas" button alongside "Add Course" on the teacher dashboard
-- Opens a dialog showing available Canvas courses with checkboxes
-- Courses already imported are shown as disabled/greyed out
-- "Import Selected" button creates the courses and refreshes the list
-- Already-imported courses show a small Canvas badge on their card
+**Auto-save notes:**
+```
+supabase.from('note_docs').update({ content_json, updated_at: now() }).eq('user_id', uid).eq('session_id', sid)
+```
 
-### 5. Database
-No schema changes needed -- the existing `courses` table already has an `lms_course_id` column for this purpose.
+**Heartbeat (every 15s):**
+```
+supabase.from('student_sessions').update({ focus_seconds, last_heartbeat: now() }).eq('user_id', uid).eq('session_id', sid)
+```
+
+**Submit:**
+```
+supabase.from('note_docs').update({ submitted_at: now() }).eq(...)
+supabase.from('student_sessions').update({ submitted_at: now() }).eq(...)
+```
+
+### Migration Required
+- Add a unique constraint on `note_docs(user_id, session_id)` to support upsert
+
+### File Changes
+
+1. **New migration** -- add unique constraint to `note_docs`
+2. **`src/pages/StudentSession.tsx`** -- main rewiring:
+   - Add join logic on mount
+   - Load existing notes into editor
+   - Wire auto-save, heartbeat, and submit to the database
+   - Add save status indicator
+   - Implement clipboard copy
+3. **`src/components/NotesEditor.tsx`** -- add prop to accept initial content (`initialContent`) and load it into the editor
+4. **`src/components/FocusTimer.tsx`** -- no changes needed, already exposes `onFocusUpdate`
+
+### Component Flow
+
+```text
+StudentSession mounts
+  |
+  +-- Fetch session info (course, teacher) [already done]
+  +-- Upsert student_session record
+  +-- Upsert + fetch note_doc (load existing content)
+  |
+  +-- NotesEditor renders with initialContent
+  |     |-- onContentChange -> debounced save to note_docs
+  |
+  +-- FocusTimer starts
+  |     |-- onFocusUpdate -> throttled heartbeat to student_sessions
+  |
+  +-- Submit button
+        |-- Writes submitted_at to both tables
+        |-- Locks editor, stops timer
+```
 
