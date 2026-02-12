@@ -66,24 +66,15 @@ const Navbar = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuLabel className="flex items-center gap-2">
-                      <GraduationCap className="w-4 h-4" /> Student
-                    </DropdownMenuLabel>
                     <DropdownMenuItem asChild>
-                      <Link to="/login?mode=login" className="w-full cursor-pointer">Log in</Link>
+                      <Link to="/login?mode=signup" className="w-full cursor-pointer flex items-center gap-2">
+                        <GraduationCap className="w-4 h-4" /> Student Sign Up
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/login?mode=signup" className="w-full cursor-pointer">Sign up</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuLabel className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4" /> Professor
-                    </DropdownMenuLabel>
-                    <DropdownMenuItem asChild>
-                      <Link to="/teacher-login?mode=login" className="w-full cursor-pointer">Log in</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/teacher-login?mode=signup" className="w-full cursor-pointer">Sign up</Link>
+                      <Link to="/teacher-login?mode=signup" className="w-full cursor-pointer flex items-center gap-2">
+                        <BookOpen className="w-4 h-4" /> Professor Sign Up
+                      </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -140,19 +131,11 @@ const Navbar = () => {
               </Button>
             ) : (
               <>
-                <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5 mt-1"><GraduationCap className="w-3.5 h-3.5" /> Student</p>
-                <Link to="/login?mode=login" onClick={() => setMobileOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start">Log in</Button>
-                </Link>
                 <Link to="/login?mode=signup" onClick={() => setMobileOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start">Sign up</Button>
-                </Link>
-                <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5 mt-2"><BookOpen className="w-3.5 h-3.5" /> Professor</p>
-                <Link to="/teacher-login?mode=login" onClick={() => setMobileOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start">Log in</Button>
+                  <Button variant="ghost" size="sm" className="w-full justify-start gap-2"><GraduationCap className="w-3.5 h-3.5" /> Student Sign Up</Button>
                 </Link>
                 <Link to="/teacher-login?mode=signup" onClick={() => setMobileOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start">Sign up</Button>
+                  <Button variant="ghost" size="sm" className="w-full justify-start gap-2"><BookOpen className="w-3.5 h-3.5" /> Professor Sign Up</Button>
                 </Link>
               </>
             )}
