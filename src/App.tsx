@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import StudentSession from "./pages/StudentSession";
+import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import Launch from "./pages/Launch";
 import Login from "./pages/Login";
@@ -23,6 +24,9 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/student" element={
+              <ProtectedRoute><StudentDashboard /></ProtectedRoute>
+            } />
             <Route path="/session/:sessionId" element={
               <ProtectedRoute><StudentSession /></ProtectedRoute>
             } />
