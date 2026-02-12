@@ -10,25 +10,42 @@ interface FocusTimerProps {
 const FocusTimer = ({ sessionActive, onFocusUpdate }: FocusTimerProps) => {
   const [focusSeconds, setFocusSeconds] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+  const accumulatedRef = useRef(0);
+  const visibleSinceRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const getElapsed = useCallback(() => {
+    let total = accumulatedRef.current;
+    if (visibleSinceRef.current !== null) {
+      total += Date.now() - visibleSinceRef.current;
+    }
+    return Math.floor(total / 1000);
+  }, []);
+
+  const updateDisplay = useCallback(() => {
+    const secs = getElapsed();
+    setFocusSeconds(secs);
+    onFocusUpdate?.(secs);
+  }, [getElapsed, onFocusUpdate]);
+
   const startTracking = useCallback(() => {
-    if (intervalRef.current) return;
-    intervalRef.current = setInterval(() => {
-      setFocusSeconds((prev) => {
-        const next = prev + 1;
-        onFocusUpdate?.(next);
-        return next;
-      });
-    }, 1000);
-  }, [onFocusUpdate]);
+    if (visibleSinceRef.current !== null) return;
+    visibleSinceRef.current = Date.now();
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(updateDisplay, 500);
+  }, [updateDisplay]);
 
   const stopTracking = useCallback(() => {
+    if (visibleSinceRef.current !== null) {
+      accumulatedRef.current += Date.now() - visibleSinceRef.current;
+      visibleSinceRef.current = null;
+    }
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-  }, []);
+    setFocusSeconds(getElapsed());
+  }, [getElapsed]);
 
   useEffect(() => {
     if (!sessionActive) {
