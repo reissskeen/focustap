@@ -21,14 +21,16 @@ Deno.serve(async (req) => {
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-  // Verify the user's token
-  const anonClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+  // Create authenticated client using the user's JWT — respects RLS
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     global: { headers: { Authorization: authHeader } },
   });
+
+  // Verify the user's token
   const token = authHeader.replace("Bearer ", "");
-  const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
+  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
   if (claimsError || !claimsData?.claims) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
@@ -36,8 +38,10 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Use service role client for queries (bypasses RLS)
-  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  // SECURITY NOTE: Service role is only used for looking up teacher display names
+  // from the profiles table, since RLS restricts profile visibility. This returns
+  // only the display_name field and no other PII.
+  const serviceClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
   const url = new URL(req.url);
   const sessionId = url.searchParams.get("session_id");
@@ -47,12 +51,12 @@ Deno.serve(async (req) => {
 
   let session = null;
 
-  // Helper to enrich session with teacher name
+  // Helper to enrich session with teacher name (uses service role for profile lookup only)
   const enrichSession = async (sessionData: any) => {
     if (!sessionData) return null;
     const course = sessionData.courses;
     if (course?.teacher_user_id) {
-      const { data: profile } = await supabase
+      const { data: profile } = await serviceClient
         .from("profiles")
         .select("display_name")
         .eq("user_id", course.teacher_user_id)
