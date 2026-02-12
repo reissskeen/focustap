@@ -12,6 +12,7 @@ import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import Launch from "./pages/Launch";
 import Login from "./pages/Login";
+import TeacherLogin from "./pages/TeacherLogin";
 import JoinClass from "./pages/JoinClass";
 import NotFound from "./pages/NotFound";
 
@@ -33,15 +34,16 @@ const App = () => (
               <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><StudentSession /></RoleProtectedRoute>
             } />
             <Route path="/teacher" element={
-              <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/login"><TeacherDashboard /></RoleProtectedRoute>
+              <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><TeacherDashboard /></RoleProtectedRoute>
             } />
             <Route path="/launch" element={
-              <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/login"><Launch /></RoleProtectedRoute>
+              <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><Launch /></RoleProtectedRoute>
             } />
             <Route path="/join" element={
               <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><JoinClass /></RoleProtectedRoute>
             } />
             <Route path="/login" element={<Login />} />
+            <Route path="/teacher-login" element={<TeacherLogin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
