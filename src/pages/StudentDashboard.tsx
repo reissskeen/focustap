@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { BookOpen, Zap, Clock, Wifi, WifiOff, Play, Loader2, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ImportCanvasCourses from "@/components/student/ImportCanvasCourses";
+import CanvasCoursesList from "@/components/student/CanvasCoursesList";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -223,28 +224,29 @@ const StudentDashboard = () => {
             </motion.div>
           )}
 
-          {/* Enrolled Classes */}
+          {/* Canvas Courses with Join/Waitlist */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
           >
-            <h2 className="font-display text-lg font-semibold mb-4">My Classes</h2>
-            {courses.length === 0 ? (
-              <div className="glass-card rounded-xl p-8 text-center text-muted-foreground">
-                <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-50" />
-                <p>No classes yet. Join a session via QR code or NFC to get started.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {courses.map((course) => (
-                  <div key={course.id} className="glass-card rounded-xl p-5 space-y-1">
-                    <h3 className="font-display font-semibold">{course.name}</h3>
-                    {course.section && (
-                      <p className="text-sm text-muted-foreground">{course.section}</p>
-                    )}
-                  </div>
-                ))}
+            <h2 className="font-display text-lg font-semibold mb-4">My Courses</h2>
+            {user && <CanvasCoursesList userId={user.id} />}
+
+            {/* Fallback: courses from past sessions */}
+            {courses.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">Previously Attended</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {courses.map((course) => (
+                    <div key={course.id} className="glass-card rounded-xl p-5 space-y-1">
+                      <h3 className="font-display font-semibold">{course.name}</h3>
+                      {course.section && (
+                        <p className="text-sm text-muted-foreground">{course.section}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </motion.div>
