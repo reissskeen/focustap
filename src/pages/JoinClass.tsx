@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Play, Loader2, Clock, Users, ChevronRight, QrCode } from "lucide-react";
+import { BookOpen, Play, Loader2, Clock, Users, ChevronRight, QrCode, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
@@ -91,6 +91,15 @@ const JoinClass = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="mb-3 -ml-2 gap-1 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Button>
             <h1 className="font-display text-2xl font-bold mb-1">Join a Class</h1>
             <p className="text-sm text-muted-foreground">
               Select an active session below, or scan a QR code / tap an NFC tag in your classroom.
