@@ -16,6 +16,8 @@ import Login from "./pages/Login";
 import TeacherLogin from "./pages/TeacherLogin";
 import JoinClass from "./pages/JoinClass";
 import NotFound from "./pages/NotFound";
+import Financials from "./pages/Financials";
+import PitchDeck from "./pages/PitchDeck";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,8 @@ const App = () => (
             } />
             <Route path="/login" element={<Login />} />
             <Route path="/teacher-login" element={<TeacherLogin />} />
+            <Route path="/financials" element={<Financials />} />
+            <Route path="/pitch-deck" element={<PitchDeck />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
