@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Presentation, TrendingUp, DollarSign, Users, BarChart3 } from "lucide-react";
+import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -38,20 +38,22 @@ export default function Financials() {
 
   const chartData = forecast.map((d) => ({
     label: `${d.year.replace("FY ", "'")} ${d.quarter}`,
-    revenue: d.revenue,
+    totalRevenue: d.totalRevenue,
     subscriptionRevenue: d.subscriptionRevenue,
-    enterpriseRevenue: d.enterpriseRevenue,
+    hardwareRevenue: d.hardwareRevenue,
     grossProfit: d.grossProfit,
     ebitda: d.ebitda,
-    users: d.users,
+    desksDeployed: d.desksDeployed,
+    institutions: d.institutions,
+    mrr: d.mrr,
     grossMargin: Math.round(d.grossMargin * 100),
     ebitdaMargin: Math.round(d.ebitdaMargin * 100),
   }));
 
   const lastQ = forecast[forecast.length - 1];
-  const firstQ = forecast[0];
-  const totalRevY3 = forecast.filter(d => d.year === "FY 2028").reduce((s, d) => s + d.revenue, 0);
-  const totalRevY1 = forecast.filter(d => d.year === "FY 2026").reduce((s, d) => s + d.revenue, 0);
+  const totalRevY3 = forecast.filter(d => d.year === "FY 2028").reduce((s, d) => s + d.totalRevenue, 0);
+  const totalHwRevY3 = forecast.filter(d => d.year === "FY 2028").reduce((s, d) => s + d.hardwareRevenue, 0);
+  const totalSubRevY3 = forecast.filter(d => d.year === "FY 2028").reduce((s, d) => s + d.subscriptionRevenue, 0);
 
   const updateAssumption = (key: keyof Assumptions, value: string) => {
     setAssumptions(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
@@ -70,7 +72,7 @@ export default function Financials() {
             </Link>
             <h1 className="font-bold text-lg">FocusTap Financial Model</h1>
             <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
-              Board Deck — March 2026
+              B2B SaaS + Hardware · March 2026
             </span>
           </div>
           <Link to="/pitch-deck">
@@ -86,17 +88,19 @@ export default function Financials() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4"
+          className="grid grid-cols-2 md:grid-cols-5 gap-4"
         >
-          <KPICard title="ARR (Year 3)" value={formatCurrency(totalRevY3)} subtitle={`${lastQ.users.toLocaleString()} users`} icon={DollarSign} />
-          <KPICard title="Revenue Growth" value={`${((totalRevY3 / totalRevY1 - 1) * 100).toFixed(0)}%`} subtitle="Y1 → Y3 total" icon={TrendingUp} />
-          <KPICard title="Users (Year 3)" value={lastQ.users.toLocaleString()} subtitle={`${lastQ.institutions} institutions`} icon={Users} />
+          <KPICard title="ARR (Year 3)" value={formatCurrency(lastQ.arr)} subtitle={`${lastQ.institutions} institutions`} icon={DollarSign} />
+          <KPICard title="MRR (Latest)" value={formatCurrency(lastQ.mrr)} subtitle={`${lastQ.desksDeployed.toLocaleString()} desks`} icon={TrendingUp} />
+          <KPICard title="Institutions" value={lastQ.institutions.toString()} subtitle={`${lastQ.desksDeployed.toLocaleString()} desks deployed`} icon={Building2} />
+          <KPICard title="Hardware Rev (Y3)" value={formatCurrency(totalHwRevY3)} subtitle="One-time NFC sales" icon={HardDrive} />
           <KPICard title="Gross Margin" value={formatPercent(lastQ.grossMargin)} subtitle={`EBITDA: ${formatPercent(lastQ.ebitdaMargin)}`} icon={BarChart3} />
         </motion.div>
 
         <Tabs defaultValue="revenue" className="space-y-4">
           <TabsList className="bg-muted">
             <TabsTrigger value="revenue">Revenue</TabsTrigger>
+            <TabsTrigger value="deployment">Deployment</TabsTrigger>
             <TabsTrigger value="profitability">Profitability</TabsTrigger>
             <TabsTrigger value="proforma">Pro-Forma P&L</TabsTrigger>
             <TabsTrigger value="assumptions">Assumptions</TabsTrigger>
@@ -106,7 +110,7 @@ export default function Financials() {
           <TabsContent value="revenue" className="space-y-4">
             <div className="grid lg:grid-cols-2 gap-4">
               <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Quarterly Revenue</CardTitle></CardHeader>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Quarterly Revenue by Stream</CardTitle></CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={280}>
                     <ComposedChart data={chartData}>
@@ -115,15 +119,35 @@ export default function Financials() {
                       <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
                       <Tooltip formatter={(v: number) => formatCurrency(v)} />
                       <Legend />
-                      <Bar dataKey="subscriptionRevenue" name="Subscription" stackId="rev" fill="hsl(var(--primary))" radius={[0, 0, 0, 0]} />
-                      <Bar dataKey="enterpriseRevenue" name="Enterprise" stackId="rev" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="hsl(var(--primary))" radius={[0, 0, 0, 0]} />
+                      <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
                     </ComposedChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">User Growth</CardTitle></CardHeader>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">MRR Growth</CardTitle></CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <AreaChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
+                      <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                      <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                      <Tooltip formatter={(v: number) => formatCurrency(v)} />
+                      <Area type="monotone" dataKey="mrr" name="MRR" fill="hsl(var(--primary) / 0.2)" stroke="hsl(var(--primary))" strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Deployment Tab */}
+          <TabsContent value="deployment" className="space-y-4">
+            <div className="grid lg:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Desks Deployed</CardTitle></CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={280}>
                     <AreaChart data={chartData}>
@@ -131,8 +155,23 @@ export default function Financials() {
                       <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
                       <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" />
                       <Tooltip />
-                      <Area type="monotone" dataKey="users" name="Active Users" fill="hsl(var(--primary) / 0.2)" stroke="hsl(var(--primary))" strokeWidth={2} />
+                      <Area type="monotone" dataKey="desksDeployed" name="Desks Deployed" fill="hsl(var(--primary) / 0.2)" stroke="hsl(var(--primary))" strokeWidth={2} />
                     </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Institutions</CardTitle></CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
+                      <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                      <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                      <Tooltip />
+                      <Bar dataKey="institutions" name="Institutions" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                    </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
@@ -187,13 +226,14 @@ export default function Financials() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card z-10">Period</TableHead>
-                      <TableHead className="text-right">Revenue</TableHead>
+                      <TableHead className="text-right">Inst.</TableHead>
+                      <TableHead className="text-right">Desks</TableHead>
+                      <TableHead className="text-right">HW Rev</TableHead>
+                      <TableHead className="text-right">SaaS Rev</TableHead>
+                      <TableHead className="text-right">Total Rev</TableHead>
                       <TableHead className="text-right">COGS</TableHead>
-                      <TableHead className="text-right">Gross Profit</TableHead>
+                      <TableHead className="text-right">GP</TableHead>
                       <TableHead className="text-right">GM %</TableHead>
-                      <TableHead className="text-right">S&M</TableHead>
-                      <TableHead className="text-right">R&D</TableHead>
-                      <TableHead className="text-right">G&A</TableHead>
                       <TableHead className="text-right">EBITDA</TableHead>
                       <TableHead className="text-right">EBITDA %</TableHead>
                     </TableRow>
@@ -204,13 +244,14 @@ export default function Financials() {
                         <TableCell className="font-medium sticky left-0 bg-card z-10 whitespace-nowrap">
                           {row.year} {row.quarter}
                         </TableCell>
-                        <TableCell className="text-right font-mono text-sm">{formatCurrency(row.revenue)}</TableCell>
-                        <TableCell className="text-right font-mono text-sm text-muted-foreground">({formatCurrency(row.cogs)})</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{row.institutions}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{row.desksDeployed.toLocaleString()}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{formatCurrency(row.hardwareRevenue)}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{formatCurrency(row.subscriptionRevenue)}</TableCell>
+                        <TableCell className="text-right font-mono text-sm font-semibold">{formatCurrency(row.totalRevenue)}</TableCell>
+                        <TableCell className="text-right font-mono text-sm text-muted-foreground">({formatCurrency(row.totalCogs)})</TableCell>
                         <TableCell className="text-right font-mono text-sm">{formatCurrency(row.grossProfit)}</TableCell>
                         <TableCell className="text-right font-mono text-sm">{formatPercent(row.grossMargin)}</TableCell>
-                        <TableCell className="text-right font-mono text-sm text-muted-foreground">({formatCurrency(row.salesMarketing)})</TableCell>
-                        <TableCell className="text-right font-mono text-sm text-muted-foreground">({formatCurrency(row.rdExpense)})</TableCell>
-                        <TableCell className="text-right font-mono text-sm text-muted-foreground">({formatCurrency(row.gaExpense)})</TableCell>
                         <TableCell className={`text-right font-mono text-sm font-semibold ${row.ebitda >= 0 ? "text-primary" : "text-destructive"}`}>
                           {formatCurrency(row.ebitda)}
                         </TableCell>
@@ -232,17 +273,18 @@ export default function Financials() {
               <CardContent>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {([
-                    { key: "startingUsers", label: "Starting Users", step: 50 },
-                    { key: "monthlyUserGrowthRate", label: "Monthly User Growth %", step: 0.01 },
-                    { key: "subscriptionPrice", label: "Subscription Price ($/mo)", step: 1 },
-                    { key: "enterpriseDealSize", label: "Enterprise Deal Size ($)", step: 5000 },
-                    { key: "enterpriseDealsPerQuarter", label: "Enterprise Deals/Quarter", step: 1 },
-                    { key: "cogsPercent", label: "COGS %", step: 0.01 },
+                    { key: "nfcTagCost", label: "NFC Tag Cost ($)", step: 0.1 },
+                    { key: "nfcTagPrice", label: "NFC Tag Price ($)", step: 0.5 },
+                    { key: "desksPerInstitution", label: "Desks per Institution", step: 100 },
+                    { key: "pricePerDeskPerMonth", label: "Subscription $/Desk/Mo", step: 0.5 },
+                    { key: "year1Institutions", label: "Year 1 Institutions", step: 1 },
+                    { key: "year2Institutions", label: "Year 2 Institutions", step: 1 },
+                    { key: "year3Institutions", label: "Year 3 Institutions", step: 1 },
+                    { key: "initialRolloutPercent", label: "Initial Rollout %", step: 0.05 },
                     { key: "salesMarketingPercent", label: "S&M %", step: 0.01 },
                     { key: "rdPercent", label: "R&D %", step: 0.01 },
                     { key: "gaPercent", label: "G&A %", step: 0.01 },
-                    { key: "churnRate", label: "Monthly Churn %", step: 0.01 },
-                    { key: "cacPerUser", label: "CAC per User ($)", step: 1 },
+                    { key: "annualChurnRate", label: "Annual Churn %", step: 0.01 },
                   ] as const).map(({ key, label, step }) => (
                     <div key={key} className="space-y-1.5">
                       <Label className="text-xs">{label}</Label>

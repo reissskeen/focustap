@@ -1,102 +1,148 @@
 // 3-Year Revenue Forecast & Pro-Forma Financial Model
-// FocusTap — March 2026 Board of Directors Presentation
+// FocusTap — B2B Institutional SaaS + NFC Hardware Model
+// March 2026 Board of Directors Presentation
 
 export interface YearlyFinancials {
   year: string;
   quarter: string;
-  revenue: number;
+  // Institutions & desks
+  institutions: number;
+  newInstitutions: number;
+  desksDeployed: number;
+  newDesks: number;
+  // Hardware revenue (one-time)
+  hardwareRevenue: number;
+  hardwareCogs: number;
+  hardwareGrossProfit: number;
+  // Subscription revenue (recurring)
   subscriptionRevenue: number;
-  enterpriseRevenue: number;
-  cogs: number;
+  mrr: number;
+  arr: number;
+  // Combined
+  totalRevenue: number;
+  totalCogs: number;
   grossProfit: number;
   grossMargin: number;
+  // Opex
   salesMarketing: number;
   rdExpense: number;
   gaExpense: number;
   totalOpex: number;
+  // Bottom line
   ebitda: number;
   ebitdaMargin: number;
   netIncome: number;
-  users: number;
-  institutions: number;
-  arpu: number;
-  churnRate: number;
-  cac: number;
-  ltv: number;
-  mrrGrowth: number;
 }
 
 export interface Assumptions {
-  startingUsers: number;
-  monthlyUserGrowthRate: number;
-  subscriptionPrice: number;
-  enterpriseDealSize: number;
-  enterpriseDealsPerQuarter: number;
-  cogsPercent: number;
+  // Hardware
+  nfcTagCost: number;
+  nfcTagPrice: number;
+  desksPerInstitution: number;
+  // Subscription
+  pricePerDeskPerMonth: number;
+  // Adoption timeline (institutions by year-end)
+  year1Institutions: number;
+  year2Institutions: number;
+  year3Institutions: number;
+  // Rollout: fraction of desks deployed in first quarter at new institution
+  initialRolloutPercent: number;
+  // Opex as % of total revenue
   salesMarketingPercent: number;
   rdPercent: number;
   gaPercent: number;
-  churnRate: number;
-  cacPerUser: number;
+  // Retention
+  annualChurnRate: number;
 }
 
 export const defaultAssumptions: Assumptions = {
-  startingUsers: 500,
-  monthlyUserGrowthRate: 0.15,
-  subscriptionPrice: 8,
-  enterpriseDealSize: 25000,
-  enterpriseDealsPerQuarter: 1,
-  cogsPercent: 0.20,
+  nfcTagCost: 0.50,
+  nfcTagPrice: 2.00,
+  desksPerInstitution: 1000,
+  pricePerDeskPerMonth: 3,
+  year1Institutions: 1,
+  year2Institutions: 5,
+  year3Institutions: 15,
+  initialRolloutPercent: 0.25,
   salesMarketingPercent: 0.30,
   rdPercent: 0.25,
   gaPercent: 0.10,
-  churnRate: 0.05,
-  cacPerUser: 12,
+  annualChurnRate: 0.05,
 };
 
-export function generateForecast(assumptions: Assumptions): YearlyFinancials[] {
+export function generateForecast(a: Assumptions): YearlyFinancials[] {
   const data: YearlyFinancials[] = [];
-  let users = assumptions.startingUsers;
-  let enterpriseDeals = assumptions.enterpriseDealsPerQuarter;
-
   const years = ["FY 2026", "FY 2027", "FY 2028"];
   const quarters = ["Q1", "Q2", "Q3", "Q4"];
+  const targetByYear = [a.year1Institutions, a.year2Institutions, a.year3Institutions];
+
+  let cumulativeInstitutions = 0;
+  let cumulativeDesks = 0;
 
   for (let y = 0; y < 3; y++) {
+    const yearTarget = targetByYear[y];
+    const newInstitutionsThisYear = Math.max(0, yearTarget - cumulativeInstitutions);
+
+    // Spread new institution onboarding across quarters (heavier in Q2-Q3 for B2B sales cycles)
+    const quarterWeights = [0.1, 0.3, 0.35, 0.25];
+
     for (let q = 0; q < 4; q++) {
-      // Grow users monthly (3 months per quarter)
-      for (let m = 0; m < 3; m++) {
-        users = Math.round(users * (1 + assumptions.monthlyUserGrowthRate) * (1 - assumptions.churnRate / 12));
-      }
+      const newInst = Math.round(newInstitutionsThisYear * quarterWeights[q]);
+      cumulativeInstitutions += newInst;
 
-      const subscriptionRevenue = users * assumptions.subscriptionPrice * 3;
-      const enterpriseRevenue = enterpriseDeals * assumptions.enterpriseDealSize;
-      const revenue = subscriptionRevenue + enterpriseRevenue;
+      // New desks: new institutions deploy gradually
+      // First quarter = initialRolloutPercent, then ramp to full over next quarters
+      const newDesksFromNewInst = Math.round(newInst * a.desksPerInstitution * a.initialRolloutPercent);
+      // Existing institutions ramp up remaining desks (10% of gap per quarter)
+      const maxDesks = cumulativeInstitutions * a.desksPerInstitution;
+      const rampDesks = Math.round((maxDesks - cumulativeDesks - newDesksFromNewInst) * 0.3);
+      const totalNewDesks = newDesksFromNewInst + Math.max(0, rampDesks);
+      cumulativeDesks = Math.min(maxDesks, cumulativeDesks + totalNewDesks);
 
-      const cogs = revenue * assumptions.cogsPercent;
-      const grossProfit = revenue - cogs;
-      const grossMargin = revenue > 0 ? grossProfit / revenue : 0;
+      // Apply churn (quarterly)
+      const churnedDesks = Math.round(cumulativeDesks * (a.annualChurnRate / 4));
+      cumulativeDesks = Math.max(0, cumulativeDesks - churnedDesks);
 
-      const salesMarketing = revenue * assumptions.salesMarketingPercent;
-      const rdExpense = revenue * assumptions.rdPercent;
-      const gaExpense = revenue * assumptions.gaPercent;
+      // Hardware revenue (one-time on new desks only)
+      const hardwareRevenue = totalNewDesks * a.nfcTagPrice;
+      const hardwareCogs = totalNewDesks * a.nfcTagCost;
+      const hardwareGrossProfit = hardwareRevenue - hardwareCogs;
+
+      // Subscription revenue (recurring, per desk per month, 3 months per quarter)
+      const mrr = cumulativeDesks * a.pricePerDeskPerMonth;
+      const subscriptionRevenue = mrr * 3;
+      const arr = mrr * 12;
+
+      const totalRevenue = hardwareRevenue + subscriptionRevenue;
+      const subscriptionCogs = subscriptionRevenue * 0.15; // hosting/infra
+      const totalCogs = hardwareCogs + subscriptionCogs;
+      const grossProfit = totalRevenue - totalCogs;
+      const grossMargin = totalRevenue > 0 ? grossProfit / totalRevenue : 0;
+
+      const salesMarketing = totalRevenue * a.salesMarketingPercent;
+      const rdExpense = totalRevenue * a.rdPercent;
+      const gaExpense = totalRevenue * a.gaPercent;
       const totalOpex = salesMarketing + rdExpense + gaExpense;
 
       const ebitda = grossProfit - totalOpex;
-      const ebitdaMargin = revenue > 0 ? ebitda / revenue : 0;
-      const netIncome = ebitda * 0.85; // simplified tax
-
-      const institutions = Math.max(1, Math.floor(users / 200));
-      const arpu = users > 0 ? revenue / users / 3 : 0;
-      const ltv = arpu * 12 / Math.max(assumptions.churnRate, 0.01);
+      const ebitdaMargin = totalRevenue > 0 ? ebitda / totalRevenue : 0;
+      const netIncome = ebitda * 0.85;
 
       data.push({
         year: years[y],
         quarter: quarters[q],
-        revenue: Math.round(revenue),
+        institutions: cumulativeInstitutions,
+        newInstitutions: newInst,
+        desksDeployed: cumulativeDesks,
+        newDesks: totalNewDesks,
+        hardwareRevenue: Math.round(hardwareRevenue),
+        hardwareCogs: Math.round(hardwareCogs),
+        hardwareGrossProfit: Math.round(hardwareGrossProfit),
         subscriptionRevenue: Math.round(subscriptionRevenue),
-        enterpriseRevenue: Math.round(enterpriseRevenue),
-        cogs: Math.round(cogs),
+        mrr: Math.round(mrr),
+        arr: Math.round(arr),
+        totalRevenue: Math.round(totalRevenue),
+        totalCogs: Math.round(totalCogs),
         grossProfit: Math.round(grossProfit),
         grossMargin,
         salesMarketing: Math.round(salesMarketing),
@@ -106,17 +152,7 @@ export function generateForecast(assumptions: Assumptions): YearlyFinancials[] {
         ebitda: Math.round(ebitda),
         ebitdaMargin,
         netIncome: Math.round(netIncome),
-        users,
-        institutions,
-        arpu: Math.round(arpu * 100) / 100,
-        churnRate: assumptions.churnRate,
-        cac: assumptions.cacPerUser,
-        ltv: Math.round(ltv),
-        mrrGrowth: assumptions.monthlyUserGrowthRate,
       });
-
-      // Scale enterprise deals
-      enterpriseDeals = Math.round(enterpriseDeals * 1.15);
     }
   }
 
