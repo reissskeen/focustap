@@ -7,7 +7,7 @@ import {
   AreaChart, Area, BarChart, Bar, ComposedChart,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
-import { defaultAssumptions, generateForecast, formatCurrency, formatPercent } from "@/lib/financialData";
+import { defaultAssumptions, generateForecast, formatCurrency, formatPercent, computeNINVTotal, computeAnnualOpexTotal } from "@/lib/financialData";
 
 const TOTAL_SLIDES = 6;
 
@@ -212,15 +212,21 @@ export default function PitchDeck() {
     <SlideWrapper key={5}>
       <div className="max-w-3xl w-full text-center space-y-8">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Ask</h2>
-        <div className="p-8 rounded-2xl border-2 border-primary/30 bg-primary/5">
-          <p className="text-5xl font-bold text-primary">$500K</p>
-          <p className="text-lg text-muted-foreground mt-2">Seed Round</p>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="p-6 rounded-2xl border-2 border-primary/30 bg-primary/5">
+            <p className="text-4xl font-bold text-primary">{formatCurrency(computeNINVTotal(defaultAssumptions.ninv))}</p>
+            <p className="text-lg text-muted-foreground mt-2">Net Initial Investment</p>
+          </div>
+          <div className="p-6 rounded-2xl border border-border bg-card">
+            <p className="text-4xl font-bold text-foreground">{formatCurrency(computeAnnualOpexTotal(defaultAssumptions.annualOpex))}/yr</p>
+            <p className="text-lg text-muted-foreground mt-2">Year 1 Operating Costs</p>
+          </div>
         </div>
         <div className="grid md:grid-cols-3 gap-4 text-left">
           {[
-            { pct: "40%", label: "Product & Engineering", desc: "Scale platform, NFC integration, LMS connectors" },
-            { pct: "35%", label: "Sales & Marketing", desc: "University partnerships, pilot programs, growth" },
-            { pct: "25%", label: "Operations", desc: "NFC hardware supply chain, infrastructure, team" },
+            { pct: "67%", label: "Product & Engineering", desc: "MVP analytics platform, NFC integration, LMS connectors" },
+            { pct: "23%", label: "Sales & Marketing", desc: "University partnerships, pilot programs, B2B outreach" },
+            { pct: "10%", label: "Operations", desc: "NFC hardware supply chain, legal, infrastructure" },
           ].map(u => (
             <div key={u.label} className="p-4 rounded-xl border border-border bg-card">
               <p className="text-2xl font-bold text-primary">{u.pct}</p>
@@ -230,7 +236,7 @@ export default function PitchDeck() {
           ))}
         </div>
         <p className="text-lg font-semibold text-foreground pt-4">
-          Target: {formatCurrency(totalRevY3)} total rev by FY 2028 · {lastQ.institutions} institutions · {lastQ.desksDeployed.toLocaleString()} desks
+          Target: {formatCurrency(totalRevY3)} rev by FY 2028 · {lastQ.institutions} institutions · Break-even within 18–24 months
         </p>
       </div>
     </SlideWrapper>,

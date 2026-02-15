@@ -1,5 +1,5 @@
 // 3-Year Revenue Forecast & Pro-Forma Financial Model
-// FocusTap — B2B Institutional SaaS + NFC Hardware · Tiered Pricing
+// FocusTap — Enterprise B2B Campus Infrastructure SaaS + NFC Hardware
 // March 2026 Board of Directors Presentation
 
 /* ------------------------------------------------------------------ */
@@ -21,15 +21,26 @@ export const TIERS: Record<Tier, TierConfig> = {
   3: { name: "Full Campus Intelligence", tag: "Tier 3", pricePerDeskPerYear: 50, implementationFee: 15_000 },
 };
 
-export interface InstitutionPlan {
-  tier: Tier;
-  count: number; // how many institutions at this tier
-}
-
 export interface HalfYearAdoption {
   tier1: number;
   tier2: number;
   tier3: number;
+}
+
+export interface NINV {
+  softwareDev: number;
+  nfcInventory: number;
+  pilotDeployment: number;
+  legalSetup: number;
+  brandingWebsite: number;
+}
+
+export interface AnnualOpex {
+  cloudInfra: number;
+  softwareMaintenance: number;
+  salesOutreach: number;
+  customerSupport: number;
+  generalAdmin: number;
 }
 
 export interface Assumptions {
@@ -46,33 +57,58 @@ export interface Assumptions {
   h2_2028: HalfYearAdoption;
   // Rollout: fraction of desks deployed in first quarter at new institution
   initialRolloutPercent: number;
-  // Opex as % of total revenue
-  salesMarketingPercent: number;
-  rdPercent: number;
-  gaPercent: number;
+  // Fixed operating costs (annual)
+  annualOpex: AnnualOpex;
+  // NINV (one-time initial investment)
+  ninv: NINV;
+  // OPEX growth rate per year (infrastructure scaling)
+  opexGrowthRate: number;
   // Retention
   annualChurnRate: number;
   // Land-and-expand: fraction of Tier 1 institutions that upgrade to Tier 2 within 12 months
   tier1UpgradeRate: number;
+  // SaaS COGS as % of subscription revenue
+  saasCogsPct: number;
+}
+
+export function computeNINVTotal(ninv: NINV): number {
+  return ninv.softwareDev + ninv.nfcInventory + ninv.pilotDeployment + ninv.legalSetup + ninv.brandingWebsite;
+}
+
+export function computeAnnualOpexTotal(opex: AnnualOpex): number {
+  return opex.cloudInfra + opex.softwareMaintenance + opex.salesOutreach + opex.customerSupport + opex.generalAdmin;
 }
 
 export const defaultAssumptions: Assumptions = {
   nfcTagCost: 0.50,
   nfcTagPrice: 2.00,
   desksPerInstitution: 1000,
-  // Cumulative institutions per tier at end of each half
+  // Realistic B2B adoption: Y1=1 pilot, Y2=5 total, Y3=15 total
   h1_2026: { tier1: 1, tier2: 0, tier3: 0 },
   h2_2026: { tier1: 1, tier2: 0, tier3: 0 },
-  h1_2027: { tier1: 2, tier2: 1, tier3: 0 },
-  h2_2027: { tier1: 2, tier2: 2, tier3: 1 },
-  h1_2028: { tier1: 3, tier2: 3, tier3: 2 },
-  h2_2028: { tier1: 4, tier2: 6, tier3: 5 },
+  h1_2027: { tier1: 1, tier2: 2, tier3: 0 },
+  h2_2027: { tier1: 1, tier2: 3, tier3: 1 },
+  h1_2028: { tier1: 2, tier2: 5, tier3: 2 },
+  h2_2028: { tier1: 2, tier2: 8, tier3: 5 },
   initialRolloutPercent: 0.25,
-  salesMarketingPercent: 0.30,
-  rdPercent: 0.25,
-  gaPercent: 0.10,
+  annualOpex: {
+    cloudInfra: 2_400,
+    softwareMaintenance: 8_000,
+    salesOutreach: 5_000,
+    customerSupport: 3_000,
+    generalAdmin: 3_600,
+  },
+  ninv: {
+    softwareDev: 20_000,
+    nfcInventory: 1_000,
+    pilotDeployment: 3_000,
+    legalSetup: 3_500,
+    brandingWebsite: 2_500,
+  },
+  opexGrowthRate: 0.30, // 30% OPEX growth per year as we scale
   annualChurnRate: 0.03,
   tier1UpgradeRate: 0.50,
+  saasCogsPct: 0.15,
 };
 
 export interface YearlyFinancials {
@@ -100,24 +136,20 @@ export interface YearlyFinancials {
   totalCogs: number;
   grossProfit: number;
   grossMargin: number;
-  // Opex
-  salesMarketing: number;
-  rdExpense: number;
-  gaExpense: number;
-  totalOpex: number;
+  // Fixed Opex
+  opex: number;
   // Bottom line
   ebitda: number;
   ebitdaMargin: number;
   netIncome: number;
+  // Cumulative
+  cumulativeRevenue: number;
+  cumulativeProfit: number;
 }
 
 /* ------------------------------------------------------------------ */
 /*  Forecast Engine                                                    */
 /* ------------------------------------------------------------------ */
-
-function totalAdoption(h: HalfYearAdoption): number {
-  return h.tier1 + h.tier2 + h.tier3;
-}
 
 export function generateForecast(a: Assumptions): YearlyFinancials[] {
   const data: YearlyFinancials[] = [];
@@ -130,8 +162,13 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     a.h1_2028, a.h1_2028, a.h2_2028, a.h2_2028,
   ];
 
+  const ninvTotal = computeNINVTotal(a.ninv);
+  const baseAnnualOpex = computeAnnualOpexTotal(a.annualOpex);
+
   let cumT1 = 0, cumT2 = 0, cumT3 = 0;
   let cumulativeDesks = 0;
+  let cumulativeRevenue = 0;
+  let cumulativeProfit = 0;
 
   // Track when T1 institutions were added for upgrade modelling
   const tier1AddedQuarter: number[] = [];
@@ -143,14 +180,14 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const target = halfTargets[i];
 
     // Compute new institutions per tier this quarter
-    const allocate = (cumVal: number, targetVal: number, otherNewInHalf: number, isFirst: boolean, totalNewInHalf: number): number => {
+    const allocate = (cumVal: number, targetVal: number): number => {
       const newInHalf = Math.max(0, targetVal - cumVal);
-      return isFirst ? Math.ceil(newInHalf * 0.5) : Math.max(0, newInHalf - Math.ceil(newInHalf * 0.5));
+      return isFirstOfHalf ? Math.ceil(newInHalf * 0.5) : Math.max(0, newInHalf - Math.ceil(newInHalf * 0.5));
     };
 
-    const newT1 = allocate(cumT1, target.tier1, 0, isFirstOfHalf, 0);
-    const newT2 = allocate(cumT2, target.tier2, 0, isFirstOfHalf, 0);
-    const newT3 = allocate(cumT3, target.tier3, 0, isFirstOfHalf, 0);
+    const newT1 = allocate(cumT1, target.tier1);
+    const newT2 = allocate(cumT2, target.tier2);
+    const newT3 = allocate(cumT3, target.tier3);
 
     // Land-and-expand: T1 institutions that have been on for 4 quarters upgrade to T2
     let upgrades = 0;
@@ -185,7 +222,7 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const churnedDesks = Math.round(cumulativeDesks * (a.annualChurnRate / 4));
     cumulativeDesks = Math.max(0, cumulativeDesks - churnedDesks);
 
-    // Hardware revenue
+    // Hardware revenue (one-time per new desk)
     const hardwareRevenue = totalNewDesks * a.nfcTagPrice;
     const hardwareCogs = totalNewDesks * a.nfcTagCost;
     const hardwareGrossProfit = hardwareRevenue - hardwareCogs;
@@ -197,7 +234,6 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
       newT3 * TIERS[3].implementationFee;
 
     // Subscription revenue (quarterly) — weighted by tier mix
-    // Distribute desks proportionally across tiers
     const totalInst = cumulativeInstitutions || 1;
     const t1Frac = cumT1 / totalInst;
     const t2Frac = cumT2 / totalInst;
@@ -208,8 +244,7 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
       t2Frac * TIERS[2].pricePerDeskPerYear +
       t3Frac * TIERS[3].pricePerDeskPerYear;
 
-    const annualSubPerDesk = weightedPricePerDeskPerYear;
-    const quarterlySubRevenue = (cumulativeDesks * annualSubPerDesk) / 4;
+    const quarterlySubRevenue = (cumulativeDesks * weightedPricePerDeskPerYear) / 4;
 
     // Expansion revenue from tier upgrades
     const expansionRevenue = upgrades > 0
@@ -217,23 +252,25 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
       : 0;
 
     const subscriptionRevenue = quarterlySubRevenue;
-    const mrr = (cumulativeDesks * annualSubPerDesk) / 12;
-    const arr = cumulativeDesks * annualSubPerDesk;
+    const mrr = (cumulativeDesks * weightedPricePerDeskPerYear) / 12;
+    const arr = cumulativeDesks * weightedPricePerDeskPerYear;
 
     const totalRevenue = hardwareRevenue + implementationRevenue + subscriptionRevenue + expansionRevenue;
-    const subscriptionCogs = subscriptionRevenue * 0.15;
+    const subscriptionCogs = subscriptionRevenue * a.saasCogsPct;
     const totalCogs = hardwareCogs + subscriptionCogs;
     const grossProfit = totalRevenue - totalCogs;
     const grossMargin = totalRevenue > 0 ? grossProfit / totalRevenue : 0;
 
-    const salesMarketing = totalRevenue * a.salesMarketingPercent;
-    const rdExpense = totalRevenue * a.rdPercent;
-    const gaExpense = totalRevenue * a.gaPercent;
-    const totalOpex = salesMarketing + rdExpense + gaExpense;
+    // Fixed OPEX — scales by year with growth rate
+    const yearlyOpex = baseAnnualOpex * Math.pow(1 + a.opexGrowthRate, y);
+    const quarterlyOpex = yearlyOpex / 4;
 
-    const ebitda = grossProfit - totalOpex;
+    const ebitda = grossProfit - quarterlyOpex;
     const ebitdaMargin = totalRevenue > 0 ? ebitda / totalRevenue : 0;
-    const netIncome = ebitda * 0.85;
+    const netIncome = ebitda; // pre-tax for simplicity at seed stage
+
+    cumulativeRevenue += totalRevenue;
+    cumulativeProfit += netIncome;
 
     data.push({
       year: years[y],
@@ -257,17 +294,48 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
       totalCogs: Math.round(totalCogs),
       grossProfit: Math.round(grossProfit),
       grossMargin,
-      salesMarketing: Math.round(salesMarketing),
-      rdExpense: Math.round(rdExpense),
-      gaExpense: Math.round(gaExpense),
-      totalOpex: Math.round(totalOpex),
+      opex: Math.round(quarterlyOpex),
       ebitda: Math.round(ebitda),
       ebitdaMargin,
       netIncome: Math.round(netIncome),
+      cumulativeRevenue: Math.round(cumulativeRevenue),
+      cumulativeProfit: Math.round(cumulativeProfit),
     });
   }
 
   return data;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Break-Even Analysis                                                */
+/* ------------------------------------------------------------------ */
+
+export interface BreakEvenResult {
+  operatingBreakEvenQ: string | null; // quarter label where quarterly EBITDA >= 0
+  fullBreakEvenQ: string | null;      // quarter label where cumulative profit covers NINV
+  monthsToOperating: number | null;
+  monthsToFull: number | null;
+}
+
+export function computeBreakEven(forecast: YearlyFinancials[], ninvTotal: number): BreakEvenResult {
+  let operatingBreakEvenQ: string | null = null;
+  let fullBreakEvenQ: string | null = null;
+  let monthsToOperating: number | null = null;
+  let monthsToFull: number | null = null;
+
+  for (let i = 0; i < forecast.length; i++) {
+    const d = forecast[i];
+    if (!operatingBreakEvenQ && d.ebitda >= 0) {
+      operatingBreakEvenQ = `${d.year} ${d.quarter}`;
+      monthsToOperating = (i + 1) * 3;
+    }
+    if (!fullBreakEvenQ && d.cumulativeProfit >= ninvTotal) {
+      fullBreakEvenQ = `${d.year} ${d.quarter}`;
+      monthsToFull = (i + 1) * 3;
+    }
+  }
+
+  return { operatingBreakEvenQ, fullBreakEvenQ, monthsToOperating, monthsToFull };
 }
 
 export function formatCurrency(value: number): string {
