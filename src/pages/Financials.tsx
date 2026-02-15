@@ -55,7 +55,7 @@ export default function Financials() {
     grossProfit: d.grossProfit,
     ebitda: d.ebitda,
     opex: d.opex,
-    desksDeployed: d.desksDeployed,
+    studentsDeployed: d.studentsDeployed,
     institutions: d.institutions,
     tier1Inst: d.tier1Inst,
     tier2Inst: d.tier2Inst,
@@ -77,7 +77,7 @@ export default function Financials() {
     { name: "Tier 3", value: lastQ.tier3Inst },
   ].filter(d => d.value > 0);
 
-  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "desksPerInstitution" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "tier1UpgradeRate" | "saasCogsPct", value: string) => {
+  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "studentsPerInstitution" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "tier1UpgradeRate" | "saasCogsPct", value: string) => {
     setAssumptions(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
   };
 
@@ -112,7 +112,7 @@ export default function Financials() {
       grossProfit: qs.reduce((s, d) => s + d.grossProfit, 0),
       ebitda: qs.reduce((s, d) => s + d.ebitda, 0),
       institutions: qs[qs.length - 1].institutions,
-      desks: qs[qs.length - 1].desksDeployed,
+      students: qs[qs.length - 1].studentsDeployed,
     };
   });
 
@@ -150,7 +150,7 @@ export default function Financials() {
           <KPICard title="NINV" value={formatCurrency(ninvTotal)} subtitle="One-time investment" icon={Wallet} />
           <KPICard title="Annual OPEX" value={formatCurrency(annualOpexTotal)} subtitle="Year 1 operating costs" icon={HardDrive} />
           <KPICard title="ARR (Year 3)" value={formatCurrency(lastQ.arr)} subtitle={`${lastQ.institutions} institutions`} icon={DollarSign} />
-          <KPICard title="MRR (Latest)" value={formatCurrency(lastQ.mrr)} subtitle={`${lastQ.desksDeployed.toLocaleString()} desks`} icon={TrendingUp} />
+          <KPICard title="MRR (Latest)" value={formatCurrency(lastQ.mrr)} subtitle={`${lastQ.studentsDeployed.toLocaleString()} students`} icon={TrendingUp} />
           <KPICard title="Institutions" value={lastQ.institutions.toString()} subtitle={`T1:${lastQ.tier1Inst} T2:${lastQ.tier2Inst} T3:${lastQ.tier3Inst}`} icon={Building2} />
           <KPICard
             title="Op. Break-Even"
@@ -229,7 +229,7 @@ export default function Financials() {
                       <p className="text-2xl font-bold text-foreground">{formatCurrency(y.revenue)}</p>
                       <div className="text-xs text-muted-foreground space-y-0.5">
                         <p>SaaS: {formatCurrency(y.saas)} · HW: {formatCurrency(y.hw)} · Impl: {formatCurrency(y.impl)}</p>
-                        <p>{y.institutions} institutions · {y.desks.toLocaleString()} desks</p>
+                        <p>{y.institutions} institutions · {y.students.toLocaleString()} students</p>
                         <p>OPEX: {formatCurrency(y.opex)} · EBITDA: <span className={y.ebitda >= 0 ? "text-primary" : "text-destructive"}>{formatCurrency(y.ebitda)}</span></p>
                       </div>
                     </div>
@@ -290,9 +290,9 @@ export default function Financials() {
                         {t === 2 && <span className="text-xs text-primary font-medium">Default Plan</span>}
                       </div>
                       <h3 className="font-semibold text-foreground">{TIERS[t].name}</h3>
-                      <p className="text-2xl font-bold text-foreground mt-1">${TIERS[t].pricePerDeskPerYear}<span className="text-sm font-normal text-muted-foreground">/desk/yr</span></p>
+                      <p className="text-2xl font-bold text-foreground mt-1">${TIERS[t].pricePerStudentPerYear}<span className="text-sm font-normal text-muted-foreground">/student/yr</span></p>
                       <p className="text-xs text-muted-foreground mt-1">Implementation: {formatCurrency(TIERS[t].implementationFee)}</p>
-                      <p className="text-xs text-muted-foreground">ARR/Institution: {formatCurrency(assumptions.desksPerInstitution * TIERS[t].pricePerDeskPerYear)}</p>
+                      <p className="text-xs text-muted-foreground">ARR/Institution: {formatCurrency(assumptions.studentsPerInstitution * TIERS[t].pricePerStudentPerYear)}</p>
                     </div>
                   ))}
                 </div>
@@ -304,7 +304,7 @@ export default function Financials() {
           <TabsContent value="deployment" className="space-y-4">
             <div className="grid lg:grid-cols-2 gap-4">
               <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Desks Deployed</CardTitle></CardHeader>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Students Deployed</CardTitle></CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={280}>
                     <AreaChart data={chartData}>
@@ -312,7 +312,7 @@ export default function Financials() {
                       <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
                       <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" />
                       <Tooltip />
-                      <Area type="monotone" dataKey="desksDeployed" name="Desks Deployed" fill="hsl(var(--primary) / 0.2)" stroke="hsl(var(--primary))" strokeWidth={2} />
+                      <Area type="monotone" dataKey="studentsDeployed" name="Students Deployed" fill="hsl(var(--primary) / 0.2)" stroke="hsl(var(--primary))" strokeWidth={2} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -340,10 +340,10 @@ export default function Financials() {
               <CardContent>
                 <div className="grid md:grid-cols-4 gap-4">
                   {[
-                    { label: "Desks Deployed", value: assumptions.desksPerInstitution.toLocaleString() },
-                    { label: "Annual SaaS ARR", value: formatCurrency(assumptions.desksPerInstitution * TIERS[2].pricePerDeskPerYear) },
+                    { label: "Students Deployed", value: assumptions.studentsPerInstitution.toLocaleString() },
+                    { label: "Annual SaaS ARR", value: formatCurrency(assumptions.studentsPerInstitution * TIERS[2].pricePerStudentPerYear) },
                     { label: "Implementation Fee", value: formatCurrency(TIERS[2].implementationFee) },
-                    { label: "HW Revenue", value: formatCurrency(assumptions.desksPerInstitution * assumptions.nfcTagPrice) },
+                    { label: "HW Revenue", value: formatCurrency(assumptions.studentsPerInstitution * assumptions.nfcTagPrice) },
                   ].map(m => (
                     <div key={m.label} className="p-4 rounded-xl border border-border bg-card text-center">
                       <p className="text-xs font-medium text-muted-foreground">{m.label}</p>
@@ -445,7 +445,7 @@ export default function Financials() {
               <CardHeader className="pb-2"><CardTitle className="text-sm">Break-Even Logic</CardTitle></CardHeader>
               <CardContent className="text-sm text-muted-foreground space-y-2">
                 <p>• Annual operating costs (Year 1): <span className="font-semibold text-foreground">{formatCurrency(annualOpexTotal)}</span></p>
-                <p>• ARR per institution (Tier 2): <span className="font-semibold text-foreground">{formatCurrency(assumptions.desksPerInstitution * TIERS[2].pricePerDeskPerYear)}</span></p>
+                <p>• ARR per institution (Tier 2): <span className="font-semibold text-foreground">{formatCurrency(assumptions.studentsPerInstitution * TIERS[2].pricePerStudentPerYear)}</span></p>
                 <p>• Operating break-even occurs at approximately <span className="font-semibold text-foreground">1 institutional client</span></p>
                 <p>• Full investment break-even (including {formatCurrency(ninvTotal)} NINV) at approximately <span className="font-semibold text-foreground">2 institutional clients</span></p>
                 <p>• Profitability expected within <span className="font-semibold text-foreground">18–24 months</span> under realistic B2B growth</p>
@@ -464,7 +464,7 @@ export default function Financials() {
                       <TableHead className="sticky left-0 bg-card z-10">Period</TableHead>
                       <TableHead className="text-right">Inst.</TableHead>
                       <TableHead className="text-right">T1/T2/T3</TableHead>
-                      <TableHead className="text-right">Desks</TableHead>
+                      <TableHead className="text-right">Students</TableHead>
                       <TableHead className="text-right">HW Rev</TableHead>
                       <TableHead className="text-right">Impl.</TableHead>
                       <TableHead className="text-right">SaaS Rev</TableHead>
@@ -483,7 +483,7 @@ export default function Financials() {
                         </TableCell>
                         <TableCell className="text-right font-mono text-sm">{row.institutions}</TableCell>
                         <TableCell className="text-right font-mono text-xs text-muted-foreground">{row.tier1Inst}/{row.tier2Inst}/{row.tier3Inst}</TableCell>
-                        <TableCell className="text-right font-mono text-sm">{row.desksDeployed.toLocaleString()}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{row.studentsDeployed.toLocaleString()}</TableCell>
                         <TableCell className="text-right font-mono text-sm">{formatCurrency(row.hardwareRevenue)}</TableCell>
                         <TableCell className="text-right font-mono text-sm">{formatCurrency(row.implementationRevenue)}</TableCell>
                         <TableCell className="text-right font-mono text-sm">{formatCurrency(row.subscriptionRevenue)}</TableCell>
@@ -502,7 +502,7 @@ export default function Financials() {
                         <TableCell className="sticky left-0 bg-muted/50 z-10 font-bold">{y.year} Total</TableCell>
                         <TableCell className="text-right font-mono text-sm">{y.institutions}</TableCell>
                         <TableCell className="text-right" />
-                        <TableCell className="text-right font-mono text-sm">{y.desks.toLocaleString()}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{y.students.toLocaleString()}</TableCell>
                         <TableCell className="text-right font-mono text-sm">{formatCurrency(y.hw)}</TableCell>
                         <TableCell className="text-right font-mono text-sm">{formatCurrency(y.impl)}</TableCell>
                         <TableCell className="text-right font-mono text-sm">{formatCurrency(y.saas)}</TableCell>
@@ -586,7 +586,7 @@ export default function Financials() {
                     {([
                       { key: "nfcTagCost" as const, label: "NFC Tag Cost ($)", step: 0.1 },
                       { key: "nfcTagPrice" as const, label: "NFC Tag Price ($)", step: 0.5 },
-                      { key: "desksPerInstitution" as const, label: "Desks per Institution", step: 100 },
+                      { key: "studentsPerInstitution" as const, label: "Students per Institution", step: 100 },
                       { key: "initialRolloutPercent" as const, label: "Initial Rollout %", step: 0.05 },
                       { key: "opexGrowthRate" as const, label: "OPEX Growth/Yr", step: 0.05 },
                       { key: "annualChurnRate" as const, label: "Annual Churn %", step: 0.01 },

@@ -31,7 +31,7 @@ export default function PitchDeck() {
     hardwareRevenue: d.hardwareRevenue,
     grossProfit: d.grossProfit,
     ebitda: d.ebitda,
-    desksDeployed: d.desksDeployed,
+    studentsDeployed: d.studentsDeployed,
     institutions: d.institutions,
   }));
 
@@ -45,7 +45,7 @@ export default function PitchDeck() {
       grossProfit: qs.reduce((s, d) => s + d.grossProfit, 0),
       ebitda: qs.reduce((s, d) => s + d.ebitda, 0),
       institutions: qs[qs.length - 1].institutions,
-      desks: qs[qs.length - 1].desksDeployed,
+      students: qs[qs.length - 1].studentsDeployed,
     };
   });
 
@@ -120,7 +120,7 @@ export default function PitchDeck() {
             <ul className="space-y-3 text-muted-foreground">
               <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Desk-level NFC tap for instant, verified attendance</li>
               <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Real-time focus tracking via browser visibility API</li>
-              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> B2B institutional SaaS — per-desk pricing</li>
+              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> B2B institutional SaaS — per-student pricing</li>
               <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Hardware + software revenue model</li>
             </ul>
           </div>
@@ -157,7 +157,7 @@ export default function PitchDeck() {
             <div key={y.year} className="p-4 rounded-xl border border-border bg-card text-center">
               <p className="text-sm font-medium text-muted-foreground">{y.year}</p>
               <p className="text-2xl font-bold text-foreground mt-1">{formatCurrency(y.revenue)}</p>
-              <p className="text-xs text-muted-foreground">{y.institutions} institutions · {y.desks.toLocaleString()} desks</p>
+              <p className="text-xs text-muted-foreground">{y.institutions} institutions · {y.students.toLocaleString()} students</p>
             </div>
           ))}
         </div>
@@ -183,8 +183,8 @@ export default function PitchDeck() {
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">Unit Economics</h2>
         <div className="grid md:grid-cols-4 gap-4">
           {[
-            { label: "Tier 2/Desk/Yr", value: "$30" },
-            { label: "ARR/Institution", value: formatCurrency(defaultAssumptions.desksPerInstitution * 30) },
+            { label: "Tier 2/Student/Yr", value: "$30" },
+            { label: "ARR/Institution", value: formatCurrency(defaultAssumptions.studentsPerInstitution * 30) },
             { label: "HW Margin/Tag", value: formatCurrency(defaultAssumptions.nfcTagPrice - defaultAssumptions.nfcTagCost) },
             { label: "Gross Margin", value: formatPercent(lastQ.grossMargin) },
           ].map(m => (
@@ -201,7 +201,7 @@ export default function PitchDeck() {
               <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
               <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" />
               <Tooltip />
-              <Area type="monotone" dataKey="desksDeployed" name="Desks Deployed" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary))" strokeWidth={2} />
+              <Area type="monotone" dataKey="studentsDeployed" name="Students Deployed" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary))" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
