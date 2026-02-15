@@ -183,8 +183,8 @@ export default function PitchDeck() {
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">Unit Economics</h2>
         <div className="grid md:grid-cols-4 gap-4">
           {[
-            { label: "Per Desk/Mo", value: `$${defaultAssumptions.pricePerDeskPerMonth}` },
-            { label: "ARR/Institution", value: formatCurrency(defaultAssumptions.desksPerInstitution * defaultAssumptions.pricePerDeskPerMonth * 12) },
+            { label: "Tier 2/Desk/Yr", value: "$30" },
+            { label: "ARR/Institution", value: formatCurrency(defaultAssumptions.desksPerInstitution * 30) },
             { label: "HW Margin/Tag", value: formatCurrency(defaultAssumptions.nfcTagPrice - defaultAssumptions.nfcTagCost) },
             { label: "Gross Margin", value: formatPercent(lastQ.grossMargin) },
           ].map(m => (
