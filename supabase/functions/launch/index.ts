@@ -38,11 +38,6 @@ Deno.serve(async (req) => {
     });
   }
 
-  // SECURITY NOTE: Service role is only used for looking up teacher display names
-  // from the profiles table, since RLS restricts profile visibility. This returns
-  // only the display_name field and no other PII.
-  const serviceClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-
   const url = new URL(req.url);
   const sessionId = url.searchParams.get("session_id");
   const courseId = url.searchParams.get("course_id");
@@ -51,12 +46,12 @@ Deno.serve(async (req) => {
 
   let session = null;
 
-  // Helper to enrich session with teacher name (uses service role for profile lookup only)
+  // Helper to enrich session with teacher name (uses RLS policy for teacher profile visibility)
   const enrichSession = async (sessionData: any) => {
     if (!sessionData) return null;
     const course = sessionData.courses;
     if (course?.teacher_user_id) {
-      const { data: profile } = await serviceClient
+      const { data: profile } = await supabase
         .from("profiles")
         .select("display_name")
         .eq("user_id", course.teacher_user_id)
