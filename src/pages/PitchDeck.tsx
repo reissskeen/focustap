@@ -26,24 +26,26 @@ export default function PitchDeck() {
   const forecast = useMemo(() => generateForecast(defaultAssumptions), []);
   const chartData = forecast.map((d) => ({
     label: `${d.year.replace("FY ", "'")} ${d.quarter}`,
-    revenue: d.revenue,
+    totalRevenue: d.totalRevenue,
     subscriptionRevenue: d.subscriptionRevenue,
-    enterpriseRevenue: d.enterpriseRevenue,
+    hardwareRevenue: d.hardwareRevenue,
     grossProfit: d.grossProfit,
     ebitda: d.ebitda,
-    users: d.users,
+    desksDeployed: d.desksDeployed,
+    institutions: d.institutions,
   }));
 
   const lastQ = forecast[forecast.length - 1];
-  const totalRevY3 = forecast.filter(d => d.year === "FY 2028").reduce((s, d) => s + d.revenue, 0);
+  const totalRevY3 = forecast.filter(d => d.year === "FY 2028").reduce((s, d) => s + d.totalRevenue, 0);
   const annualData = ["FY 2026", "FY 2027", "FY 2028"].map(y => {
     const qs = forecast.filter(d => d.year === y);
     return {
       year: y,
-      revenue: qs.reduce((s, d) => s + d.revenue, 0),
+      revenue: qs.reduce((s, d) => s + d.totalRevenue, 0),
       grossProfit: qs.reduce((s, d) => s + d.grossProfit, 0),
       ebitda: qs.reduce((s, d) => s + d.ebitda, 0),
-      users: qs[qs.length - 1].users,
+      institutions: qs[qs.length - 1].institutions,
+      desks: qs[qs.length - 1].desksDeployed,
     };
   });
 
@@ -90,7 +92,7 @@ export default function PitchDeck() {
         </div>
         <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground">FocusTap</h1>
         <p className="text-xl md:text-2xl text-muted-foreground font-medium">
-          Classroom Engagement & Attendance — Reimagined
+          NFC-Powered Classroom Engagement & Attendance
         </p>
         <div className="pt-4 text-sm text-muted-foreground">
           Board of Directors Presentation · March 2026
@@ -116,10 +118,10 @@ export default function PitchDeck() {
           <div className="space-y-4">
             <h3 className="text-2xl font-bold text-primary">Our Solution</h3>
             <ul className="space-y-3 text-muted-foreground">
+              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Desk-level NFC tap for instant, verified attendance</li>
               <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Real-time focus tracking via browser visibility API</li>
-              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> QR-code based location-verified attendance</li>
-              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> In-session collaborative note-taking</li>
-              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Actionable analytics for professors</li>
+              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> B2B institutional SaaS — per-desk pricing</li>
+              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Hardware + software revenue model</li>
             </ul>
           </div>
         </div>
@@ -155,7 +157,7 @@ export default function PitchDeck() {
             <div key={y.year} className="p-4 rounded-xl border border-border bg-card text-center">
               <p className="text-sm font-medium text-muted-foreground">{y.year}</p>
               <p className="text-2xl font-bold text-foreground mt-1">{formatCurrency(y.revenue)}</p>
-              <p className="text-xs text-muted-foreground">{y.users.toLocaleString()} users</p>
+              <p className="text-xs text-muted-foreground">{y.institutions} institutions · {y.desks.toLocaleString()} desks</p>
             </div>
           ))}
         </div>
@@ -167,8 +169,8 @@ export default function PitchDeck() {
               <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
               <Tooltip formatter={(v: number) => formatCurrency(v)} />
               <Legend />
-              <Bar dataKey="subscriptionRevenue" name="Subscription" stackId="rev" fill="hsl(var(--primary))" />
-              <Bar dataKey="enterpriseRevenue" name="Enterprise" stackId="rev" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="hsl(var(--primary))" />
+              <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
@@ -181,10 +183,10 @@ export default function PitchDeck() {
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">Unit Economics</h2>
         <div className="grid md:grid-cols-4 gap-4">
           {[
-            { label: "ARPU", value: `$${lastQ.arpu}/mo` },
-            { label: "CAC", value: `$${lastQ.cac}` },
-            { label: "LTV", value: formatCurrency(lastQ.ltv) },
-            { label: "LTV:CAC", value: `${(lastQ.ltv / lastQ.cac).toFixed(1)}x` },
+            { label: "Per Desk/Mo", value: `$${defaultAssumptions.pricePerDeskPerMonth}` },
+            { label: "ARR/Institution", value: formatCurrency(defaultAssumptions.desksPerInstitution * defaultAssumptions.pricePerDeskPerMonth * 12) },
+            { label: "HW Margin/Tag", value: formatCurrency(defaultAssumptions.nfcTagPrice - defaultAssumptions.nfcTagCost) },
+            { label: "Gross Margin", value: formatPercent(lastQ.grossMargin) },
           ].map(m => (
             <div key={m.label} className="p-5 rounded-xl border border-border bg-card text-center">
               <p className="text-sm font-medium text-muted-foreground">{m.label}</p>
@@ -199,7 +201,7 @@ export default function PitchDeck() {
               <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
               <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" />
               <Tooltip />
-              <Area type="monotone" dataKey="users" name="Users" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary))" strokeWidth={2} />
+              <Area type="monotone" dataKey="desksDeployed" name="Desks Deployed" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary))" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -216,9 +218,9 @@ export default function PitchDeck() {
         </div>
         <div className="grid md:grid-cols-3 gap-4 text-left">
           {[
-            { pct: "40%", label: "Product & Engineering", desc: "Scale platform, mobile app, LMS integrations" },
-            { pct: "35%", label: "Sales & Marketing", desc: "University partnerships, content, growth" },
-            { pct: "25%", label: "Operations", desc: "Team growth, infrastructure, compliance" },
+            { pct: "40%", label: "Product & Engineering", desc: "Scale platform, NFC integration, LMS connectors" },
+            { pct: "35%", label: "Sales & Marketing", desc: "University partnerships, pilot programs, growth" },
+            { pct: "25%", label: "Operations", desc: "NFC hardware supply chain, infrastructure, team" },
           ].map(u => (
             <div key={u.label} className="p-4 rounded-xl border border-border bg-card">
               <p className="text-2xl font-bold text-primary">{u.pct}</p>
@@ -228,7 +230,7 @@ export default function PitchDeck() {
           ))}
         </div>
         <p className="text-lg font-semibold text-foreground pt-4">
-          Target: {formatCurrency(totalRevY3)} ARR by FY 2028 · {lastQ.users.toLocaleString()} users
+          Target: {formatCurrency(totalRevY3)} total rev by FY 2028 · {lastQ.institutions} institutions · {lastQ.desksDeployed.toLocaleString()} desks
         </p>
       </div>
     </SlideWrapper>,
@@ -236,7 +238,6 @@ export default function PitchDeck() {
 
   return (
     <div className={`min-h-screen bg-background flex flex-col ${fullscreen ? "fixed inset-0 z-[100]" : ""}`}>
-      {/* Top bar */}
       {!fullscreen && (
         <div className="border-b bg-card/80 backdrop-blur-sm">
           <div className="container mx-auto flex items-center justify-between h-12 px-4">
@@ -255,7 +256,6 @@ export default function PitchDeck() {
         </div>
       )}
 
-      {/* Slide Area */}
       <div className="flex-1 flex items-center justify-center relative overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
@@ -270,7 +270,6 @@ export default function PitchDeck() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Navigation arrows */}
         <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3">
           <Button variant="outline" size="icon" onClick={prev} disabled={slide === 0} className="h-10 w-10 rounded-full">
             <ArrowLeft className="w-4 h-4" />
@@ -280,7 +279,6 @@ export default function PitchDeck() {
           </Button>
         </div>
 
-        {/* Fullscreen exit button */}
         {fullscreen && (
           <Button variant="ghost" size="icon" className="absolute top-4 right-4 h-8 w-8" onClick={toggleFullscreen}>
             <Minimize2 className="w-4 h-4" />
@@ -288,7 +286,6 @@ export default function PitchDeck() {
         )}
       </div>
 
-      {/* Slide indicators */}
       <div className="flex justify-center gap-1.5 pb-4">
         {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
           <button
