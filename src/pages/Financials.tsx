@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers } from "lucide-react";
+import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers, Target, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,12 +10,16 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart, PieChart, Pie, Cell, ReferenceLine,
 } from "recharts";
-import { defaultAssumptions, generateForecast, formatCurrency, formatPercent, TIERS, type Assumptions, type HalfYearAdoption } from "@/lib/financialData";
+import {
+  defaultAssumptions, generateForecast, formatCurrency, formatPercent,
+  TIERS, computeNINVTotal, computeAnnualOpexTotal, computeBreakEven,
+  type Assumptions, type HalfYearAdoption, type AnnualOpex, type NINV,
+} from "@/lib/financialData";
 
-const KPICard = ({ title, value, subtitle, icon: Icon }: { title: string; value: string; subtitle: string; icon: any }) => (
-  <Card className="border-border/60">
+const KPICard = ({ title, value, subtitle, icon: Icon, accent }: { title: string; value: string; subtitle: string; icon: any; accent?: boolean }) => (
+  <Card className={`border-border/60 ${accent ? "border-primary/40 bg-primary/5" : ""}`}>
     <CardContent className="p-5">
       <div className="flex items-start justify-between">
         <div>
@@ -37,6 +41,10 @@ export default function Financials() {
   const [assumptions, setAssumptions] = useState<Assumptions>(defaultAssumptions);
   const forecast = useMemo(() => generateForecast(assumptions), [assumptions]);
 
+  const ninvTotal = useMemo(() => computeNINVTotal(assumptions.ninv), [assumptions.ninv]);
+  const annualOpexTotal = useMemo(() => computeAnnualOpexTotal(assumptions.annualOpex), [assumptions.annualOpex]);
+  const breakEven = useMemo(() => computeBreakEven(forecast, ninvTotal), [forecast, ninvTotal]);
+
   const chartData = forecast.map((d) => ({
     label: `${d.year.replace("FY ", "'")} ${d.quarter}`,
     totalRevenue: d.totalRevenue,
@@ -46,6 +54,7 @@ export default function Financials() {
     expansionRevenue: d.expansionRevenue,
     grossProfit: d.grossProfit,
     ebitda: d.ebitda,
+    opex: d.opex,
     desksDeployed: d.desksDeployed,
     institutions: d.institutions,
     tier1Inst: d.tier1Inst,
@@ -54,6 +63,7 @@ export default function Financials() {
     mrr: d.mrr,
     grossMargin: Math.round(d.grossMargin * 100),
     ebitdaMargin: Math.round(d.ebitdaMargin * 100),
+    cumulativeProfit: d.cumulativeProfit,
   }));
 
   const lastQ = forecast[forecast.length - 1];
@@ -67,8 +77,16 @@ export default function Financials() {
     { name: "Tier 3", value: lastQ.tier3Inst },
   ].filter(d => d.value > 0);
 
-  const updateAssumption = (key: keyof Assumptions, value: string) => {
+  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "desksPerInstitution" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "tier1UpgradeRate" | "saasCogsPct", value: string) => {
     setAssumptions(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
+  };
+
+  const updateOpex = (key: keyof AnnualOpex, value: string) => {
+    setAssumptions(prev => ({ ...prev, annualOpex: { ...prev.annualOpex, [key]: parseFloat(value) || 0 } }));
+  };
+
+  const updateNINV = (key: keyof NINV, value: string) => {
+    setAssumptions(prev => ({ ...prev, ninv: { ...prev.ninv, [key]: parseFloat(value) || 0 } }));
   };
 
   const halfKeys = ["h1_2026", "h2_2026", "h1_2027", "h2_2027", "h1_2028", "h2_2028"] as const;
@@ -80,6 +98,23 @@ export default function Financials() {
       [halfKey]: { ...prev[halfKey], [tierKey]: parseInt(value) || 0 },
     }));
   };
+
+  // Annual summary
+  const annualSummary = ["FY 2026", "FY 2027", "FY 2028"].map(yr => {
+    const qs = forecast.filter(d => d.year === yr);
+    return {
+      year: yr,
+      revenue: qs.reduce((s, d) => s + d.totalRevenue, 0),
+      saas: qs.reduce((s, d) => s + d.subscriptionRevenue, 0),
+      hw: qs.reduce((s, d) => s + d.hardwareRevenue, 0),
+      impl: qs.reduce((s, d) => s + d.implementationRevenue, 0),
+      opex: qs.reduce((s, d) => s + d.opex, 0),
+      grossProfit: qs.reduce((s, d) => s + d.grossProfit, 0),
+      ebitda: qs.reduce((s, d) => s + d.ebitda, 0),
+      institutions: qs[qs.length - 1].institutions,
+      desks: qs[qs.length - 1].desksDeployed,
+    };
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,7 +129,7 @@ export default function Financials() {
             </Link>
             <h1 className="font-bold text-lg">FocusTap Financial Model</h1>
             <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
-              Tiered SaaS + Hardware · March 2026
+              Enterprise B2B SaaS · March 2026
             </span>
           </div>
           <Link to="/pitch-deck">
@@ -110,13 +145,27 @@ export default function Financials() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-2 md:grid-cols-6 gap-4"
+          className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
         >
+          <KPICard title="NINV" value={formatCurrency(ninvTotal)} subtitle="One-time investment" icon={Wallet} />
+          <KPICard title="Annual OPEX" value={formatCurrency(annualOpexTotal)} subtitle="Year 1 operating costs" icon={HardDrive} />
           <KPICard title="ARR (Year 3)" value={formatCurrency(lastQ.arr)} subtitle={`${lastQ.institutions} institutions`} icon={DollarSign} />
           <KPICard title="MRR (Latest)" value={formatCurrency(lastQ.mrr)} subtitle={`${lastQ.desksDeployed.toLocaleString()} desks`} icon={TrendingUp} />
           <KPICard title="Institutions" value={lastQ.institutions.toString()} subtitle={`T1:${lastQ.tier1Inst} T2:${lastQ.tier2Inst} T3:${lastQ.tier3Inst}`} icon={Building2} />
-          <KPICard title="Impl. Fees (Total)" value={formatCurrency(totalImplRev)} subtitle="One-time setup" icon={HardDrive} />
-          <KPICard title="Expansion Rev" value={formatCurrency(totalExpansionRev)} subtitle="Tier upgrades" icon={Layers} />
+          <KPICard
+            title="Op. Break-Even"
+            value={breakEven.operatingBreakEvenQ || "N/A"}
+            subtitle={breakEven.monthsToOperating ? `${breakEven.monthsToOperating} months` : "Not reached"}
+            icon={Target}
+            accent
+          />
+          <KPICard
+            title="Full Break-Even"
+            value={breakEven.fullBreakEvenQ || "N/A"}
+            subtitle={breakEven.monthsToFull ? `${breakEven.monthsToFull} months` : "Not reached"}
+            icon={Target}
+            accent
+          />
           <KPICard title="Gross Margin" value={formatPercent(lastQ.grossMargin)} subtitle={`EBITDA: ${formatPercent(lastQ.ebitdaMargin)}`} icon={BarChart3} />
         </motion.div>
 
@@ -126,6 +175,7 @@ export default function Financials() {
             <TabsTrigger value="tiers">Tier Mix</TabsTrigger>
             <TabsTrigger value="deployment">Deployment</TabsTrigger>
             <TabsTrigger value="profitability">Profitability</TabsTrigger>
+            <TabsTrigger value="breakeven">Break-Even</TabsTrigger>
             <TabsTrigger value="proforma">Pro-Forma P&L</TabsTrigger>
             <TabsTrigger value="assumptions">Assumptions</TabsTrigger>
           </TabsList>
@@ -167,6 +217,26 @@ export default function Financials() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Annual Summary */}
+            <Card>
+              <CardHeader className="pb-2"><CardTitle className="text-sm">Annual Revenue Summary</CardTitle></CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-4">
+                  {annualSummary.map(y => (
+                    <div key={y.year} className="p-4 rounded-xl border border-border bg-card space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">{y.year}</p>
+                      <p className="text-2xl font-bold text-foreground">{formatCurrency(y.revenue)}</p>
+                      <div className="text-xs text-muted-foreground space-y-0.5">
+                        <p>SaaS: {formatCurrency(y.saas)} · HW: {formatCurrency(y.hw)} · Impl: {formatCurrency(y.impl)}</p>
+                        <p>{y.institutions} institutions · {y.desks.toLocaleString()} desks</p>
+                        <p>OPEX: {formatCurrency(y.opex)} · EBITDA: <span className={y.ebitda >= 0 ? "text-primary" : "text-destructive"}>{formatCurrency(y.ebitda)}</span></p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Tier Mix Tab */}
@@ -217,11 +287,12 @@ export default function Financials() {
                     <div key={t} className={`p-4 rounded-lg border ${t === 2 ? "border-primary bg-primary/5" : "border-border"}`}>
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">{TIERS[t].tag}</span>
-                        {t === 2 && <span className="text-xs text-primary font-medium">Recommended</span>}
+                        {t === 2 && <span className="text-xs text-primary font-medium">Default Plan</span>}
                       </div>
                       <h3 className="font-semibold text-foreground">{TIERS[t].name}</h3>
                       <p className="text-2xl font-bold text-foreground mt-1">${TIERS[t].pricePerDeskPerYear}<span className="text-sm font-normal text-muted-foreground">/desk/yr</span></p>
                       <p className="text-xs text-muted-foreground mt-1">Implementation: {formatCurrency(TIERS[t].implementationFee)}</p>
+                      <p className="text-xs text-muted-foreground">ARR/Institution: {formatCurrency(assumptions.desksPerInstitution * TIERS[t].pricePerDeskPerYear)}</p>
                     </div>
                   ))}
                 </div>
@@ -262,24 +333,46 @@ export default function Financials() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Unit Economics Card */}
+            <Card>
+              <CardHeader className="pb-2"><CardTitle className="text-sm">Unit Economics (Per Institution — Tier 2 Default)</CardTitle></CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-4 gap-4">
+                  {[
+                    { label: "Desks Deployed", value: assumptions.desksPerInstitution.toLocaleString() },
+                    { label: "Annual SaaS ARR", value: formatCurrency(assumptions.desksPerInstitution * TIERS[2].pricePerDeskPerYear) },
+                    { label: "Implementation Fee", value: formatCurrency(TIERS[2].implementationFee) },
+                    { label: "HW Revenue", value: formatCurrency(assumptions.desksPerInstitution * assumptions.nfcTagPrice) },
+                  ].map(m => (
+                    <div key={m.label} className="p-4 rounded-xl border border-border bg-card text-center">
+                      <p className="text-xs font-medium text-muted-foreground">{m.label}</p>
+                      <p className="text-2xl font-bold text-primary mt-1">{m.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Profitability Tab */}
           <TabsContent value="profitability" className="space-y-4">
             <div className="grid lg:grid-cols-2 gap-4">
               <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Gross Profit & EBITDA</CardTitle></CardHeader>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Revenue vs OPEX vs EBITDA</CardTitle></CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={280}>
-                    <BarChart data={chartData}>
+                    <ComposedChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
                       <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
                       <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
                       <Tooltip formatter={(v: number) => formatCurrency(v)} />
                       <Legend />
-                      <Bar dataKey="grossProfit" name="Gross Profit" fill="hsl(var(--primary) / 0.6)" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="ebitda" name="EBITDA" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
-                    </BarChart>
+                      <ReferenceLine y={0} stroke="hsl(var(--border))" />
+                      <Bar dataKey="totalRevenue" name="Revenue" fill="hsl(var(--primary) / 0.3)" radius={[4, 4, 0, 0]} />
+                      <Line type="monotone" dataKey="opex" name="OPEX" stroke="hsl(var(--destructive))" strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="ebitda" name="EBITDA" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                    </ComposedChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
@@ -294,6 +387,7 @@ export default function Financials() {
                       <YAxis unit="%" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
                       <Tooltip formatter={(v: number) => `${v}%`} />
                       <Legend />
+                      <ReferenceLine y={0} stroke="hsl(var(--border))" />
                       <Line type="monotone" dataKey="grossMargin" name="Gross Margin %" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
                       <Line type="monotone" dataKey="ebitdaMargin" name="EBITDA Margin %" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} />
                     </LineChart>
@@ -301,6 +395,62 @@ export default function Financials() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Break-Even Tab */}
+          <TabsContent value="breakeven" className="space-y-4">
+            <div className="grid md:grid-cols-3 gap-4">
+              <Card className="border-primary/40 bg-primary/5">
+                <CardContent className="p-5 text-center space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground uppercase">NINV (Initial Investment)</p>
+                  <p className="text-3xl font-bold text-foreground">{formatCurrency(ninvTotal)}</p>
+                  <p className="text-xs text-muted-foreground">One-time capital requirement</p>
+                </CardContent>
+              </Card>
+              <Card className="border-primary/40 bg-primary/5">
+                <CardContent className="p-5 text-center space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground uppercase">Operating Break-Even</p>
+                  <p className="text-3xl font-bold text-foreground">{breakEven.operatingBreakEvenQ || "N/A"}</p>
+                  <p className="text-xs text-muted-foreground">{breakEven.monthsToOperating ? `~${breakEven.monthsToOperating} months · EBITDA ≥ 0` : "Quarterly EBITDA ≥ 0"}</p>
+                </CardContent>
+              </Card>
+              <Card className="border-primary/40 bg-primary/5">
+                <CardContent className="p-5 text-center space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground uppercase">Full Investment Break-Even</p>
+                  <p className="text-3xl font-bold text-foreground">{breakEven.fullBreakEvenQ || "N/A"}</p>
+                  <p className="text-xs text-muted-foreground">{breakEven.monthsToFull ? `~${breakEven.monthsToFull} months · Cumulative profit ≥ NINV` : "Cumulative profit covers NINV"}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader className="pb-2"><CardTitle className="text-sm">Cumulative Profit vs NINV</CardTitle></CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <ComposedChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
+                    <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                    <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                    <Tooltip formatter={(v: number) => formatCurrency(v)} />
+                    <Legend />
+                    <ReferenceLine y={ninvTotal} stroke="hsl(var(--destructive))" strokeDasharray="5 5" label={{ value: `NINV: ${formatCurrency(ninvTotal)}`, position: "right", fill: "hsl(var(--destructive))", fontSize: 11 }} />
+                    <ReferenceLine y={0} stroke="hsl(var(--border))" />
+                    <Area type="monotone" dataKey="cumulativeProfit" name="Cumulative Profit" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary))" strokeWidth={2} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2"><CardTitle className="text-sm">Break-Even Logic</CardTitle></CardHeader>
+              <CardContent className="text-sm text-muted-foreground space-y-2">
+                <p>• Annual operating costs (Year 1): <span className="font-semibold text-foreground">{formatCurrency(annualOpexTotal)}</span></p>
+                <p>• ARR per institution (Tier 2): <span className="font-semibold text-foreground">{formatCurrency(assumptions.desksPerInstitution * TIERS[2].pricePerDeskPerYear)}</span></p>
+                <p>• Operating break-even occurs at approximately <span className="font-semibold text-foreground">1 institutional client</span></p>
+                <p>• Full investment break-even (including {formatCurrency(ninvTotal)} NINV) at approximately <span className="font-semibold text-foreground">2 institutional clients</span></p>
+                <p>• Profitability expected within <span className="font-semibold text-foreground">18–24 months</span> under realistic B2B growth</p>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Pro-Forma P&L Tab */}
@@ -321,7 +471,7 @@ export default function Financials() {
                       <TableHead className="text-right">Expand</TableHead>
                       <TableHead className="text-right">Total Rev</TableHead>
                       <TableHead className="text-right">GP</TableHead>
-                      <TableHead className="text-right">GM %</TableHead>
+                      <TableHead className="text-right">OPEX</TableHead>
                       <TableHead className="text-right">EBITDA</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -340,9 +490,28 @@ export default function Financials() {
                         <TableCell className="text-right font-mono text-sm text-primary">{row.expansionRevenue > 0 ? formatCurrency(row.expansionRevenue) : "—"}</TableCell>
                         <TableCell className="text-right font-mono text-sm font-semibold">{formatCurrency(row.totalRevenue)}</TableCell>
                         <TableCell className="text-right font-mono text-sm">{formatCurrency(row.grossProfit)}</TableCell>
-                        <TableCell className="text-right font-mono text-sm">{formatPercent(row.grossMargin)}</TableCell>
+                        <TableCell className="text-right font-mono text-sm text-destructive">{formatCurrency(row.opex)}</TableCell>
                         <TableCell className={`text-right font-mono text-sm font-semibold ${row.ebitda >= 0 ? "text-primary" : "text-destructive"}`}>
                           {formatCurrency(row.ebitda)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {/* Annual summary rows */}
+                    {annualSummary.map(y => (
+                      <TableRow key={y.year} className="bg-muted/50 font-semibold border-t-2 border-primary/20">
+                        <TableCell className="sticky left-0 bg-muted/50 z-10 font-bold">{y.year} Total</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{y.institutions}</TableCell>
+                        <TableCell className="text-right" />
+                        <TableCell className="text-right font-mono text-sm">{y.desks.toLocaleString()}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{formatCurrency(y.hw)}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{formatCurrency(y.impl)}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{formatCurrency(y.saas)}</TableCell>
+                        <TableCell className="text-right" />
+                        <TableCell className="text-right font-mono text-sm font-bold">{formatCurrency(y.revenue)}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{formatCurrency(y.grossProfit)}</TableCell>
+                        <TableCell className="text-right font-mono text-sm text-destructive">{formatCurrency(y.opex)}</TableCell>
+                        <TableCell className={`text-right font-mono text-sm font-bold ${y.ebitda >= 0 ? "text-primary" : "text-destructive"}`}>
+                          {formatCurrency(y.ebitda)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -355,6 +524,61 @@ export default function Financials() {
           {/* Assumptions Tab */}
           <TabsContent value="assumptions">
             <div className="space-y-4">
+              {/* NINV */}
+              <Card>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Net Initial Investment (NINV) — Total: {formatCurrency(ninvTotal)}</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    {([
+                      { key: "softwareDev" as const, label: "Software Dev (MVP)" },
+                      { key: "nfcInventory" as const, label: "NFC Inventory" },
+                      { key: "pilotDeployment" as const, label: "Pilot Deployment" },
+                      { key: "legalSetup" as const, label: "Legal & Setup" },
+                      { key: "brandingWebsite" as const, label: "Branding & Website" },
+                    ]).map(({ key, label }) => (
+                      <div key={key} className="space-y-1.5">
+                        <Label className="text-xs">{label}</Label>
+                        <Input
+                          type="number"
+                          step={500}
+                          value={assumptions.ninv[key]}
+                          onChange={(e) => updateNINV(key, e.target.value)}
+                          className="h-9 font-mono text-sm"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Annual OPEX */}
+              <Card>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Annual Operating Costs (Year 1) — Total: {formatCurrency(annualOpexTotal)}</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    {([
+                      { key: "cloudInfra" as const, label: "Cloud Infrastructure" },
+                      { key: "softwareMaintenance" as const, label: "Software Maintenance" },
+                      { key: "salesOutreach" as const, label: "Sales & Outreach" },
+                      { key: "customerSupport" as const, label: "Customer Support" },
+                      { key: "generalAdmin" as const, label: "General & Admin" },
+                    ]).map(({ key, label }) => (
+                      <div key={key} className="space-y-1.5">
+                        <Label className="text-xs">{label}</Label>
+                        <Input
+                          type="number"
+                          step={500}
+                          value={assumptions.annualOpex[key]}
+                          onChange={(e) => updateOpex(key, e.target.value)}
+                          className="h-9 font-mono text-sm"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* General */}
               <Card>
                 <CardHeader className="pb-2"><CardTitle className="text-sm">General Assumptions</CardTitle></CardHeader>
                 <CardContent>
@@ -364,11 +588,10 @@ export default function Financials() {
                       { key: "nfcTagPrice" as const, label: "NFC Tag Price ($)", step: 0.5 },
                       { key: "desksPerInstitution" as const, label: "Desks per Institution", step: 100 },
                       { key: "initialRolloutPercent" as const, label: "Initial Rollout %", step: 0.05 },
-                      { key: "salesMarketingPercent" as const, label: "S&M %", step: 0.01 },
-                      { key: "rdPercent" as const, label: "R&D %", step: 0.01 },
-                      { key: "gaPercent" as const, label: "G&A %", step: 0.01 },
+                      { key: "opexGrowthRate" as const, label: "OPEX Growth/Yr", step: 0.05 },
                       { key: "annualChurnRate" as const, label: "Annual Churn %", step: 0.01 },
                       { key: "tier1UpgradeRate" as const, label: "T1→T2 Upgrade Rate", step: 0.05 },
+                      { key: "saasCogsPct" as const, label: "SaaS COGS %", step: 0.01 },
                     ]).map(({ key, label, step }) => (
                       <div key={key} className="space-y-1.5">
                         <Label className="text-xs">{label}</Label>
@@ -376,7 +599,7 @@ export default function Financials() {
                           type="number"
                           step={step}
                           value={assumptions[key]}
-                          onChange={(e) => updateAssumption(key, e.target.value)}
+                          onChange={(e) => updateScalar(key, e.target.value)}
                           className="h-9 font-mono text-sm"
                         />
                       </div>
@@ -385,6 +608,7 @@ export default function Financials() {
                 </CardContent>
               </Card>
 
+              {/* Adoption table */}
               <Card>
                 <CardHeader className="pb-2"><CardTitle className="text-sm">Institution Adoption by Tier (Cumulative)</CardTitle></CardHeader>
                 <CardContent>
