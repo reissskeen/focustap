@@ -99,8 +99,8 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const isFirstOfHalf = q === 0 || q === 2;
     const halfTarget = halfTargets[i];
     const newInHalf = Math.max(0, halfTarget - cumulativeInstitutions);
-    // Split half's new institutions: 40% first quarter, 60% second
-    const newInst = Math.round(isFirstOfHalf ? newInHalf * 0.4 : newInHalf * 0.6);
+    // Split half's new institutions: first quarter gets ceil, second gets remainder
+    const newInst = isFirstOfHalf ? Math.ceil(newInHalf * 0.5) : Math.max(0, newInHalf - Math.ceil(newInHalf * 0.5));
     cumulativeInstitutions += newInst;
 
     const newDesksFromNewInst = Math.round(newInst * a.desksPerInstitution * a.initialRolloutPercent);
