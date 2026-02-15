@@ -11,14 +11,14 @@ export type Tier = 1 | 2 | 3;
 export interface TierConfig {
   name: string;
   tag: string;
-  pricePerDeskPerYear: number;
+  pricePerStudentPerYear: number;
   implementationFee: number;
 }
 
 export const TIERS: Record<Tier, TierConfig> = {
-  1: { name: "Core Analytics", tag: "Tier 1", pricePerDeskPerYear: 18, implementationFee: 3_000 },
-  2: { name: "Advanced Engagement", tag: "Tier 2", pricePerDeskPerYear: 30, implementationFee: 7_500 },
-  3: { name: "Full Campus Intelligence", tag: "Tier 3", pricePerDeskPerYear: 50, implementationFee: 15_000 },
+  1: { name: "Core Analytics", tag: "Tier 1", pricePerStudentPerYear: 18, implementationFee: 3_000 },
+  2: { name: "Advanced Engagement", tag: "Tier 2", pricePerStudentPerYear: 30, implementationFee: 7_500 },
+  3: { name: "Full Campus Intelligence", tag: "Tier 3", pricePerStudentPerYear: 50, implementationFee: 15_000 },
 };
 
 export interface HalfYearAdoption {
@@ -47,7 +47,7 @@ export interface Assumptions {
   // Hardware
   nfcTagCost: number;
   nfcTagPrice: number;
-  desksPerInstitution: number;
+  studentsPerInstitution: number;
   // Adoption timeline — cumulative institutions by end of each half-year, broken by tier
   h1_2026: HalfYearAdoption;
   h2_2026: HalfYearAdoption;
@@ -82,7 +82,7 @@ export function computeAnnualOpexTotal(opex: AnnualOpex): number {
 export const defaultAssumptions: Assumptions = {
   nfcTagCost: 0.50,
   nfcTagPrice: 2.00,
-  desksPerInstitution: 1000,
+  studentsPerInstitution: 1000,
   // Realistic B2B adoption: Y1=1 pilot, Y2=5 total, Y3=15 total
   h1_2026: { tier1: 1, tier2: 0, tier3: 0 },
   h2_2026: { tier1: 1, tier2: 0, tier3: 0 },
@@ -120,8 +120,8 @@ export interface YearlyFinancials {
   tier3Inst: number;
   institutions: number;
   newInstitutions: number;
-  desksDeployed: number;
-  newDesks: number;
+  studentsDeployed: number;
+  newStudents: number;
   // Revenue streams
   hardwareRevenue: number;
   hardwareCogs: number;
@@ -166,7 +166,7 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
   const baseAnnualOpex = computeAnnualOpexTotal(a.annualOpex);
 
   let cumT1 = 0, cumT2 = 0, cumT3 = 0;
-  let cumulativeDesks = 0;
+  let cumulativeStudents = 0;
   let cumulativeRevenue = 0;
   let cumulativeProfit = 0;
 
@@ -211,20 +211,20 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const cumulativeInstitutions = cumT1 + cumT2 + cumT3;
     const totalNewInst = newT1 + newT2 + newT3;
 
-    // Desk deployment
-    const newDesksFromNewInst = Math.round(totalNewInst * a.desksPerInstitution * a.initialRolloutPercent);
-    const maxDesks = cumulativeInstitutions * a.desksPerInstitution;
-    const rampDesks = Math.round((maxDesks - cumulativeDesks - newDesksFromNewInst) * 0.3);
-    const totalNewDesks = newDesksFromNewInst + Math.max(0, rampDesks);
-    cumulativeDesks = Math.min(maxDesks, cumulativeDesks + totalNewDesks);
+    // Student deployment
+    const newStudentsFromNewInst = Math.round(totalNewInst * a.studentsPerInstitution * a.initialRolloutPercent);
+    const maxStudents = cumulativeInstitutions * a.studentsPerInstitution;
+    const rampStudents = Math.round((maxStudents - cumulativeStudents - newStudentsFromNewInst) * 0.3);
+    const totalNewStudents = newStudentsFromNewInst + Math.max(0, rampStudents);
+    cumulativeStudents = Math.min(maxStudents, cumulativeStudents + totalNewStudents);
 
     // Churn
-    const churnedDesks = Math.round(cumulativeDesks * (a.annualChurnRate / 4));
-    cumulativeDesks = Math.max(0, cumulativeDesks - churnedDesks);
+    const churnedStudents = Math.round(cumulativeStudents * (a.annualChurnRate / 4));
+    cumulativeStudents = Math.max(0, cumulativeStudents - churnedStudents);
 
-    // Hardware revenue (one-time per new desk)
-    const hardwareRevenue = totalNewDesks * a.nfcTagPrice;
-    const hardwareCogs = totalNewDesks * a.nfcTagCost;
+    // Hardware revenue (one-time per new student/desk)
+    const hardwareRevenue = totalNewStudents * a.nfcTagPrice;
+    const hardwareCogs = totalNewStudents * a.nfcTagCost;
     const hardwareGrossProfit = hardwareRevenue - hardwareCogs;
 
     // Implementation fees (one-time, on new institutions)
@@ -239,21 +239,21 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const t2Frac = cumT2 / totalInst;
     const t3Frac = cumT3 / totalInst;
 
-    const weightedPricePerDeskPerYear =
-      t1Frac * TIERS[1].pricePerDeskPerYear +
-      t2Frac * TIERS[2].pricePerDeskPerYear +
-      t3Frac * TIERS[3].pricePerDeskPerYear;
+    const weightedPricePerStudentPerYear =
+      t1Frac * TIERS[1].pricePerStudentPerYear +
+      t2Frac * TIERS[2].pricePerStudentPerYear +
+      t3Frac * TIERS[3].pricePerStudentPerYear;
 
-    const quarterlySubRevenue = (cumulativeDesks * weightedPricePerDeskPerYear) / 4;
+    const quarterlySubRevenue = (cumulativeStudents * weightedPricePerStudentPerYear) / 4;
 
     // Expansion revenue from tier upgrades
     const expansionRevenue = upgrades > 0
-      ? (upgrades * a.desksPerInstitution * (TIERS[2].pricePerDeskPerYear - TIERS[1].pricePerDeskPerYear)) / 4
+      ? (upgrades * a.studentsPerInstitution * (TIERS[2].pricePerStudentPerYear - TIERS[1].pricePerStudentPerYear)) / 4
       : 0;
 
     const subscriptionRevenue = quarterlySubRevenue;
-    const mrr = (cumulativeDesks * weightedPricePerDeskPerYear) / 12;
-    const arr = cumulativeDesks * weightedPricePerDeskPerYear;
+    const mrr = (cumulativeStudents * weightedPricePerStudentPerYear) / 12;
+    const arr = cumulativeStudents * weightedPricePerStudentPerYear;
 
     const totalRevenue = hardwareRevenue + implementationRevenue + subscriptionRevenue + expansionRevenue;
     const subscriptionCogs = subscriptionRevenue * a.saasCogsPct;
@@ -280,8 +280,8 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
       tier3Inst: cumT3,
       institutions: cumulativeInstitutions,
       newInstitutions: totalNewInst,
-      desksDeployed: cumulativeDesks,
-      newDesks: totalNewDesks,
+      studentsDeployed: cumulativeStudents,
+      newStudents: totalNewStudents,
       hardwareRevenue: Math.round(hardwareRevenue),
       hardwareCogs: Math.round(hardwareCogs),
       hardwareGrossProfit: Math.round(hardwareGrossProfit),
