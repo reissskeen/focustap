@@ -69,6 +69,8 @@ export interface Assumptions {
   tier1UpgradeRate: number;
   // SaaS COGS as % of subscription revenue
   saasCogsPct: number;
+  // Free-pilot GTM: number of institutions offered free subscription (implementation fee only)
+  pilotFreeInstitutions: number;
 }
 
 export function computeNINVTotal(ninv: NINV): number {
@@ -109,6 +111,7 @@ export const defaultAssumptions: Assumptions = {
   annualChurnRate: 0.03,
   tier1UpgradeRate: 0.50,
   saasCogsPct: 0.15,
+  pilotFreeInstitutions: 1, // Flagler — free subscription, implementation fee only
 };
 
 export interface YearlyFinancials {
@@ -234,6 +237,8 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
       newT3 * TIERS[3].implementationFee;
 
     // Subscription revenue (quarterly) — weighted by tier mix
+    // Free-pilot GTM: first N institutions get free subscription
+    const paidInstitutions = Math.max(0, cumulativeInstitutions - a.pilotFreeInstitutions);
     const totalInst = cumulativeInstitutions || 1;
     const t1Frac = cumT1 / totalInst;
     const t2Frac = cumT2 / totalInst;
@@ -244,7 +249,11 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
       t2Frac * TIERS[2].pricePerStudentPerYear +
       t3Frac * TIERS[3].pricePerStudentPerYear;
 
-    const quarterlySubRevenue = (cumulativeStudents * weightedPricePerStudentPerYear) / 4;
+    // Only paid institutions generate subscription revenue
+    const paidStudents = paidInstitutions > 0
+      ? Math.round(cumulativeStudents * (paidInstitutions / cumulativeInstitutions))
+      : 0;
+    const quarterlySubRevenue = (paidStudents * weightedPricePerStudentPerYear) / 4;
 
     // Expansion revenue from tier upgrades
     const expansionRevenue = upgrades > 0
@@ -252,8 +261,8 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
       : 0;
 
     const subscriptionRevenue = quarterlySubRevenue;
-    const mrr = (cumulativeStudents * weightedPricePerStudentPerYear) / 12;
-    const arr = cumulativeStudents * weightedPricePerStudentPerYear;
+    const mrr = (paidStudents * weightedPricePerStudentPerYear) / 12;
+    const arr = paidStudents * weightedPricePerStudentPerYear;
 
     const totalRevenue = hardwareRevenue + implementationRevenue + subscriptionRevenue + expansionRevenue;
     const subscriptionCogs = subscriptionRevenue * a.saasCogsPct;

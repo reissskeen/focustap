@@ -77,7 +77,7 @@ export default function Financials() {
     { name: "Tier 3", value: lastQ.tier3Inst },
   ].filter(d => d.value > 0);
 
-  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "studentsPerInstitution" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "tier1UpgradeRate" | "saasCogsPct", value: string) => {
+  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "studentsPerInstitution" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "tier1UpgradeRate" | "saasCogsPct" | "pilotFreeInstitutions", value: string) => {
     setAssumptions(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
   };
 
@@ -592,6 +592,7 @@ export default function Financials() {
                       { key: "annualChurnRate" as const, label: "Annual Churn %", step: 0.01 },
                       { key: "tier1UpgradeRate" as const, label: "T1→T2 Upgrade Rate", step: 0.05 },
                       { key: "saasCogsPct" as const, label: "SaaS COGS %", step: 0.01 },
+                      { key: "pilotFreeInstitutions" as const, label: "Free Pilot Schools", step: 1 },
                     ]).map(({ key, label, step }) => (
                       <div key={key} className="space-y-1.5">
                         <Label className="text-xs">{label}</Label>
