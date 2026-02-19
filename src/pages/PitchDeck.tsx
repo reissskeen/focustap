@@ -120,8 +120,8 @@ export default function PitchDeck() {
             <ul className="space-y-3 text-muted-foreground">
               <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Desk-level NFC tap for instant, verified attendance</li>
               <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Real-time focus tracking via browser visibility API</li>
-              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> B2B institutional SaaS — per-student pricing</li>
-              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Hardware + software revenue model</li>
+              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Free pilot at Flagler — implementation fee covers costs</li>
+              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Proven data → sell school-to-school</li>
             </ul>
           </div>
         </div>
