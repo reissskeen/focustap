@@ -37,8 +37,38 @@ const KPICard = ({ title, value, subtitle, icon: Icon, accent }: { title: string
 
 const TIER_COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(210 60% 50%)"];
 
+const STORAGE_KEY = "focustap_financial_assumptions";
+
+function loadAssumptions(): Assumptions {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // Merge with defaults to handle new keys added in future
+      return { ...defaultAssumptions, ...parsed };
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return defaultAssumptions;
+}
+
 export default function Financials() {
-  const [assumptions, setAssumptions] = useState<Assumptions>(defaultAssumptions);
+  const [assumptions, setAssumptions] = useState<Assumptions>(loadAssumptions);
+  const [savedIndicator, setSavedIndicator] = useState(false);
+
+  // Auto-save to localStorage whenever assumptions change
+  const updateAssumptions = (updater: (prev: Assumptions) => Assumptions) => {
+    setAssumptions(prev => {
+      const next = updater(prev);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch { /* ignore */ }
+      setSavedIndicator(true);
+      setTimeout(() => setSavedIndicator(false), 1500);
+      return next;
+    });
+  };
   const forecast = useMemo(() => generateForecast(assumptions), [assumptions]);
 
   const ninvTotal = useMemo(() => computeNINVTotal(assumptions.ninv), [assumptions.ninv]);
@@ -74,22 +104,22 @@ export default function Financials() {
   ].filter(d => d.value > 0);
 
   const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "studentsPerInstitution" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "saasCogsPct" | "pilotFreeInstitutions", value: string) => {
-    setAssumptions(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
+    updateAssumptions(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
   };
 
   const updateOpex = (key: keyof AnnualOpex, value: string) => {
-    setAssumptions(prev => ({ ...prev, annualOpex: { ...prev.annualOpex, [key]: parseFloat(value) || 0 } }));
+    updateAssumptions(prev => ({ ...prev, annualOpex: { ...prev.annualOpex, [key]: parseFloat(value) || 0 } }));
   };
 
   const updateNINV = (key: keyof NINV, value: string) => {
-    setAssumptions(prev => ({ ...prev, ninv: { ...prev.ninv, [key]: parseFloat(value) || 0 } }));
+    updateAssumptions(prev => ({ ...prev, ninv: { ...prev.ninv, [key]: parseFloat(value) || 0 } }));
   };
 
   const halfKeys = ["h1_2026", "h2_2026", "h1_2027", "h2_2027", "h1_2028", "h2_2028"] as const;
   const halfLabels = ["H1 2026", "H2 2026", "H1 2027", "H2 2027", "H1 2028", "H2 2028"];
 
   const updateHalfYear = (halfKey: typeof halfKeys[number], tierKey: keyof HalfYearAdoption, value: string) => {
-    setAssumptions(prev => ({
+    updateAssumptions(prev => ({
       ...prev,
       [halfKey]: { ...prev[halfKey], [tierKey]: parseInt(value) || 0 },
     }));
@@ -127,12 +157,30 @@ export default function Financials() {
             <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
               Enterprise B2B SaaS · March 2026
             </span>
+            {savedIndicator && (
+              <span className="text-xs text-primary animate-in fade-in slide-in-from-left-2 duration-300">
+                ✓ Auto-saved
+              </span>
+            )}
           </div>
-          <Link to="/pitch-deck">
-            <Button size="sm" className="gap-1.5">
-              <Presentation className="w-4 h-4" /> Present
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-xs text-muted-foreground"
+              onClick={() => {
+                localStorage.removeItem(STORAGE_KEY);
+                setAssumptions(defaultAssumptions);
+              }}
+            >
+              Reset defaults
             </Button>
-          </Link>
+            <Link to="/pitch-deck">
+              <Button size="sm" className="gap-1.5">
+                <Presentation className="w-4 h-4" /> Present
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
