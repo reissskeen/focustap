@@ -71,6 +71,15 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 6 }: DemoSeat
     return () => { supabase.removeChannel(channel); };
   }, [sessionId, fetchSeats]);
 
+  // Build seat labels: A1, A2... B1, B2...
+  const seatLabels: string[] = [];
+  for (let r = 0; r < rows; r++) {
+    const rowLetter = String.fromCharCode(65 + r); // A, B, C...
+    for (let c = 1; c <= cols; c++) {
+      seatLabels.push(`${rowLetter}${c}`);
+    }
+  }
+
   // Map seat_label → seat data
   const seatMap = new Map<string, DemoSeat>();
   for (const s of seats) seatMap.set(s.seat_label, s);
@@ -96,15 +105,14 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 6 }: DemoSeat
         className="grid gap-3"
         style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
       >
-        {Array.from({ length: totalSeats }, (_, i) => {
-          const num = String(i + 1);
-          const seat = seatMap.get(num);
+        {seatLabels.map((label, i) => {
+          const seat = seatMap.get(label);
           const status = seat ? getSeatStatus(seat.last_ping) : null;
           const cfg = status ? statusConfig[status] : null;
 
           return (
             <motion.div
-              key={num}
+              key={label}
               layout
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -126,14 +134,14 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 6 }: DemoSeat
                 />
               )}
 
-              {/* Seat number */}
+              {/* Seat label */}
               <span
                 className={[
                   "font-mono font-bold leading-none",
-                  seat ? "text-xl text-foreground" : "text-sm text-muted-foreground/40",
+                  seat ? "text-base text-foreground" : "text-xs text-muted-foreground/40",
                 ].join(" ")}
               >
-                {num}
+                {label}
               </span>
 
               {/* Status dot */}

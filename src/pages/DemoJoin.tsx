@@ -3,10 +3,14 @@ import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const PING_INTERVAL_MS = 10_000;
+
+// Generate row letters A-Z for up to 26 rows
+const ROW_LETTERS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
+// Column numbers 1-20
+const COL_NUMBERS = Array.from({ length: 20 }, (_, i) => i + 1);
 
 type Phase = "loading" | "enter" | "joined" | "error";
 
@@ -16,7 +20,8 @@ export default function DemoJoin() {
 
   const [phase, setPhase] = useState<Phase>("loading");
   const [courseName, setCourseName] = useState("");
-  const [deskInput, setDeskInput] = useState("");
+  const [selectedRow, setSelectedRow] = useState("A");
+  const [selectedCol, setSelectedCol] = useState(1);
   const [deskLabel, setDeskLabel] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -24,7 +29,6 @@ export default function DemoJoin() {
   const pingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seatIdRef = useRef<string | null>(null);
 
-  // Fetch session/course info
   useEffect(() => {
     if (!sessionId) {
       setErrorMsg("No session ID in URL.");
@@ -49,7 +53,6 @@ export default function DemoJoin() {
       const name = (session.courses as { name: string } | null)?.name ?? "Class";
       setCourseName(name);
 
-      // Check if already joined in this session
       const existingId = localStorage.getItem(`demo_seat_${sessionId}`);
       if (existingId) {
         seatIdRef.current = existingId;
@@ -78,14 +81,14 @@ export default function DemoJoin() {
         .update({ last_ping: new Date().toISOString() })
         .eq("id", id);
     };
-    ping(); // immediate first ping
+    ping();
     pingRef.current = setInterval(ping, PING_INTERVAL_MS);
   };
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const label = deskInput.trim();
-    if (!label || !sessionId) return;
+    const label = `${selectedRow}${selectedCol}`;
+    if (!sessionId) return;
 
     setSubmitting(true);
     const { data, error } = await supabase
@@ -139,36 +142,71 @@ export default function DemoJoin() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
                 <span className="text-3xl">🎓</span>
               </div>
-              <h1 className="font-display text-2xl font-bold text-foreground">
-                {courseName}
-              </h1>
-              <p className="mt-1 text-muted-foreground text-sm">
-                Enter your desk number to join live
-              </p>
+              <h1 className="font-display text-2xl font-bold text-foreground">{courseName}</h1>
+              <p className="mt-1 text-muted-foreground text-sm">Select your seat to join live</p>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleJoin} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="desk">Desk Number</Label>
-                <Input
-                  id="desk"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="e.g. 12"
-                  value={deskInput}
-                  onChange={(e) => setDeskInput(e.target.value)}
-                  className="text-center text-2xl h-16 font-mono font-bold tracking-widest"
-                  autoFocus
-                  required
-                />
+            {/* Seat picker */}
+            <form onSubmit={handleJoin} className="flex flex-col gap-5">
+              {/* Preview */}
+              <div className="flex items-center justify-center">
+                <div className="bg-primary/10 border border-primary/30 rounded-2xl px-8 py-4 text-center">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Your Seat</p>
+                  <p className="font-mono font-bold text-5xl text-primary">{selectedRow}{selectedCol}</p>
+                </div>
               </div>
-              <Button type="submit" size="lg" disabled={submitting || !deskInput.trim()} className="h-14 text-base">
-                {submitting ? "Joining…" : "Join Session"}
+
+              {/* Row selector (letters) */}
+              <div className="flex flex-col gap-2">
+                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Row (letter)</Label>
+                <div className="grid grid-cols-6 gap-1.5">
+                  {ROW_LETTERS.slice(0, 10).map((letter) => (
+                    <button
+                      key={letter}
+                      type="button"
+                      onClick={() => setSelectedRow(letter)}
+                      className={[
+                        "h-10 rounded-lg font-mono font-bold text-sm transition-all",
+                        selectedRow === letter
+                          ? "bg-primary text-primary-foreground shadow-md scale-105"
+                          : "bg-muted/50 text-muted-foreground hover:bg-muted",
+                      ].join(" ")}
+                    >
+                      {letter}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Column selector (numbers) */}
+              <div className="flex flex-col gap-2">
+                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Column (number)</Label>
+                <div className="grid grid-cols-6 gap-1.5">
+                  {COL_NUMBERS.slice(0, 12).map((num) => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => setSelectedCol(num)}
+                      className={[
+                        "h-10 rounded-lg font-mono font-bold text-sm transition-all",
+                        selectedCol === num
+                          ? "bg-primary text-primary-foreground shadow-md scale-105"
+                          : "bg-muted/50 text-muted-foreground hover:bg-muted",
+                      ].join(" ")}
+                    >
+                      {num}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Button type="submit" size="lg" disabled={submitting} className="h-14 text-base">
+                {submitting ? "Joining…" : `Join as Seat ${selectedRow}${selectedCol}`}
               </Button>
             </form>
           </motion.div>
         )}
+
 
         {phase === "joined" && (
           <motion.div
