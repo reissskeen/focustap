@@ -5,18 +5,18 @@ import { ArrowLeft, ArrowRight, ChevronLeft, Maximize2, Minimize2, Zap } from "l
 import { Button } from "@/components/ui/button";
 import {
   AreaChart, Area, BarChart, Bar, ComposedChart,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-} from "recharts";
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from
+"recharts";
 import { defaultAssumptions, generateForecast, formatCurrency, formatPercent, computeNINVTotal, computeAnnualOpexTotal } from "@/lib/financialData";
 
 const TOTAL_SLIDES = 6;
 
-function SlideWrapper({ children }: { children: React.ReactNode }) {
+function SlideWrapper({ children }: {children: React.ReactNode;}) {
   return (
     <div className="w-full h-full flex flex-col justify-center items-center p-12 md:p-20">
       {children}
-    </div>
-  );
+    </div>);
+
 }
 
 export default function PitchDeck() {
@@ -32,25 +32,25 @@ export default function PitchDeck() {
     grossProfit: d.grossProfit,
     ebitda: d.ebitda,
     studentsDeployed: d.studentsDeployed,
-    institutions: d.institutions,
+    institutions: d.institutions
   }));
 
   const lastQ = forecast[forecast.length - 1];
-  const totalRevY3 = forecast.filter(d => d.year === "FY 2028").reduce((s, d) => s + d.totalRevenue, 0);
-  const annualData = ["FY 2026", "FY 2027", "FY 2028"].map(y => {
-    const qs = forecast.filter(d => d.year === y);
+  const totalRevY3 = forecast.filter((d) => d.year === "FY 2028").reduce((s, d) => s + d.totalRevenue, 0);
+  const annualData = ["FY 2026", "FY 2027", "FY 2028"].map((y) => {
+    const qs = forecast.filter((d) => d.year === y);
     return {
       year: y,
       revenue: qs.reduce((s, d) => s + d.totalRevenue, 0),
       grossProfit: qs.reduce((s, d) => s + d.grossProfit, 0),
       ebitda: qs.reduce((s, d) => s + d.ebitda, 0),
       institutions: qs[qs.length - 1].institutions,
-      students: qs[qs.length - 1].studentsDeployed,
+      students: qs[qs.length - 1].studentsDeployed
     };
   });
 
-  const next = useCallback(() => setSlide(s => Math.min(s + 1, TOTAL_SLIDES - 1)), []);
-  const prev = useCallback(() => setSlide(s => Math.max(s - 1, 0)), []);
+  const next = useCallback(() => setSlide((s) => Math.min(s + 1, TOTAL_SLIDES - 1)), []);
+  const prev = useCallback(() => setSlide((s) => Math.max(s - 1, 0)), []);
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -84,8 +84,8 @@ export default function PitchDeck() {
   }, []);
 
   const slides = [
-    // Slide 0 — Title
-    <SlideWrapper key={0}>
+  // Slide 0 — Title
+  <SlideWrapper key={0}>
       <div className="text-center space-y-6 max-w-3xl">
         <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mx-auto">
           <Zap className="w-9 h-9 text-primary-foreground" />
@@ -100,14 +100,14 @@ export default function PitchDeck() {
       </div>
     </SlideWrapper>,
 
-    // Slide 1 — Problem & Solution
-    <SlideWrapper key={1}>
+  // Slide 1 — Problem & Solution
+  <SlideWrapper key={1}>
       <div className="max-w-4xl w-full space-y-8">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Problem</h2>
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <div className="p-5 rounded-xl bg-destructive/10 border border-destructive/20">
-              <p className="font-semibold text-destructive">40% of students</p>
+              <p className="font-semibold text-destructive">% of students</p>
               <p className="text-sm text-muted-foreground mt-1">are disengaged during lectures, leading to poor outcomes</p>
             </div>
             <div className="p-5 rounded-xl bg-destructive/10 border border-destructive/20">
@@ -128,38 +128,38 @@ export default function PitchDeck() {
       </div>
     </SlideWrapper>,
 
-    // Slide 2 — Market Opportunity
-    <SlideWrapper key={2}>
+  // Slide 2 — Market Opportunity
+  <SlideWrapper key={2}>
       <div className="max-w-4xl w-full space-y-8">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">Market Opportunity</h2>
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { label: "TAM", value: "$12B", desc: "Global EdTech market for higher education" },
-            { label: "SAM", value: "$2.4B", desc: "US & Canada classroom engagement tools" },
-            { label: "SOM", value: "$120M", desc: "Achievable in 5 years with current strategy" },
-          ].map(m => (
-            <div key={m.label} className="p-6 rounded-xl border border-border bg-card text-center">
+        { label: "TAM", value: "$12B", desc: "Global EdTech market for higher education" },
+        { label: "SAM", value: "$2.4B", desc: "US & Canada classroom engagement tools" },
+        { label: "SOM", value: "$120M", desc: "Achievable in 5 years with current strategy" }].
+        map((m) =>
+        <div key={m.label} className="p-6 rounded-xl border border-border bg-card text-center">
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{m.label}</p>
               <p className="text-4xl font-bold text-primary mt-2">{m.value}</p>
               <p className="text-xs text-muted-foreground mt-2">{m.desc}</p>
             </div>
-          ))}
+        )}
         </div>
       </div>
     </SlideWrapper>,
 
-    // Slide 3 — Revenue Forecast
-    <SlideWrapper key={3}>
+  // Slide 3 — Revenue Forecast
+  <SlideWrapper key={3}>
       <div className="max-w-4xl w-full space-y-6">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">3-Year Revenue Forecast</h2>
         <div className="grid md:grid-cols-3 gap-4 mb-2">
-          {annualData.map(y => (
-            <div key={y.year} className="p-4 rounded-xl border border-border bg-card text-center">
+          {annualData.map((y) =>
+        <div key={y.year} className="p-4 rounded-xl border border-border bg-card text-center">
               <p className="text-sm font-medium text-muted-foreground">{y.year}</p>
               <p className="text-2xl font-bold text-foreground mt-1">{formatCurrency(y.revenue)}</p>
               <p className="text-xs text-muted-foreground">{y.institutions} institutions · {y.students.toLocaleString()} students</p>
             </div>
-          ))}
+        )}
         </div>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -177,22 +177,22 @@ export default function PitchDeck() {
       </div>
     </SlideWrapper>,
 
-    // Slide 4 — Unit Economics
-    <SlideWrapper key={4}>
+  // Slide 4 — Unit Economics
+  <SlideWrapper key={4}>
       <div className="max-w-4xl w-full space-y-8">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">Unit Economics</h2>
         <div className="grid md:grid-cols-4 gap-4">
           {[
-            { label: "Tier 2/Student/Yr", value: "$30" },
-            { label: "ARR/Institution", value: formatCurrency(defaultAssumptions.studentsPerInstitution * 30) },
-            { label: "HW Margin/Tag", value: formatCurrency(defaultAssumptions.nfcTagPrice - defaultAssumptions.nfcTagCost) },
-            { label: "Gross Margin", value: formatPercent(lastQ.grossMargin) },
-          ].map(m => (
-            <div key={m.label} className="p-5 rounded-xl border border-border bg-card text-center">
+        { label: "Tier 2/Student/Yr", value: "$30" },
+        { label: "ARR/Institution", value: formatCurrency(defaultAssumptions.studentsPerInstitution * 30) },
+        { label: "HW Margin/Tag", value: formatCurrency(defaultAssumptions.nfcTagPrice - defaultAssumptions.nfcTagCost) },
+        { label: "Gross Margin", value: formatPercent(lastQ.grossMargin) }].
+        map((m) =>
+        <div key={m.label} className="p-5 rounded-xl border border-border bg-card text-center">
               <p className="text-sm font-medium text-muted-foreground">{m.label}</p>
               <p className="text-3xl font-bold text-primary mt-2">{m.value}</p>
             </div>
-          ))}
+        )}
         </div>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
@@ -208,8 +208,8 @@ export default function PitchDeck() {
       </div>
     </SlideWrapper>,
 
-    // Slide 5 — The Ask
-    <SlideWrapper key={5}>
+  // Slide 5 — The Ask
+  <SlideWrapper key={5}>
       <div className="max-w-3xl w-full text-center space-y-8">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Ask</h2>
         <div className="grid md:grid-cols-2 gap-4">
@@ -224,28 +224,28 @@ export default function PitchDeck() {
         </div>
         <div className="grid md:grid-cols-3 gap-4 text-left">
           {[
-            { pct: "67%", label: "Product & Engineering", desc: "MVP analytics platform, NFC integration, LMS connectors" },
-            { pct: "23%", label: "Sales & Marketing", desc: "University partnerships, pilot programs, B2B outreach" },
-            { pct: "10%", label: "Operations", desc: "NFC hardware supply chain, legal, infrastructure" },
-          ].map(u => (
-            <div key={u.label} className="p-4 rounded-xl border border-border bg-card">
+        { pct: "67%", label: "Product & Engineering", desc: "MVP analytics platform, NFC integration, LMS connectors" },
+        { pct: "23%", label: "Sales & Marketing", desc: "University partnerships, pilot programs, B2B outreach" },
+        { pct: "10%", label: "Operations", desc: "NFC hardware supply chain, legal, infrastructure" }].
+        map((u) =>
+        <div key={u.label} className="p-4 rounded-xl border border-border bg-card">
               <p className="text-2xl font-bold text-primary">{u.pct}</p>
               <p className="font-semibold text-sm mt-1">{u.label}</p>
               <p className="text-xs text-muted-foreground mt-1">{u.desc}</p>
             </div>
-          ))}
+        )}
         </div>
         <p className="text-lg font-semibold text-foreground pt-4">
           Target: {formatCurrency(totalRevY3)} rev by FY 2028 · {lastQ.institutions} institutions · Break-even within 18–24 months
         </p>
       </div>
-    </SlideWrapper>,
-  ];
+    </SlideWrapper>];
+
 
   return (
     <div className={`min-h-screen bg-background flex flex-col ${fullscreen ? "fixed inset-0 z-[100]" : ""}`}>
-      {!fullscreen && (
-        <div className="border-b bg-card/80 backdrop-blur-sm">
+      {!fullscreen &&
+      <div className="border-b bg-card/80 backdrop-blur-sm">
           <div className="container mx-auto flex items-center justify-between h-12 px-4">
             <Link to="/financials" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
               <ChevronLeft className="w-4 h-4" /> Back to Model
@@ -260,7 +260,7 @@ export default function PitchDeck() {
             </div>
           </div>
         </div>
-      )}
+      }
 
       <div className="flex-1 flex items-center justify-center relative overflow-hidden">
         <AnimatePresence mode="wait">
@@ -270,8 +270,8 @@ export default function PitchDeck() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -60 }}
             transition={{ duration: 0.25 }}
-            className="w-full h-full max-w-6xl mx-auto"
-          >
+            className="w-full h-full max-w-6xl mx-auto">
+
             {slides[slide]}
           </motion.div>
         </AnimatePresence>
@@ -285,22 +285,22 @@ export default function PitchDeck() {
           </Button>
         </div>
 
-        {fullscreen && (
-          <Button variant="ghost" size="icon" className="absolute top-4 right-4 h-8 w-8" onClick={toggleFullscreen}>
+        {fullscreen &&
+        <Button variant="ghost" size="icon" className="absolute top-4 right-4 h-8 w-8" onClick={toggleFullscreen}>
             <Minimize2 className="w-4 h-4" />
           </Button>
-        )}
+        }
       </div>
 
       <div className="flex justify-center gap-1.5 pb-4">
-        {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setSlide(i)}
-            className={`w-2 h-2 rounded-full transition-colors ${i === slide ? "bg-primary" : "bg-border"}`}
-          />
-        ))}
+        {Array.from({ length: TOTAL_SLIDES }).map((_, i) =>
+        <button
+          key={i}
+          onClick={() => setSlide(i)}
+          className={`w-2 h-2 rounded-full transition-colors ${i === slide ? "bg-primary" : "bg-border"}`} />
+
+        )}
       </div>
-    </div>
-  );
+    </div>);
+
 }
