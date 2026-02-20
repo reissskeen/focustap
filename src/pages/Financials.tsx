@@ -409,7 +409,7 @@ export default function Financials() {
                         <TableCell className="text-right font-mono text-sm">{formatCurrency(row.subscriptionRevenue)}</TableCell>
                         <TableCell className="text-right font-mono text-sm text-primary">{row.expansionRevenue > 0 ? formatCurrency(row.expansionRevenue) : "—"}</TableCell>
                         <TableCell className="text-right font-mono text-sm font-semibold">{formatCurrency(row.totalRevenue)}</TableCell>
-                        <TableCell className="text-right font-mono text-sm">{formatCurrency(row.grossProfit)}</TableCell>
+                        <TableCell className="text-right font-mono text-sm text-primary">{formatCurrency(row.grossProfit)}</TableCell>
                         <TableCell className="text-right font-mono text-sm text-destructive">{formatCurrency(row.opex)}</TableCell>
                         <TableCell className={`text-right font-mono text-sm font-semibold ${row.ebitda >= 0 ? "text-primary" : "text-destructive"}`}>
                           {formatCurrency(row.ebitda)}
@@ -428,7 +428,7 @@ export default function Financials() {
                         <TableCell className="text-right font-mono text-sm">{formatCurrency(y.saas)}</TableCell>
                         <TableCell className="text-right" />
                         <TableCell className="text-right font-mono text-sm font-bold">{formatCurrency(y.revenue)}</TableCell>
-                        <TableCell className="text-right font-mono text-sm">{formatCurrency(y.grossProfit)}</TableCell>
+                        <TableCell className="text-right font-mono text-sm text-primary">{formatCurrency(y.grossProfit)}</TableCell>
                         <TableCell className="text-right font-mono text-sm text-destructive">{formatCurrency(y.opex)}</TableCell>
                         <TableCell className={`text-right font-mono text-sm font-bold ${y.ebitda >= 0 ? "text-primary" : "text-destructive"}`}>
                           {formatCurrency(y.ebitda)}
