@@ -261,7 +261,7 @@ export default function Financials() {
                   <div className="p-6 rounded-lg border border-primary bg-primary/5 w-full max-w-sm text-center space-y-3">
                     <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">Full Campus Intelligence</span>
                     <p className="text-4xl font-bold text-foreground">${TIERS[3].pricePerStudentPerYear}<span className="text-sm font-normal text-muted-foreground">/student/yr</span></p>
-                    <p className="text-sm text-muted-foreground">Implementation: {formatCurrency(TIERS[3].implementationFee)}</p>
+                    <p className="text-sm text-muted-foreground">Implementation: ${TIERS[3].implementationFeePerTag}/tag · {formatCurrency(assumptions.studentsPerInstitution * TIERS[3].implementationFeePerTag)} for {assumptions.studentsPerInstitution.toLocaleString()} desks</p>
                     <p className="text-sm text-muted-foreground">ARR/Institution: {formatCurrency(assumptions.studentsPerInstitution * TIERS[3].pricePerStudentPerYear)}</p>
                   </div>
                 </CardContent>

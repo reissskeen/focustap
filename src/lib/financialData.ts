@@ -12,11 +12,11 @@ export interface TierConfig {
   name: string;
   tag: string;
   pricePerStudentPerYear: number;
-  implementationFee: number;
+  implementationFeePerTag: number; // $3/tag × desks deployed
 }
 
 export const TIERS: Record<Tier, TierConfig> = {
-  3: { name: "Full Campus Intelligence", tag: "Tier 3", pricePerStudentPerYear: 50, implementationFee: 15_000 },
+  3: { name: "Full Campus Intelligence", tag: "Tier 3", pricePerStudentPerYear: 50, implementationFeePerTag: 3 },
 };
 
 export interface HalfYearAdoption {
@@ -199,7 +199,7 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const hardwareGrossProfit = hardwareRevenue - hardwareCogs;
 
     // Implementation fees (one-time, on new institutions)
-    const implementationRevenue = newT3 * TIERS[3].implementationFee;
+    const implementationRevenue = newT3 * a.studentsPerInstitution * TIERS[3].implementationFeePerTag;
 
     // Subscription revenue (quarterly) — all institutions are Tier 3
     const paidInstitutions = Math.max(0, cumulativeInstitutions - a.pilotFreeInstitutions);
