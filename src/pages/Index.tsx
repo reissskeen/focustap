@@ -9,6 +9,8 @@ import {
   Shield,
   ArrowRight,
   Check,
+  TrendingUp,
+  Presentation,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
@@ -97,6 +99,22 @@ const Index = () => {
                 <Button size="lg" variant="outline" className="text-base px-8">
                   Professor Login
                 </Button>
+              </Link>
+            </div>
+
+            {/* Pitch & Financials Tags */}
+            <div className="flex items-center justify-center gap-3 mt-6">
+              <Link to="/pitch-deck">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
+                  <Presentation className="w-3.5 h-3.5" />
+                  Pitch Deck
+                </span>
+              </Link>
+              <Link to="/financials">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  Financial Model
+                </span>
               </Link>
             </div>
           </motion.div>
