@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  Users, Clock, BarChart3, QrCode, Download, Eye, Pause, UserCheck,
+  Users, Clock, BarChart3, QrCode, Download, Eye, Pause, UserCheck, LayoutGrid, List,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
   type StudentActivityStatus,
   type AttendanceStatus,
 } from "./AttendanceHelpers";
+import DemoSeatGrid from "./DemoSeatGrid";
 
 interface RosterStudent {
   id: string;
@@ -60,6 +61,7 @@ const AttendanceBadge = ({ status }: { status: AttendanceStatus }) => {
 
 const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionViewProps) => {
   const [showQR, setShowQR] = useState(true);
+  const [viewMode, setViewMode] = useState<"roster" | "seats">("roster");
   const [roster, setRoster] = useState<RosterStudent[]>([]);
   const [ending, setEnding] = useState(false);
 
@@ -149,6 +151,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
   ];
 
   const launchUrl = `${window.location.origin}/launch?session_id=${session.id}`;
+  const demoUrl = `${window.location.origin}/demo?session_id=${session.id}`;
 
   return (
     <>
@@ -182,15 +185,22 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
         </div>
       </motion.div>
 
-      {/* QR Code */}
+      {/* QR Code(s) */}
       {showQR && (
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mb-8">
-          <div className="glass-card rounded-xl p-8 flex flex-col items-center">
-            <QRCodeSVG value={launchUrl} size={200} bgColor="transparent" fgColor="hsl(200 25% 10%)" level="M" />
-            <p className="mt-4 text-sm text-muted-foreground">Scan to join session</p>
-            <p className="mt-1 text-xs text-muted-foreground font-mono break-all max-w-[250px] text-center">
-              {launchUrl}
-            </p>
+          <div className="glass-card rounded-xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-8">
+            {/* Student join QR */}
+            <div className="flex flex-col items-center">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Student Join</p>
+              <QRCodeSVG value={launchUrl} size={160} bgColor="transparent" fgColor="hsl(200 25% 10%)" level="M" />
+              <p className="mt-3 text-xs text-muted-foreground font-mono break-all max-w-[220px] text-center">{launchUrl}</p>
+            </div>
+            {/* Demo QR */}
+            <div className="flex flex-col items-center">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">🎤 Demo / NFC</p>
+              <QRCodeSVG value={demoUrl} size={160} bgColor="transparent" fgColor="hsl(200 25% 10%)" level="M" />
+              <p className="mt-3 text-xs text-muted-foreground font-mono break-all max-w-[220px] text-center">{demoUrl}</p>
+            </div>
           </div>
         </motion.div>
       )}
@@ -214,77 +224,108 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
         ))}
       </div>
 
-      {/* Roster */}
+      {/* View toggle + content */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         className="glass-card rounded-xl overflow-hidden"
       >
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="font-display font-semibold">Live Roster</h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={() => exportRosterCSV(roster, session.start_time, session.late_join_cutoff, course.name)}
-          >
-            <Download className="w-3.5 h-3.5" /> Export CSV
-          </Button>
+        {/* Toggle header */}
+        <div className="flex items-center justify-between p-4 border-b gap-3 flex-wrap">
+          <div className="flex items-center gap-1 bg-muted/40 rounded-lg p-1">
+            <Button
+              variant={viewMode === "roster" ? "default" : "ghost"}
+              size="sm"
+              className="gap-1.5 text-xs h-7 px-3"
+              onClick={() => setViewMode("roster")}
+            >
+              <List className="w-3.5 h-3.5" /> Roster
+            </Button>
+            <Button
+              variant={viewMode === "seats" ? "default" : "ghost"}
+              size="sm"
+              className="gap-1.5 text-xs h-7 px-3"
+              onClick={() => setViewMode("seats")}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" /> Seat Grid
+            </Button>
+          </div>
+
+          {viewMode === "roster" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-xs"
+              onClick={() => exportRosterCSV(roster, session.start_time, session.late_join_cutoff, course.name)}
+            >
+              <Download className="w-3.5 h-3.5" /> Export CSV
+            </Button>
+          )}
         </div>
 
-        {roster.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">
-            No students have joined yet. Share the QR code to get started.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b bg-muted/30">
-                  <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Student</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Status</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Attendance</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Focus Time</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Joined</th>
-                  <th className="text-right text-xs font-medium text-muted-foreground px-4 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {roster.map((student) => {
-                  const activity = getActivityStatus(student.last_heartbeat);
-                  const attendance = getAttendanceStatus(student.joined_at, session.start_time, session.late_join_cutoff);
-                  const activityLabel = activity === "active" ? "Active" : activity === "paused" ? "Paused" : "Disconnected";
-                  return (
-                    <tr key={student.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-3">
-                        <span className="font-medium text-sm">{student.display_name}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <StatusDot status={activity} />
-                          <span className="text-sm text-muted-foreground">{activityLabel}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <AttendanceBadge status={attendance} />
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="font-mono text-sm">{formatTime(student.focus_seconds)}</span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
-                        {new Date(student.joined_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <Button variant="ghost" size="sm" className="gap-1 text-xs">
-                          <Eye className="w-3.5 h-3.5" /> View Notes
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+        {/* Roster view */}
+        {viewMode === "roster" && (
+          roster.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground text-sm">
+              No students have joined yet. Share the QR code to get started.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b bg-muted/30">
+                    <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Student</th>
+                    <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Status</th>
+                    <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Attendance</th>
+                    <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Focus Time</th>
+                    <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Joined</th>
+                    <th className="text-right text-xs font-medium text-muted-foreground px-4 py-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {roster.map((student) => {
+                    const activity = getActivityStatus(student.last_heartbeat);
+                    const attendance = getAttendanceStatus(student.joined_at, session.start_time, session.late_join_cutoff);
+                    const activityLabel = activity === "active" ? "Active" : activity === "paused" ? "Paused" : "Disconnected";
+                    return (
+                      <tr key={student.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
+                        <td className="px-4 py-3">
+                          <span className="font-medium text-sm">{student.display_name}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <StatusDot status={activity} />
+                            <span className="text-sm text-muted-foreground">{activityLabel}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <AttendanceBadge status={attendance} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-mono text-sm">{formatTime(student.focus_seconds)}</span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">
+                          {new Date(student.joined_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Button variant="ghost" size="sm" className="gap-1 text-xs">
+                            <Eye className="w-3.5 h-3.5" /> View Notes
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )
+        )}
+
+        {/* Seat Grid view */}
+        {viewMode === "seats" && (
+          <div className="p-4">
+            <DemoSeatGrid sessionId={session.id} totalSeats={30} />
           </div>
         )}
       </motion.div>
