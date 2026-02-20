@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  Users, Clock, BarChart3, QrCode, Download, Eye, Pause, UserCheck, LayoutGrid, List,
+  Users, Clock, BarChart3, QrCode, Download, Eye, Pause, UserCheck, LayoutGrid, List, ExternalLink,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
@@ -178,6 +178,12 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
             <QrCode className="w-4 h-4" />
             {showQR ? "Hide QR" : "Show QR"}
           </Button>
+          <a href={demoUrl} target="_blank" rel="noopener noreferrer">
+            <Button variant="outline" size="sm" className="gap-2 border-primary/40 text-primary hover:bg-primary/10">
+              <ExternalLink className="w-4 h-4" />
+              Open Demo Page
+            </Button>
+          </a>
           <Button size="sm" variant="destructive" className="gap-2" onClick={handleEndSession} disabled={ending}>
             <Pause className="w-4 h-4" />
             {ending ? "Ending…" : "End Session"}
