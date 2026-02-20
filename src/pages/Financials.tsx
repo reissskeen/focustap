@@ -57,8 +57,6 @@ export default function Financials() {
     opex: d.opex,
     studentsDeployed: d.studentsDeployed,
     institutions: d.institutions,
-    tier1Inst: d.tier1Inst,
-    tier2Inst: d.tier2Inst,
     tier3Inst: d.tier3Inst,
     mrr: d.mrr,
     grossMargin: Math.round(d.grossMargin * 100),
@@ -72,12 +70,10 @@ export default function Financials() {
   const totalExpansionRev = forecast.reduce((s, d) => s + d.expansionRevenue, 0);
 
   const tierPieData = [
-    { name: "Tier 1", value: lastQ.tier1Inst },
-    { name: "Tier 2", value: lastQ.tier2Inst },
     { name: "Tier 3", value: lastQ.tier3Inst },
   ].filter(d => d.value > 0);
 
-  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "studentsPerInstitution" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "tier1UpgradeRate" | "saasCogsPct" | "pilotFreeInstitutions", value: string) => {
+  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "studentsPerInstitution" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "saasCogsPct" | "pilotFreeInstitutions", value: string) => {
     setAssumptions(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
   };
 
@@ -151,7 +147,7 @@ export default function Financials() {
           <KPICard title="Annual OPEX" value={formatCurrency(annualOpexTotal)} subtitle="Year 1 operating costs" icon={HardDrive} />
           <KPICard title="ARR (Year 3)" value={formatCurrency(lastQ.arr)} subtitle={`${lastQ.institutions} institutions`} icon={DollarSign} />
           <KPICard title="MRR (Latest)" value={formatCurrency(lastQ.mrr)} subtitle={`${lastQ.studentsDeployed.toLocaleString()} students`} icon={TrendingUp} />
-          <KPICard title="Institutions" value={lastQ.institutions.toString()} subtitle={`T1:${lastQ.tier1Inst} T2:${lastQ.tier2Inst} T3:${lastQ.tier3Inst}`} icon={Building2} />
+          <KPICard title="Institutions" value={lastQ.institutions.toString()} subtitle={`Tier 3: ${lastQ.tier3Inst}`} icon={Building2} />
           <KPICard
             title="Op. Break-Even"
             value={breakEven.operatingBreakEvenQ || "N/A"}
@@ -243,155 +239,31 @@ export default function Financials() {
           <TabsContent value="tiers" className="space-y-4">
             <div className="grid lg:grid-cols-2 gap-4">
               <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Tier Distribution (Latest Quarter)</CardTitle></CardHeader>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Institutions Over Time (Tier 3)</CardTitle></CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
+                      <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                      <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="tier3Inst" name="Tier 3 — Full Campus Intelligence" fill={TIER_COLORS[0]} radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Pricing summary — single tier */}
+              <Card>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Pricing — Tier 3</CardTitle></CardHeader>
                 <CardContent className="flex items-center justify-center">
-                  <ResponsiveContainer width="100%" height={280}>
-                    <PieChart>
-                      <Pie data={tierPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${value}`}>
-                        {tierPieData.map((_, idx) => (
-                          <Cell key={idx} fill={TIER_COLORS[idx]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Institutions by Tier Over Time</CardTitle></CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={280}>
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-                      <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="tier1Inst" name="Tier 1" stackId="t" fill={TIER_COLORS[0]} />
-                      <Bar dataKey="tier2Inst" name="Tier 2" stackId="t" fill={TIER_COLORS[1]} />
-                      <Bar dataKey="tier3Inst" name="Tier 3" stackId="t" fill={TIER_COLORS[2]} radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Tier pricing summary */}
-            <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm">Pricing Tiers</CardTitle></CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-4">
-                  {([1, 2, 3] as const).map(t => (
-                    <div key={t} className={`p-4 rounded-lg border ${t === 2 ? "border-primary bg-primary/5" : "border-border"}`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">{TIERS[t].tag}</span>
-                        {t === 2 && <span className="text-xs text-primary font-medium">Default Plan</span>}
-                      </div>
-                      <h3 className="font-semibold text-foreground">{TIERS[t].name}</h3>
-                      <p className="text-2xl font-bold text-foreground mt-1">${TIERS[t].pricePerStudentPerYear}<span className="text-sm font-normal text-muted-foreground">/student/yr</span></p>
-                      <p className="text-xs text-muted-foreground mt-1">Implementation: {formatCurrency(TIERS[t].implementationFee)}</p>
-                      <p className="text-xs text-muted-foreground">ARR/Institution: {formatCurrency(assumptions.studentsPerInstitution * TIERS[t].pricePerStudentPerYear)}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Deployment Tab */}
-          <TabsContent value="deployment" className="space-y-4">
-            <div className="grid lg:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Students Deployed</CardTitle></CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={280}>
-                    <AreaChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-                      <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <Tooltip />
-                      <Area type="monotone" dataKey="studentsDeployed" name="Students Deployed" fill="hsl(var(--primary) / 0.2)" stroke="hsl(var(--primary))" strokeWidth={2} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Total Institutions</CardTitle></CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={280}>
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-                      <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <Tooltip />
-                      <Bar dataKey="institutions" name="Institutions" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Unit Economics Card */}
-            <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm">Unit Economics (Per Institution — Tier 2 Default)</CardTitle></CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-4 gap-4">
-                  {[
-                    { label: "Students Deployed", value: assumptions.studentsPerInstitution.toLocaleString() },
-                    { label: "Annual SaaS ARR", value: formatCurrency(assumptions.studentsPerInstitution * TIERS[2].pricePerStudentPerYear) },
-                    { label: "Implementation Fee", value: formatCurrency(TIERS[2].implementationFee) },
-                    { label: "HW Revenue", value: formatCurrency(assumptions.studentsPerInstitution * assumptions.nfcTagPrice) },
-                  ].map(m => (
-                    <div key={m.label} className="p-4 rounded-xl border border-border bg-card text-center">
-                      <p className="text-xs font-medium text-muted-foreground">{m.label}</p>
-                      <p className="text-2xl font-bold text-primary mt-1">{m.value}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Profitability Tab */}
-          <TabsContent value="profitability" className="space-y-4">
-            <div className="grid lg:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Revenue vs OPEX vs EBITDA</CardTitle></CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={280}>
-                    <ComposedChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-                      <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <Tooltip formatter={(v: number) => formatCurrency(v)} />
-                      <Legend />
-                      <ReferenceLine y={0} stroke="hsl(var(--border))" />
-                      <Bar dataKey="totalRevenue" name="Revenue" fill="hsl(var(--primary) / 0.3)" radius={[4, 4, 0, 0]} />
-                      <Line type="monotone" dataKey="opex" name="OPEX" stroke="hsl(var(--destructive))" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="ebitda" name="EBITDA" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-                    </ComposedChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Margin Trends</CardTitle></CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={280}>
-                    <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-                      <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <YAxis unit="%" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <Tooltip formatter={(v: number) => `${v}%`} />
-                      <Legend />
-                      <ReferenceLine y={0} stroke="hsl(var(--border))" />
-                      <Line type="monotone" dataKey="grossMargin" name="Gross Margin %" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="ebitdaMargin" name="EBITDA Margin %" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <div className="p-6 rounded-lg border border-primary bg-primary/5 w-full max-w-sm text-center space-y-3">
+                    <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">Full Campus Intelligence</span>
+                    <p className="text-4xl font-bold text-foreground">${TIERS[3].pricePerStudentPerYear}<span className="text-sm font-normal text-muted-foreground">/student/yr</span></p>
+                    <p className="text-sm text-muted-foreground">Implementation: {formatCurrency(TIERS[3].implementationFee)}</p>
+                    <p className="text-sm text-muted-foreground">ARR/Institution: {formatCurrency(assumptions.studentsPerInstitution * TIERS[3].pricePerStudentPerYear)}</p>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -445,7 +317,7 @@ export default function Financials() {
               <CardHeader className="pb-2"><CardTitle className="text-sm">Break-Even Logic</CardTitle></CardHeader>
               <CardContent className="text-sm text-muted-foreground space-y-2">
                 <p>• Annual operating costs (Year 1): <span className="font-semibold text-foreground">{formatCurrency(annualOpexTotal)}</span></p>
-                <p>• ARR per institution (Tier 2): <span className="font-semibold text-foreground">{formatCurrency(assumptions.studentsPerInstitution * TIERS[2].pricePerStudentPerYear)}</span></p>
+                <p>• ARR per institution (Tier 3): <span className="font-semibold text-foreground">{formatCurrency(assumptions.studentsPerInstitution * TIERS[3].pricePerStudentPerYear)}</span></p>
                 <p>• Operating break-even occurs at approximately <span className="font-semibold text-foreground">1 institutional client</span></p>
                 <p>• Full investment break-even (including {formatCurrency(ninvTotal)} NINV) at approximately <span className="font-semibold text-foreground">2 institutional clients</span></p>
                 <p>• Profitability expected within <span className="font-semibold text-foreground">18–24 months</span> under realistic B2B growth</p>
@@ -463,7 +335,7 @@ export default function Financials() {
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card z-10">Period</TableHead>
                       <TableHead className="text-right">Inst.</TableHead>
-                      <TableHead className="text-right">T1/T2/T3</TableHead>
+                      <TableHead className="text-right">T3</TableHead>
                       <TableHead className="text-right">Students</TableHead>
                       <TableHead className="text-right">HW Rev</TableHead>
                       <TableHead className="text-right">Impl.</TableHead>
@@ -482,7 +354,7 @@ export default function Financials() {
                           {row.year} {row.quarter}
                         </TableCell>
                         <TableCell className="text-right font-mono text-sm">{row.institutions}</TableCell>
-                        <TableCell className="text-right font-mono text-xs text-muted-foreground">{row.tier1Inst}/{row.tier2Inst}/{row.tier3Inst}</TableCell>
+                        <TableCell className="text-right font-mono text-xs text-muted-foreground">{row.tier3Inst}</TableCell>
                         <TableCell className="text-right font-mono text-sm">{row.studentsDeployed.toLocaleString()}</TableCell>
                         <TableCell className="text-right font-mono text-sm">{formatCurrency(row.hardwareRevenue)}</TableCell>
                         <TableCell className="text-right font-mono text-sm">{formatCurrency(row.implementationRevenue)}</TableCell>
@@ -590,7 +462,6 @@ export default function Financials() {
                       { key: "initialRolloutPercent" as const, label: "Initial Rollout %", step: 0.05 },
                       { key: "opexGrowthRate" as const, label: "OPEX Growth/Yr", step: 0.05 },
                       { key: "annualChurnRate" as const, label: "Annual Churn %", step: 0.01 },
-                      { key: "tier1UpgradeRate" as const, label: "T1→T2 Upgrade Rate", step: 0.05 },
                       { key: "saasCogsPct" as const, label: "SaaS COGS %", step: 0.01 },
                       { key: "pilotFreeInstitutions" as const, label: "Free Pilot Schools", step: 1 },
                     ]).map(({ key, label, step }) => (
@@ -611,17 +482,14 @@ export default function Financials() {
 
               {/* Adoption table */}
               <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Institution Adoption by Tier (Cumulative)</CardTitle></CardHeader>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Institution Adoption — Tier 3 (Cumulative)</CardTitle></CardHeader>
                 <CardContent>
                   <div className="overflow-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
                           <TableHead>Period</TableHead>
-                          <TableHead className="text-right">Tier 1</TableHead>
-                          <TableHead className="text-right">Tier 2</TableHead>
-                          <TableHead className="text-right">Tier 3</TableHead>
-                          <TableHead className="text-right">Total</TableHead>
+                          <TableHead className="text-right">Tier 3 Institutions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -631,15 +499,8 @@ export default function Financials() {
                             <TableRow key={hk}>
                               <TableCell className="font-medium">{halfLabels[idx]}</TableCell>
                               <TableCell className="text-right">
-                                <Input type="number" className="h-8 w-20 font-mono text-sm ml-auto" value={h.tier1} onChange={(e) => updateHalfYear(hk, "tier1", e.target.value)} />
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Input type="number" className="h-8 w-20 font-mono text-sm ml-auto" value={h.tier2} onChange={(e) => updateHalfYear(hk, "tier2", e.target.value)} />
-                              </TableCell>
-                              <TableCell className="text-right">
                                 <Input type="number" className="h-8 w-20 font-mono text-sm ml-auto" value={h.tier3} onChange={(e) => updateHalfYear(hk, "tier3", e.target.value)} />
                               </TableCell>
-                              <TableCell className="text-right font-mono text-sm font-semibold">{h.tier1 + h.tier2 + h.tier3}</TableCell>
                             </TableRow>
                           );
                         })}

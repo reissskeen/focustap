@@ -6,7 +6,7 @@
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-export type Tier = 1 | 2 | 3;
+export type Tier = 3;
 
 export interface TierConfig {
   name: string;
@@ -16,14 +16,10 @@ export interface TierConfig {
 }
 
 export const TIERS: Record<Tier, TierConfig> = {
-  1: { name: "Core Analytics", tag: "Tier 1", pricePerStudentPerYear: 18, implementationFee: 3_000 },
-  2: { name: "Advanced Engagement", tag: "Tier 2", pricePerStudentPerYear: 30, implementationFee: 7_500 },
   3: { name: "Full Campus Intelligence", tag: "Tier 3", pricePerStudentPerYear: 50, implementationFee: 15_000 },
 };
 
 export interface HalfYearAdoption {
-  tier1: number;
-  tier2: number;
   tier3: number;
 }
 
@@ -48,7 +44,7 @@ export interface Assumptions {
   nfcTagCost: number;
   nfcTagPrice: number;
   studentsPerInstitution: number;
-  // Adoption timeline — cumulative institutions by end of each half-year, broken by tier
+  // Adoption timeline — cumulative institutions by end of each half-year
   h1_2026: HalfYearAdoption;
   h2_2026: HalfYearAdoption;
   h1_2027: HalfYearAdoption;
@@ -65,8 +61,6 @@ export interface Assumptions {
   opexGrowthRate: number;
   // Retention
   annualChurnRate: number;
-  // Land-and-expand: fraction of Tier 1 institutions that upgrade to Tier 2 within 12 months
-  tier1UpgradeRate: number;
   // SaaS COGS as % of subscription revenue
   saasCogsPct: number;
   // Free-pilot GTM: number of institutions offered free subscription (implementation fee only)
@@ -86,12 +80,12 @@ export const defaultAssumptions: Assumptions = {
   nfcTagPrice: 2.00,
   studentsPerInstitution: 1000,
   // Adoption timeline: Flagler free pilot Q3 2026 → 3 schools by H1 2027 → 5 by H2 2027 → 8 by H1 2028 → 15 by H2 2028
-  h1_2026: { tier1: 0, tier2: 0, tier3: 0 },
-  h2_2026: { tier1: 1, tier2: 0, tier3: 0 },
-  h1_2027: { tier1: 3, tier2: 0, tier3: 0 },
-  h2_2027: { tier1: 5, tier2: 0, tier3: 0 },
-  h1_2028: { tier1: 8, tier2: 0, tier3: 0 },
-  h2_2028: { tier1: 15, tier2: 0, tier3: 0 },
+  h1_2026: { tier3: 0 },
+  h2_2026: { tier3: 1 },
+  h1_2027: { tier3: 3 },
+  h2_2027: { tier3: 5 },
+  h1_2028: { tier3: 8 },
+  h2_2028: { tier3: 15 },
   initialRolloutPercent: 0.25,
   annualOpex: {
     cloudInfra: 2_400,
@@ -107,19 +101,16 @@ export const defaultAssumptions: Assumptions = {
     legalSetup: 3_500,
     brandingWebsite: 2_500,
   },
-  opexGrowthRate: 0.30, // 30% OPEX growth per year as we scale
+  opexGrowthRate: 0.30,
   annualChurnRate: 0.03,
-  tier1UpgradeRate: 0.50,
   saasCogsPct: 0.15,
-  pilotFreeInstitutions: 1, // Flagler — free subscription, implementation fee only
+  pilotFreeInstitutions: 1,
 };
 
 export interface YearlyFinancials {
   year: string;
   quarter: string;
-  // Institutions by tier
-  tier1Inst: number;
-  tier2Inst: number;
+  // Institutions (all Tier 3)
   tier3Inst: number;
   institutions: number;
   newInstitutions: number;
@@ -168,13 +159,10 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
   const ninvTotal = computeNINVTotal(a.ninv);
   const baseAnnualOpex = computeAnnualOpexTotal(a.annualOpex);
 
-  let cumT1 = 0, cumT2 = 0, cumT3 = 0;
+  let cumT3 = 0;
   let cumulativeStudents = 0;
   let cumulativeRevenue = 0;
   let cumulativeProfit = 0;
-
-  // Track when T1 institutions were added for upgrade modelling
-  const tier1AddedQuarter: number[] = [];
 
   for (let i = 0; i < 12; i++) {
     const y = Math.floor(i / 4);
@@ -182,37 +170,17 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const isFirstOfHalf = q === 0 || q === 2;
     const target = halfTargets[i];
 
-    // Compute new institutions per tier this quarter
+    // Compute new Tier 3 institutions this quarter
     const allocate = (cumVal: number, targetVal: number): number => {
       const newInHalf = Math.max(0, targetVal - cumVal);
       return isFirstOfHalf ? Math.ceil(newInHalf * 0.5) : Math.max(0, newInHalf - Math.ceil(newInHalf * 0.5));
     };
 
-    const newT1 = allocate(cumT1, target.tier1);
-    const newT2 = allocate(cumT2, target.tier2);
     const newT3 = allocate(cumT3, target.tier3);
-
-    // Land-and-expand: T1 institutions that have been on for 4 quarters upgrade to T2
-    let upgrades = 0;
-    if (a.tier1UpgradeRate > 0) {
-      for (let j = tier1AddedQuarter.length - 1; j >= 0; j--) {
-        if (i - tier1AddedQuarter[j] >= 4) {
-          upgrades++;
-          tier1AddedQuarter.splice(j, 1);
-        }
-      }
-      upgrades = Math.round(upgrades * a.tier1UpgradeRate);
-    }
-
-    // Track new T1 adds
-    for (let n = 0; n < newT1; n++) tier1AddedQuarter.push(i);
-
-    cumT1 += newT1 - upgrades;
-    cumT2 += newT2 + upgrades;
     cumT3 += newT3;
 
-    const cumulativeInstitutions = cumT1 + cumT2 + cumT3;
-    const totalNewInst = newT1 + newT2 + newT3;
+    const cumulativeInstitutions = cumT3;
+    const totalNewInst = newT3;
 
     // Student deployment
     const newStudentsFromNewInst = Math.round(totalNewInst * a.studentsPerInstitution * a.initialRolloutPercent);
@@ -231,40 +199,20 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const hardwareGrossProfit = hardwareRevenue - hardwareCogs;
 
     // Implementation fees (one-time, on new institutions)
-    const implementationRevenue =
-      newT1 * TIERS[1].implementationFee +
-      newT2 * TIERS[2].implementationFee +
-      newT3 * TIERS[3].implementationFee;
+    const implementationRevenue = newT3 * TIERS[3].implementationFee;
 
-    // Subscription revenue (quarterly) — weighted by tier mix
-    // Free-pilot GTM: first N institutions get free subscription
+    // Subscription revenue (quarterly) — all institutions are Tier 3
     const paidInstitutions = Math.max(0, cumulativeInstitutions - a.pilotFreeInstitutions);
-    const totalInst = cumulativeInstitutions || 1;
-    const t1Frac = cumT1 / totalInst;
-    const t2Frac = cumT2 / totalInst;
-    const t3Frac = cumT3 / totalInst;
-
-    const weightedPricePerStudentPerYear =
-      t1Frac * TIERS[1].pricePerStudentPerYear +
-      t2Frac * TIERS[2].pricePerStudentPerYear +
-      t3Frac * TIERS[3].pricePerStudentPerYear;
-
-    // Only paid institutions generate subscription revenue
-    const paidStudents = paidInstitutions > 0
+    const paidStudents = paidInstitutions > 0 && cumulativeInstitutions > 0
       ? Math.round(cumulativeStudents * (paidInstitutions / cumulativeInstitutions))
       : 0;
-    const quarterlySubRevenue = (paidStudents * weightedPricePerStudentPerYear) / 4;
-
-    // Expansion revenue from tier upgrades
-    const expansionRevenue = upgrades > 0
-      ? (upgrades * a.studentsPerInstitution * (TIERS[2].pricePerStudentPerYear - TIERS[1].pricePerStudentPerYear)) / 4
-      : 0;
-
+    const quarterlySubRevenue = (paidStudents * TIERS[3].pricePerStudentPerYear) / 4;
     const subscriptionRevenue = quarterlySubRevenue;
-    const mrr = (paidStudents * weightedPricePerStudentPerYear) / 12;
-    const arr = paidStudents * weightedPricePerStudentPerYear;
+    const expansionRevenue = 0; // no tier upgrades with single tier
+    const mrr = (paidStudents * TIERS[3].pricePerStudentPerYear) / 12;
+    const arr = paidStudents * TIERS[3].pricePerStudentPerYear;
 
-    const totalRevenue = hardwareRevenue + implementationRevenue + subscriptionRevenue + expansionRevenue;
+    const totalRevenue = hardwareRevenue + implementationRevenue + subscriptionRevenue;
     const subscriptionCogs = subscriptionRevenue * a.saasCogsPct;
     const totalCogs = hardwareCogs + subscriptionCogs;
     const grossProfit = totalRevenue - totalCogs;
@@ -276,7 +224,7 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
 
     const ebitda = grossProfit - quarterlyOpex;
     const ebitdaMargin = totalRevenue > 0 ? ebitda / totalRevenue : 0;
-    const netIncome = ebitda; // pre-tax for simplicity at seed stage
+    const netIncome = ebitda;
 
     cumulativeRevenue += totalRevenue;
     cumulativeProfit += netIncome;
@@ -284,8 +232,6 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     data.push({
       year: years[y],
       quarter: quarters[q],
-      tier1Inst: cumT1,
-      tier2Inst: cumT2,
       tier3Inst: cumT3,
       institutions: cumulativeInstitutions,
       newInstitutions: totalNewInst,
@@ -296,7 +242,7 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
       hardwareGrossProfit: Math.round(hardwareGrossProfit),
       implementationRevenue: Math.round(implementationRevenue),
       subscriptionRevenue: Math.round(subscriptionRevenue),
-      expansionRevenue: Math.round(expansionRevenue),
+      expansionRevenue: 0,
       mrr: Math.round(mrr),
       arr: Math.round(arr),
       totalRevenue: Math.round(totalRevenue),
