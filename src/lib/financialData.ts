@@ -85,13 +85,13 @@ export const defaultAssumptions: Assumptions = {
   nfcTagCost: 0.50,
   nfcTagPrice: 2.00,
   studentsPerInstitution: 1000,
-  // Realistic B2B adoption: Y1=1 pilot, Y2=5 total, Y3=15 total
-  h1_2026: { tier1: 1, tier2: 0, tier3: 0 },
+  // Adoption timeline: Flagler free pilot Q3 2026 → 3 schools by H1 2027 → 5 by H2 2027 → 8 by H1 2028 → 15 by H2 2028
+  h1_2026: { tier1: 0, tier2: 0, tier3: 0 },
   h2_2026: { tier1: 1, tier2: 0, tier3: 0 },
-  h1_2027: { tier1: 1, tier2: 2, tier3: 0 },
-  h2_2027: { tier1: 1, tier2: 3, tier3: 1 },
-  h1_2028: { tier1: 2, tier2: 5, tier3: 2 },
-  h2_2028: { tier1: 2, tier2: 8, tier3: 5 },
+  h1_2027: { tier1: 3, tier2: 0, tier3: 0 },
+  h2_2027: { tier1: 5, tier2: 0, tier3: 0 },
+  h1_2028: { tier1: 8, tier2: 0, tier3: 0 },
+  h2_2028: { tier1: 15, tier2: 0, tier3: 0 },
   initialRolloutPercent: 0.25,
   annualOpex: {
     cloudInfra: 2_400,
