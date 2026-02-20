@@ -60,8 +60,9 @@ Deno.serve(async (req) => {
 
       if (!res.ok) {
         const body = await res.text();
+        console.error("Canvas API error:", res.status, body);
         return new Response(
-          JSON.stringify({ error: `Canvas API error`, status: res.status, canvas_response: body }),
+          JSON.stringify({ error: "Unable to fetch courses from Canvas. Please try again later." }),
           { status: res.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -145,7 +146,7 @@ Deno.serve(async (req) => {
   } catch (err) {
     console.error("Canvas student courses error:", err);
     return new Response(
-      JSON.stringify({ error: "Internal error fetching Canvas courses", detail: String(err) }),
+      JSON.stringify({ error: "Unable to fetch Canvas courses. Please try again later." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
