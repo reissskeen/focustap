@@ -108,6 +108,41 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_seats: {
+        Row: {
+          created_at: string
+          id: string
+          joined_at: string
+          last_ping: string | null
+          seat_label: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          joined_at?: string
+          last_ping?: string | null
+          seat_label: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          joined_at?: string
+          last_ping?: string | null
+          seat_label?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_seats_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       focus_events: {
         Row: {
           created_at: string
