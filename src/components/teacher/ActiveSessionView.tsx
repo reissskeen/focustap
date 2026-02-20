@@ -64,6 +64,8 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
   const [viewMode, setViewMode] = useState<"roster" | "seats">("roster");
   const [roster, setRoster] = useState<RosterStudent[]>([]);
   const [ending, setEnding] = useState(false);
+  const [gridRows, setGridRows] = useState(5);
+  const [gridCols, setGridCols] = useState(6);
 
   const fetchRoster = async () => {
     const { data: studentSessions } = await supabase
@@ -330,10 +332,43 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
 
         {/* Seat Grid view */}
         {viewMode === "seats" && (
-          <div className="p-4">
-            <DemoSeatGrid sessionId={session.id} totalSeats={30} />
+          <div className="p-4 space-y-4">
+            {/* Row/Col controls */}
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">Rows</label>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setGridRows((r) => Math.max(1, r - 1))}
+                    className="w-6 h-6 rounded border border-border text-sm font-bold hover:bg-muted transition-colors"
+                  >−</button>
+                  <span className="w-8 text-center font-mono text-sm font-semibold">{gridRows}</span>
+                  <button
+                    onClick={() => setGridRows((r) => Math.min(20, r + 1))}
+                    className="w-6 h-6 rounded border border-border text-sm font-bold hover:bg-muted transition-colors"
+                  >+</button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">Columns</label>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setGridCols((c) => Math.max(1, c - 1))}
+                    className="w-6 h-6 rounded border border-border text-sm font-bold hover:bg-muted transition-colors"
+                  >−</button>
+                  <span className="w-8 text-center font-mono text-sm font-semibold">{gridCols}</span>
+                  <button
+                    onClick={() => setGridCols((c) => Math.min(20, c + 1))}
+                    className="w-6 h-6 rounded border border-border text-sm font-bold hover:bg-muted transition-colors"
+                  >+</button>
+                </div>
+              </div>
+              <span className="text-xs text-muted-foreground">{gridRows * gridCols} total seats</span>
+            </div>
+            <DemoSeatGrid sessionId={session.id} rows={gridRows} cols={gridCols} />
           </div>
         )}
+
       </motion.div>
     </>
   );
