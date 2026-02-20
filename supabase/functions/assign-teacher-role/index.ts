@@ -72,7 +72,8 @@ Deno.serve(async (req) => {
       .insert({ user_id: userId, role: "teacher" });
 
     if (insertError) {
-      return new Response(JSON.stringify({ error: insertError.message }), {
+      console.error("Role assignment failed:", insertError);
+      return new Response(JSON.stringify({ error: "Unable to assign teacher role. Please try again or contact support." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -82,7 +83,8 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), {
+    console.error("Unexpected error in assign-teacher-role:", e);
+    return new Response(JSON.stringify({ error: "An unexpected error occurred. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
