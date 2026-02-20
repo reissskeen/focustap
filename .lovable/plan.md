@@ -1,103 +1,41 @@
 
+## Integrate Faculty Survey Data into the Problem Slide
 
-# Student Session Page — Full Integration
+### What the Survey Data Shows
 
-## Current State
-The UI components (Notes Editor, Focus Timer, Session Info, Submit button) all exist visually, but none are connected to the database. No student_session record is created, notes aren't saved, and focus time isn't tracked server-side.
+Three key statistics from the "Faculty Perspectives on Classroom Engagement" Google Form survey (14 faculty respondents):
 
-## What Will Be Built
+1. **78.5% of faculty say engagement is an issue** — 57.1% call it a "significant issue," 21.4% a "minor issue"
+2. **85.7% say phones are a major distraction** — 28.6% say phones are the #1 distraction, 57.1% say one of several major ones
+3. **100% agree students benefit from more participation** — 78.6% strongly agree, 21.4% agree
 
-### 1. Student Session Join (on page load)
-When a student navigates to `/session/:id`:
-- Upsert a `student_sessions` record (user_id + session_id) with `joined_at = now()`
-- Upsert a `note_docs` record for the student and session
-- Load existing `note_docs.content_json` into the editor (for page refreshes)
-- Check if already submitted -- if so, lock the editor to read-only
+This is primary research from real professors, which is far more compelling for a pitch than generic statistics.
 
-### 2. Notes Auto-Save
-- The NotesEditor already debounces content changes (2s delay)
-- Wire `onContentChange` to update `note_docs.content_json` in the database
-- Show a subtle "Saving..." / "Saved" indicator
+### Plan
 
-### 3. Focus Heartbeat
-- Every 15 seconds while the tab is focused, update `student_sessions`:
-  - `focus_seconds` = local counter value
-  - `last_heartbeat` = now()
-- This uses the existing FocusTimer's `onFocusUpdate` callback
+Only `src/pages/PitchDeck.tsx` changes — specifically Slide 1 (lines 103–129).
 
-### 4. Submit Notes
-- On submit: update `note_docs.submitted_at` and `student_sessions.submitted_at` to `now()`
-- Lock the editor to read-only
-- Stop focus tracking
+The slide will be completely rebuilt into three sections:
 
-### 5. Copy to Clipboard
-- Extract plain text from the TipTap editor and copy to clipboard using the Clipboard API
+**Top — Survey source badge**
+A small "Faculty Survey · n=14 · Flagler College · Feb 2026" label to establish credibility of the data.
 
-### 6. Responsive Layout
-- Desktop/Chromebook (1024px+): side-by-side split view using CSS grid (already works with `lg:grid-cols`)
-- Mobile/tablet: stacked layout with notes on top, timer and actions below (already works as grid fallback)
-- No changes needed -- the current grid approach handles this correctly
+**Middle — Three stat cards (the survey data)**
+A 3-column grid of large-number "stat" cards styled with destructive/warning coloring to emphasize the problem:
 
-## Technical Details
+| Stat | Label | Source |
+|---|---|---|
+| **78.5%** of faculty say engagement is an issue in classrooms | "Engagement Is a Crisis" | IMG_0463 |
+| **85.7%** say phones are a major or the #1 distraction | "Phones Dominate" | IMG_0460 |
+| **100%** agree students benefit from more active participation | "Participation = Outcomes" | IMG_0461 |
 
-### Database Operations (all from the frontend using the Supabase client)
+**Bottom — Solution row**
+A compact 2-column or 4-bullet solution section (same checkmarks as before) to close the loop: "Here's what FocusTap does about it."
 
-**Join session (on mount):**
-```
-supabase.from('student_sessions').upsert({ user_id, session_id, joined_at: now() }, { onConflict: 'user_id,session_id' })
-supabase.from('note_docs').upsert({ user_id, session_id }, { onConflict: 'user_id,session_id' })
-```
+### Technical Details
 
-Note: The `student_sessions` table already has a unique constraint on (user_id, session_id). A similar unique constraint will need to be added to `note_docs` for the upsert to work.
-
-**Auto-save notes:**
-```
-supabase.from('note_docs').update({ content_json, updated_at: now() }).eq('user_id', uid).eq('session_id', sid)
-```
-
-**Heartbeat (every 15s):**
-```
-supabase.from('student_sessions').update({ focus_seconds, last_heartbeat: now() }).eq('user_id', uid).eq('session_id', sid)
-```
-
-**Submit:**
-```
-supabase.from('note_docs').update({ submitted_at: now() }).eq(...)
-supabase.from('student_sessions').update({ submitted_at: now() }).eq(...)
-```
-
-### Migration Required
-- Add a unique constraint on `note_docs(user_id, session_id)` to support upsert
-
-### File Changes
-
-1. **New migration** -- add unique constraint to `note_docs`
-2. **`src/pages/StudentSession.tsx`** -- main rewiring:
-   - Add join logic on mount
-   - Load existing notes into editor
-   - Wire auto-save, heartbeat, and submit to the database
-   - Add save status indicator
-   - Implement clipboard copy
-3. **`src/components/NotesEditor.tsx`** -- add prop to accept initial content (`initialContent`) and load it into the editor
-4. **`src/components/FocusTimer.tsx`** -- no changes needed, already exposes `onFocusUpdate`
-
-### Component Flow
-
-```text
-StudentSession mounts
-  |
-  +-- Fetch session info (course, teacher) [already done]
-  +-- Upsert student_session record
-  +-- Upsert + fetch note_doc (load existing content)
-  |
-  +-- NotesEditor renders with initialContent
-  |     |-- onContentChange -> debounced save to note_docs
-  |
-  +-- FocusTimer starts
-  |     |-- onFocusUpdate -> throttled heartbeat to student_sessions
-  |
-  +-- Submit button
-        |-- Writes submitted_at to both tables
-        |-- Locks editor, stops timer
-```
-
+- No new files, no new dependencies, no backend changes
+- Uses Recharts `PieChart` already installed to optionally render one of the survey charts inline — however, for slide density and clarity, large bold percentage numbers with sourced sub-labels are more impactful than recreating the pie charts
+- The `SlideWrapper` padding and `max-w-4xl` container are preserved
+- The existing `bg-destructive/10 border-destructive/20` card style is reused for the stat cards to maintain visual consistency with the rest of the deck
+- The solution bullets (NFC tap, focus tracking, free pilot at Flagler, proven data → school-to-school) are kept at the bottom in a tighter layout
