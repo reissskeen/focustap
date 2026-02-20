@@ -102,27 +102,48 @@ export default function PitchDeck() {
 
   // Slide 1 — Problem & Solution
   <SlideWrapper key={1}>
-      <div className="max-w-4xl w-full space-y-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Problem</h2>
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="space-y-4">
-            <div className="p-5 rounded-xl bg-destructive/10 border border-destructive/20">
-              <p className="font-semibold text-destructive">% of students</p>
-              <p className="text-sm text-muted-foreground mt-1">are disengaged during lectures, leading to poor outcomes</p>
-            </div>
-            <div className="p-5 rounded-xl bg-destructive/10 border border-destructive/20">
-              <p className="font-semibold text-destructive">Manual attendance</p>
-              <p className="text-sm text-muted-foreground mt-1">wastes 5–10 minutes per class and is easy to fake</p>
-            </div>
+      <div className="max-w-4xl w-full space-y-5">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Problem</h2>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted border border-border text-xs font-medium text-muted-foreground">
+            📋 Faculty Survey · n=14 · Flagler College · Feb 2026
+          </span>
+        </div>
+
+        {/* Three stat cards from primary research */}
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="p-5 rounded-xl bg-destructive/10 border border-destructive/20 space-y-2">
+            <p className="text-5xl font-black text-destructive">78.5%</p>
+            <p className="text-sm font-semibold text-destructive/90">Engagement Is a Crisis</p>
+            <p className="text-xs text-muted-foreground">of faculty say student engagement is a significant or minor issue in their classrooms</p>
           </div>
-          <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-primary">Our Solution</h3>
-            <ul className="space-y-3 text-muted-foreground">
-              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Desk-level NFC tap for instant, verified attendance</li>
-              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Real-time focus tracking via browser visibility API</li>
-              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Free pilot at Flagler — implementation fee covers costs</li>
-              <li className="flex gap-2"><span className="text-primary font-bold">✓</span> Proven data → sell school-to-school</li>
-            </ul>
+          <div className="p-5 rounded-xl bg-destructive/10 border border-destructive/20 space-y-2">
+            <p className="text-5xl font-black text-destructive">85.7%</p>
+            <p className="text-sm font-semibold text-destructive/90">Phones Dominate</p>
+            <p className="text-xs text-muted-foreground">say phones are the #1 or a major distraction — above all other factors</p>
+          </div>
+          <div className="p-5 rounded-xl bg-destructive/10 border border-destructive/20 space-y-2">
+            <p className="text-5xl font-black text-destructive">100%</p>
+            <p className="text-sm font-semibold text-destructive/90">Participation = Outcomes</p>
+            <p className="text-xs text-muted-foreground">of faculty agree students benefit from more active participation — 78.6% strongly agree</p>
+          </div>
+        </div>
+
+        {/* Solution row */}
+        <div className="p-5 rounded-xl bg-primary/5 border border-primary/20">
+          <p className="text-sm font-semibold text-primary mb-3">FocusTap addresses all three — without asking students to install anything</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              "Desk-level NFC tap — instant, verified attendance",
+              "Real-time focus tracking via browser visibility API",
+              "Free pilot at Flagler — implementation fee covers costs",
+              "Proven data → sell school-to-school"
+            ].map((item) =>
+              <div key={item} className="flex gap-2 text-xs text-muted-foreground">
+                <span className="text-primary font-bold shrink-0">✓</span>
+                <span>{item}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
