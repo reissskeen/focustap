@@ -11,7 +11,8 @@ interface DemoSeat {
 
 interface DemoSeatGridProps {
   sessionId: string;
-  totalSeats?: number;
+  rows?: number;
+  cols?: number;
 }
 
 type SeatStatus = "active" | "paused" | "disconnected";
@@ -36,9 +37,10 @@ const dotColor: Record<SeatStatus, string> = {
   disconnected: "bg-muted-foreground/40",
 };
 
-export default function DemoSeatGrid({ sessionId, totalSeats = 30 }: DemoSeatGridProps) {
+export default function DemoSeatGrid({ sessionId, rows = 5, cols = 6 }: DemoSeatGridProps) {
   const [seats, setSeats] = useState<DemoSeat[]>([]);
   const [tick, setTick] = useState(0);
+  const totalSeats = rows * cols;
 
   const fetchSeats = useCallback(async () => {
     const { data } = await supabase
@@ -69,7 +71,7 @@ export default function DemoSeatGrid({ sessionId, totalSeats = 30 }: DemoSeatGri
     return () => { supabase.removeChannel(channel); };
   }, [sessionId, fetchSeats]);
 
-  // Map seat_label → seat data (latest entry wins for duplicate labels)
+  // Map seat_label → seat data
   const seatMap = new Map<string, DemoSeat>();
   for (const s of seats) seatMap.set(s.seat_label, s);
 
@@ -89,10 +91,10 @@ export default function DemoSeatGrid({ sessionId, totalSeats = 30 }: DemoSeatGri
         </span>
       </div>
 
-      {/* Grid */}
+      {/* Grid — fixed columns based on `cols` prop */}
       <div
         className="grid gap-3"
-        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))" }}
+        style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
       >
         {Array.from({ length: totalSeats }, (_, i) => {
           const num = String(i + 1);
