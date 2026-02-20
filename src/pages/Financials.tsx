@@ -95,7 +95,7 @@ export default function Financials() {
   }));
 
   const lastQ = forecast[forecast.length - 1];
-  const totalRevY3 = forecast.filter(d => d.year === "FY 2028").reduce((s, d) => s + d.totalRevenue, 0);
+  const allYears = [...new Set(forecast.map(d => d.year))];
   const totalImplRev = forecast.reduce((s, d) => s + d.implementationRevenue, 0);
   const totalExpansionRev = forecast.reduce((s, d) => s + d.expansionRevenue, 0);
 
@@ -103,7 +103,7 @@ export default function Financials() {
     { name: "Tier 3", value: lastQ.tier3Inst },
   ].filter(d => d.value > 0);
 
-  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "studentsPerInstitution" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "saasCogsPct" | "pilotFreeInstitutions", value: string) => {
+  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "studentsPerInstitution" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "saasCogsPct" | "pilotFreeInstitutions" | "postForecastHalfYearGrowth", value: string) => {
     updateAssumptions(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
   };
 
@@ -125,8 +125,8 @@ export default function Financials() {
     }));
   };
 
-  // Annual summary
-  const annualSummary = ["FY 2026", "FY 2027", "FY 2028"].map(yr => {
+  // Annual summary — dynamic across all forecast years
+  const annualSummary = allYears.map(yr => {
     const qs = forecast.filter(d => d.year === yr);
     return {
       year: yr,
@@ -512,6 +512,7 @@ export default function Financials() {
                       { key: "annualChurnRate" as const, label: "Annual Churn %", step: 0.01 },
                       { key: "saasCogsPct" as const, label: "SaaS COGS %", step: 0.01 },
                       { key: "pilotFreeInstitutions" as const, label: "Free Pilot Schools", step: 1 },
+                      { key: "postForecastHalfYearGrowth" as const, label: "Post-2028 Growth (inst/half-yr)", step: 1 },
                     ]).map(({ key, label, step }) => (
                       <div key={key} className="space-y-1.5">
                         <Label className="text-xs">{label}</Label>

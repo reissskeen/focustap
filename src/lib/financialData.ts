@@ -51,6 +51,8 @@ export interface Assumptions {
   h2_2027: HalfYearAdoption;
   h1_2028: HalfYearAdoption;
   h2_2028: HalfYearAdoption;
+  // Post-2028: steady-state new institutions per half-year (Tier 3)
+  postForecastHalfYearGrowth: number;
   // Rollout: fraction of desks deployed in first quarter at new institution
   initialRolloutPercent: number;
   // Fixed operating costs (annual)
@@ -101,6 +103,7 @@ export const defaultAssumptions: Assumptions = {
     legalSetup: 3_500,
     brandingWebsite: 2_500,
   },
+  postForecastHalfYearGrowth: 4,
   opexGrowthRate: 0.30,
   annualChurnRate: 0.03,
   saasCogsPct: 0.15,
@@ -147,13 +150,16 @@ export interface YearlyFinancials {
 
 export function generateForecast(a: Assumptions): YearlyFinancials[] {
   const data: YearlyFinancials[] = [];
-  const years = ["FY 2026", "FY 2027", "FY 2028"];
   const quarters = ["Q1", "Q2", "Q3", "Q4"];
 
-  const halfTargets: HalfYearAdoption[] = [
-    a.h1_2026, a.h1_2026, a.h2_2026, a.h2_2026,
-    a.h1_2027, a.h1_2027, a.h2_2027, a.h2_2027,
-    a.h1_2028, a.h1_2028, a.h2_2028, a.h2_2028,
+  // Build an explicit list of half-year targets for the modeled period (2026–2028)
+  const modeledHalfTargets: { year: number; half: 1 | 2; target: HalfYearAdoption }[] = [
+    { year: 2026, half: 1, target: a.h1_2026 },
+    { year: 2026, half: 2, target: a.h2_2026 },
+    { year: 2027, half: 1, target: a.h1_2027 },
+    { year: 2027, half: 2, target: a.h2_2027 },
+    { year: 2028, half: 1, target: a.h1_2028 },
+    { year: 2028, half: 2, target: a.h2_2028 },
   ];
 
   const ninvTotal = computeNINVTotal(a.ninv);
@@ -164,51 +170,36 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
   let cumulativeRevenue = 0;
   let cumulativeProfit = 0;
 
-  for (let i = 0; i < 12; i++) {
-    const y = Math.floor(i / 4);
-    const q = i % 4;
-    const isFirstOfHalf = q === 0 || q === 2;
-    const target = halfTargets[i];
-
-    // Compute new Tier 3 institutions this quarter
-    const allocate = (cumVal: number, targetVal: number): number => {
-      const newInHalf = Math.max(0, targetVal - cumVal);
-      return isFirstOfHalf ? Math.ceil(newInHalf * 0.5) : Math.max(0, newInHalf - Math.ceil(newInHalf * 0.5));
-    };
-
-    const newT3 = allocate(cumT3, target.tier3);
+  // Helper to process one quarter
+  const processQuarter = (
+    yearLabel: string,
+    quarterLabel: string,
+    yearIndex: number,   // 0-based from 2026
+    newT3: number,
+  ) => {
     cumT3 += newT3;
-
     const cumulativeInstitutions = cumT3;
-    const totalNewInst = newT3;
 
-    // Student deployment
-    const newStudentsFromNewInst = Math.round(totalNewInst * a.studentsPerInstitution * a.initialRolloutPercent);
+    const newStudentsFromNewInst = Math.round(newT3 * a.studentsPerInstitution * a.initialRolloutPercent);
     const maxStudents = cumulativeInstitutions * a.studentsPerInstitution;
     const rampStudents = Math.round((maxStudents - cumulativeStudents - newStudentsFromNewInst) * 0.3);
     const totalNewStudents = newStudentsFromNewInst + Math.max(0, rampStudents);
     cumulativeStudents = Math.min(maxStudents, cumulativeStudents + totalNewStudents);
 
-    // Churn
     const churnedStudents = Math.round(cumulativeStudents * (a.annualChurnRate / 4));
     cumulativeStudents = Math.max(0, cumulativeStudents - churnedStudents);
 
-    // Hardware revenue (one-time per new student/desk)
     const hardwareRevenue = totalNewStudents * a.nfcTagPrice;
     const hardwareCogs = totalNewStudents * a.nfcTagCost;
     const hardwareGrossProfit = hardwareRevenue - hardwareCogs;
 
-    // Implementation fees (one-time, on new institutions)
     const implementationRevenue = newT3 * a.studentsPerInstitution * TIERS[3].implementationFeePerTag;
 
-    // Subscription revenue (quarterly) — all institutions are Tier 3
     const paidInstitutions = Math.max(0, cumulativeInstitutions - a.pilotFreeInstitutions);
     const paidStudents = paidInstitutions > 0 && cumulativeInstitutions > 0
       ? Math.round(cumulativeStudents * (paidInstitutions / cumulativeInstitutions))
       : 0;
-    const quarterlySubRevenue = (paidStudents * TIERS[3].pricePerStudentPerYear) / 4;
-    const subscriptionRevenue = quarterlySubRevenue;
-    const expansionRevenue = 0; // no tier upgrades with single tier
+    const subscriptionRevenue = (paidStudents * TIERS[3].pricePerStudentPerYear) / 4;
     const mrr = (paidStudents * TIERS[3].pricePerStudentPerYear) / 12;
     const arr = paidStudents * TIERS[3].pricePerStudentPerYear;
 
@@ -218,8 +209,7 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const grossProfit = totalRevenue - totalCogs;
     const grossMargin = totalRevenue > 0 ? grossProfit / totalRevenue : 0;
 
-    // Fixed OPEX — scales by year with growth rate
-    const yearlyOpex = baseAnnualOpex * Math.pow(1 + a.opexGrowthRate, y);
+    const yearlyOpex = baseAnnualOpex * Math.pow(1 + a.opexGrowthRate, yearIndex);
     const quarterlyOpex = yearlyOpex / 4;
 
     const ebitda = grossProfit - quarterlyOpex;
@@ -230,11 +220,11 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     cumulativeProfit += netIncome;
 
     data.push({
-      year: years[y],
-      quarter: quarters[q],
+      year: yearLabel,
+      quarter: quarterLabel,
       tier3Inst: cumT3,
       institutions: cumulativeInstitutions,
-      newInstitutions: totalNewInst,
+      newInstitutions: newT3,
       studentsDeployed: cumulativeStudents,
       newStudents: totalNewStudents,
       hardwareRevenue: Math.round(hardwareRevenue),
@@ -256,6 +246,54 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
       cumulativeRevenue: Math.round(cumulativeRevenue),
       cumulativeProfit: Math.round(cumulativeProfit),
     });
+  };
+
+  // --- Phase 1: modeled 2026-2028 quarters ---
+  let halfIdx = 0;
+  for (let i = 0; i < 12; i++) {
+    const y = Math.floor(i / 4);             // 0 = 2026, 1 = 2027, 2 = 2028
+    const q = i % 4;
+    const yearLabel = `FY ${2026 + y}`;
+    const isFirstOfHalf = q === 0 || q === 2;
+    halfIdx = Math.floor(i / 2);
+    const target = modeledHalfTargets[halfIdx].target;
+
+    const allocate = (cumVal: number, targetVal: number): number => {
+      const newInHalf = Math.max(0, targetVal - cumVal);
+      return isFirstOfHalf
+        ? Math.ceil(newInHalf * 0.5)
+        : Math.max(0, newInHalf - Math.ceil(newInHalf * 0.5));
+    };
+
+    const prevCumT3 = cumT3;
+    const newT3 = allocate(prevCumT3, target.tier3);
+    processQuarter(yearLabel, quarters[q], y, newT3);
+  }
+
+  // --- Phase 2: extend beyond 2028 until full break-even ---
+  const MAX_EXTENSION_QUARTERS = 40; // safety cap (~10 extra years)
+  let extraQuarter = 0;
+  let calYear = 2029;
+  let calQ = 0; // 0-based quarter index within year
+
+  while (cumulativeProfit < ninvTotal && extraQuarter < MAX_EXTENSION_QUARTERS) {
+    const yearLabel = `FY ${calYear}`;
+    const yearIndex = calYear - 2026;
+    const isFirstOfHalf = calQ === 0 || calQ === 2;
+
+    // Steady-state growth: postForecastHalfYearGrowth new institutions every half-year
+    const newT3 = isFirstOfHalf
+      ? Math.ceil(a.postForecastHalfYearGrowth * 0.5)
+      : Math.floor(a.postForecastHalfYearGrowth * 0.5);
+
+    processQuarter(yearLabel, quarters[calQ], yearIndex, newT3);
+
+    extraQuarter++;
+    calQ++;
+    if (calQ === 4) {
+      calQ = 0;
+      calYear++;
+    }
   }
 
   return data;
