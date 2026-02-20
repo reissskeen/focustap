@@ -16,7 +16,7 @@ export interface TierConfig {
 }
 
 export const TIERS: Record<Tier, TierConfig> = {
-  3: { name: "Full Campus Intelligence", tag: "Tier 3", pricePerStudentPerYear: 50, implementationFeePerTag: 3 },
+  3: { name: "Full Campus Intelligence", tag: "Tier 3", pricePerStudentPerYear: 45, implementationFeePerTag: 3 },
 };
 
 export interface HalfYearAdoption {
