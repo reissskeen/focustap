@@ -23,6 +23,8 @@ const Navbar = () => {
   const navLinks = [
     { label: "Features", href: "/#features" },
     { label: "How It Works", href: "/#how-it-works" },
+    { label: "Financials", href: "/financials" },
+    { label: "Pitch Deck", href: "/pitch-deck" },
   ];
 
   return (
@@ -42,15 +44,25 @@ const Navbar = () => {
         {isLanding && (
           <>
             <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) =>
+                link.href.startsWith("/#") ? (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.label}
+                    to={link.href}
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                )
+              )}
             </div>
 
             <div className="hidden md:flex items-center gap-3">
@@ -114,16 +126,27 @@ const Navbar = () => {
           animate={{ opacity: 1, height: "auto" }}
           className="md:hidden border-t bg-card px-4 pb-4"
         >
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="block py-2 text-sm font-medium text-muted-foreground"
-              onClick={() => setMobileOpen(false)}
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) =>
+            link.href.startsWith("/#") ? (
+              <a
+                key={link.label}
+                href={link.href}
+                className="block py-2 text-sm font-medium text-muted-foreground"
+                onClick={() => setMobileOpen(false)}
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.label}
+                to={link.href}
+                className="block py-2 text-sm font-medium text-muted-foreground"
+                onClick={() => setMobileOpen(false)}
+              >
+                {link.label}
+              </Link>
+            )
+          )}
           <div className="flex flex-col gap-2 mt-3">
             {user ? (
               <Button variant="ghost" size="sm" className="w-full gap-1.5" onClick={() => { signOut(); setMobileOpen(false); }}>
