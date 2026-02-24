@@ -30,7 +30,7 @@ export default function PitchDeck() {
     subscriptionRevenue: d.subscriptionRevenue,
     hardwareRevenue: d.hardwareRevenue,
     grossProfit: d.grossProfit,
-    ebitda: d.ebitda,
+    netIncome: d.netIncome,
     studentsDeployed: d.studentsDeployed,
     institutions: d.institutions
   }));
@@ -43,7 +43,7 @@ export default function PitchDeck() {
       year: y,
       revenue: qs.reduce((s, d) => s + d.totalRevenue, 0),
       grossProfit: qs.reduce((s, d) => s + d.grossProfit, 0),
-      ebitda: qs.reduce((s, d) => s + d.ebitda, 0),
+      netIncome: qs.reduce((s, d) => s + d.netIncome, 0),
       institutions: qs[qs.length - 1].institutions,
       students: qs[qs.length - 1].studentsDeployed
     };

@@ -83,14 +83,14 @@ export default function Financials() {
     implementationRevenue: d.implementationRevenue,
     expansionRevenue: d.expansionRevenue,
     grossProfit: d.grossProfit,
-    ebitda: d.ebitda,
+    netIncome: d.netIncome,
     opex: d.opex,
     studentsDeployed: d.studentsDeployed,
     institutions: d.institutions,
     tier3Inst: d.tier3Inst,
     mrr: d.mrr,
     grossMargin: Math.round(d.grossMargin * 100),
-    ebitdaMargin: Math.round(d.ebitdaMargin * 100),
+    
     cumulativeProfit: d.cumulativeProfit,
   }));
 
@@ -136,7 +136,7 @@ export default function Financials() {
       impl: qs.reduce((s, d) => s + d.implementationRevenue, 0),
       opex: qs.reduce((s, d) => s + d.opex, 0),
       grossProfit: qs.reduce((s, d) => s + d.grossProfit, 0),
-      ebitda: qs.reduce((s, d) => s + d.ebitda, 0),
+      netIncome: qs.reduce((s, d) => s + d.netIncome, 0),
       institutions: qs[qs.length - 1].institutions,
       students: qs[qs.length - 1].studentsDeployed,
     };
@@ -274,7 +274,7 @@ export default function Financials() {
                       <div className="text-xs text-muted-foreground space-y-0.5">
                         <p>SaaS: {formatCurrency(y.saas)} · HW: {formatCurrency(y.hw)} · Impl: {formatCurrency(y.impl)}</p>
                         <p>{y.institutions} institutions · {y.students.toLocaleString()} students</p>
-                        <p>OPEX: {formatCurrency(y.opex)} · EBITDA: <span className={y.ebitda >= 0 ? "text-primary" : "text-destructive"}>{formatCurrency(y.ebitda)}</span></p>
+                        <p>OPEX: {formatCurrency(y.opex)} · Net Income: <span className={y.netIncome >= 0 ? "text-primary" : "text-destructive"}>{formatCurrency(y.netIncome)}</span></p>
                       </div>
                     </div>
                   ))}
@@ -331,7 +331,7 @@ export default function Financials() {
                 <CardContent className="p-5 text-center space-y-2">
                   <p className="text-xs font-medium text-muted-foreground uppercase">Operating Break-Even</p>
                   <p className="text-3xl font-bold text-foreground">{breakEven.operatingBreakEvenQ || "N/A"}</p>
-                  <p className="text-xs text-muted-foreground">{breakEven.monthsToOperating ? `~${breakEven.monthsToOperating} months · EBITDA ≥ 0` : "Quarterly EBITDA ≥ 0"}</p>
+                  <p className="text-xs text-muted-foreground">{breakEven.monthsToOperating ? `~${breakEven.monthsToOperating} months · Net Income ≥ 0` : "Quarterly Net Income ≥ 0"}</p>
                 </CardContent>
               </Card>
               <Card className="border-primary/40 bg-primary/5">
@@ -392,7 +392,7 @@ export default function Financials() {
                       <TableHead className="text-right">Total Rev</TableHead>
                       <TableHead className="text-right">GP</TableHead>
                       <TableHead className="text-right">OPEX</TableHead>
-                      <TableHead className="text-right">EBITDA</TableHead>
+                      <TableHead className="text-right">Net Income</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -411,8 +411,8 @@ export default function Financials() {
                         <TableCell className="text-right font-mono text-sm font-semibold">{formatCurrency(row.totalRevenue)}</TableCell>
                         <TableCell className="text-right font-mono text-sm text-primary">{formatCurrency(row.grossProfit)}</TableCell>
                         <TableCell className="text-right font-mono text-sm text-destructive">{formatCurrency(row.opex)}</TableCell>
-                        <TableCell className={`text-right font-mono text-sm font-semibold ${row.ebitda >= 0 ? "text-primary" : "text-destructive"}`}>
-                          {formatCurrency(row.ebitda)}
+                        <TableCell className={`text-right font-mono text-sm font-semibold ${row.netIncome >= 0 ? "text-primary" : "text-destructive"}`}>
+                          {formatCurrency(row.netIncome)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -430,8 +430,8 @@ export default function Financials() {
                         <TableCell className="text-right font-mono text-sm font-bold">{formatCurrency(y.revenue)}</TableCell>
                         <TableCell className="text-right font-mono text-sm text-primary">{formatCurrency(y.grossProfit)}</TableCell>
                         <TableCell className="text-right font-mono text-sm text-destructive">{formatCurrency(y.opex)}</TableCell>
-                        <TableCell className={`text-right font-mono text-sm font-bold ${y.ebitda >= 0 ? "text-primary" : "text-destructive"}`}>
-                          {formatCurrency(y.ebitda)}
+                        <TableCell className={`text-right font-mono text-sm font-bold ${y.netIncome >= 0 ? "text-primary" : "text-destructive"}`}>
+                          {formatCurrency(y.netIncome)}
                         </TableCell>
                       </TableRow>
                     ))}
