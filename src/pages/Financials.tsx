@@ -454,7 +454,7 @@ export default function Financials() {
                       { key: "nfcInventory" as const, label: "NFC Inventory" },
                       { key: "pilotDeployment" as const, label: "Pilot Deployment" },
                       { key: "legalSetup" as const, label: "Legal & Setup" },
-                      { key: "brandingWebsite" as const, label: "Branding & Website" },
+                      { key: "brandingWebsite" as const, label: "Branding" },
                     ]).map(({ key, label }) => (
                       <div key={key} className="space-y-1.5">
                         <Label className="text-xs">{label}</Label>
