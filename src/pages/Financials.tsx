@@ -210,7 +210,7 @@ export default function Financials() {
             icon={Target}
             accent
           />
-          <KPICard title="Gross Margin" value={formatPercent(lastQ.grossMargin)} subtitle={`EBITDA: ${formatPercent(lastQ.ebitdaMargin)}`} icon={BarChart3} />
+          <KPICard title="Gross Margin" value={formatPercent(lastQ.grossMargin)} subtitle="End of forecast period" icon={BarChart3} />
         </motion.div>
 
         <Tabs defaultValue="revenue" className="space-y-4">
