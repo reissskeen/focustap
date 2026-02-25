@@ -35,7 +35,22 @@ const KPICard = ({ title, value, subtitle, icon: Icon, accent }: { title: string
   </Card>
 );
 
-const TIER_COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(210 60% 50%)"];
+const CHART_COLORS = {
+  saas: "#3b82f6",        // blue
+  implementation: "#10b981", // emerald
+  hardware: "#f59e0b",     // amber
+  expansion: "#8b5cf6",    // violet
+  mrr: "#06b6d4",          // cyan
+  institutions: "#6366f1", // indigo
+  profit: "#10b981",       // emerald
+  destructive: "#ef4444",  // red
+};
+
+const AXIS_STYLE = { stroke: "#6b7280", fontSize: 11 };
+const GRID_STYLE = { stroke: "#d1d5db", strokeDasharray: "3 3" };
+const TOOLTIP_STYLE = { backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" };
+
+const TIER_COLORS = [CHART_COLORS.institutions, CHART_COLORS.expansion, CHART_COLORS.saas];
 
 const STORAGE_KEY = "focustap_financial_assumptions";
 
@@ -232,15 +247,15 @@ export default function Financials() {
                 <CardContent>
                   <ResponsiveContainer width="100%" height={280}>
                     <ComposedChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-                      <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <Tooltip formatter={(v: number) => formatCurrency(v)} />
+                      <CartesianGrid {...GRID_STYLE} />
+                      <XAxis dataKey="label" tick={AXIS_STYLE} />
+                      <YAxis tickFormatter={(v) => formatCurrency(v)} tick={AXIS_STYLE} />
+                      <Tooltip formatter={(v: number) => formatCurrency(v)} contentStyle={TOOLTIP_STYLE} />
                       <Legend />
-                      <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="hsl(var(--primary))" />
-                      <Bar dataKey="implementationRevenue" name="Impl. Fees" stackId="rev" fill="hsl(210 60% 50%)" />
-                      <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill="hsl(var(--accent))" />
-                      <Bar dataKey="expansionRevenue" name="Expansion" stackId="rev" fill="hsl(150 60% 45%)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill={CHART_COLORS.saas} />
+                      <Bar dataKey="implementationRevenue" name="Impl. Fees" stackId="rev" fill={CHART_COLORS.implementation} />
+                      <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill={CHART_COLORS.hardware} />
+                      <Bar dataKey="expansionRevenue" name="Expansion" stackId="rev" fill={CHART_COLORS.expansion} radius={[4, 4, 0, 0]} />
                     </ComposedChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -251,11 +266,11 @@ export default function Financials() {
                 <CardContent>
                   <ResponsiveContainer width="100%" height={280}>
                     <AreaChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-                      <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <Tooltip formatter={(v: number) => formatCurrency(v)} />
-                      <Area type="monotone" dataKey="mrr" name="MRR" fill="hsl(var(--primary) / 0.2)" stroke="hsl(var(--primary))" strokeWidth={2} />
+                      <CartesianGrid {...GRID_STYLE} />
+                      <XAxis dataKey="label" tick={AXIS_STYLE} />
+                      <YAxis tickFormatter={(v) => formatCurrency(v)} tick={AXIS_STYLE} />
+                      <Tooltip formatter={(v: number) => formatCurrency(v)} contentStyle={TOOLTIP_STYLE} />
+                      <Area type="monotone" dataKey="mrr" name="MRR" fill={`${CHART_COLORS.mrr}33`} stroke={CHART_COLORS.mrr} strokeWidth={2} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -291,12 +306,12 @@ export default function Financials() {
                 <CardContent>
                   <ResponsiveContainer width="100%" height={280}>
                     <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-                      <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                      <Tooltip />
+                      <CartesianGrid {...GRID_STYLE} />
+                      <XAxis dataKey="label" tick={AXIS_STYLE} />
+                      <YAxis tick={AXIS_STYLE} />
+                      <Tooltip contentStyle={TOOLTIP_STYLE} />
                       <Legend />
-                      <Bar dataKey="tier3Inst" name="Tier 3 — Full Campus Intelligence" fill={TIER_COLORS[0]} radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="tier3Inst" name="Tier 3 — Full Campus Intelligence" fill={CHART_COLORS.institutions} radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -347,16 +362,16 @@ export default function Financials() {
               <CardHeader className="pb-2"><CardTitle className="text-sm">Cumulative Profit vs NINV</CardTitle></CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <ComposedChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-                    <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                    <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                    <Tooltip formatter={(v: number) => formatCurrency(v)} />
+                    <ComposedChart data={chartData}>
+                    <CartesianGrid {...GRID_STYLE} />
+                    <XAxis dataKey="label" tick={AXIS_STYLE} />
+                    <YAxis tickFormatter={(v) => formatCurrency(v)} tick={AXIS_STYLE} />
+                    <Tooltip formatter={(v: number) => formatCurrency(v)} contentStyle={TOOLTIP_STYLE} />
                     <Legend />
-                    <ReferenceLine y={ninvTotal} stroke="hsl(var(--destructive))" strokeDasharray="5 5" label={{ value: `NINV: ${formatCurrency(ninvTotal)}`, position: "right", fill: "hsl(var(--destructive))", fontSize: 11 }} />
-                    <ReferenceLine y={0} stroke="hsl(var(--border))" />
-                    <Area type="monotone" dataKey="cumulativeProfit" name="Cumulative Profit" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary))" strokeWidth={2} />
-                  </ComposedChart>
+                    <ReferenceLine y={ninvTotal} stroke={CHART_COLORS.destructive} strokeDasharray="5 5" label={{ value: `NINV: ${formatCurrency(ninvTotal)}`, position: "right", fill: CHART_COLORS.destructive, fontSize: 11 }} />
+                    <ReferenceLine y={0} stroke="#9ca3af" />
+                    <Area type="monotone" dataKey="cumulativeProfit" name="Cumulative Profit" fill={`${CHART_COLORS.profit}25`} stroke={CHART_COLORS.profit} strokeWidth={2} />
+                   </ComposedChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
