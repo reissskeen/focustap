@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, ChevronLeft, Maximize2, Minimize2, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
+import focustapLogo from "@/assets/focustap-logo.png";
 import { Button } from "@/components/ui/button";
 import {
   AreaChart, Area, BarChart, Bar, ComposedChart,
@@ -87,10 +88,7 @@ export default function PitchDeck() {
   // Slide 0 — Title
   <SlideWrapper key={0}>
       <div className="text-center space-y-6 max-w-3xl">
-        <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mx-auto">
-          <Zap className="w-9 h-9 text-primary-foreground" />
-        </div>
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground">FocusTap</h1>
+        <img src={focustapLogo} alt="FocusTap" className="h-24 w-auto mx-auto" />
         <p className="text-xl md:text-2xl text-muted-foreground font-medium">
           NFC-Powered Classroom Engagement & Attendance
         </p>
