@@ -88,7 +88,7 @@ export default function PitchDeck() {
   // Slide 0 — Title
   <SlideWrapper key={0}>
       <div className="text-center space-y-6 max-w-3xl">
-        <img src={focustapLogo} alt="FocusTap" className="h-40 " />
+        <img src={focustapLogo} alt="FocusTap" className="h-40 w-auto mx-auto" />
         <p className="text-xl md:text-2xl text-muted-foreground font-medium">
           NFC-Powered Classroom Engagement & Attendance
         </p>
@@ -132,16 +132,16 @@ export default function PitchDeck() {
           <p className="text-sm font-semibold text-primary mb-3">FocusTap addresses all three — without asking students to install anything</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-          "Desk-level NFC tap — instant, verified attendance",
-          "Real-time focus tracking via browser visibility API",
-          "Free pilot at Flagler — implementation fee covers costs",
-          "Proven data → sell school-to-school"].
-          map((item) =>
-          <div key={item} className="flex gap-2 text-xs text-muted-foreground">
+              "Desk-level NFC tap — instant, verified attendance",
+              "Real-time focus tracking via browser visibility API",
+              "Free pilot at Flagler — implementation fee covers costs",
+              "Proven data → sell school-to-school"
+            ].map((item) =>
+              <div key={item} className="flex gap-2 text-xs text-muted-foreground">
                 <span className="text-primary font-bold shrink-0">✓</span>
                 <span>{item}</span>
               </div>
-          )}
+            )}
           </div>
         </div>
       </div>
