@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Zap, Mail, Lock, ArrowRight, Eye, EyeOff, UserPlus, LogIn } from "lucide-react";
+import { Mail, Lock, ArrowRight, Eye, EyeOff, UserPlus, LogIn } from "lucide-react";
+import focustapLogo from "@/assets/focustap-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,11 +104,8 @@ const Login = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-sm"
       >
-        <Link to="/" className="flex items-center gap-2 font-display font-bold text-xl justify-center mb-10">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <Zap className="w-5 h-5 text-primary-foreground" />
-          </div>
-          FocusTap
+        <Link to="/" className="flex items-center justify-center mb-10">
+          <img src={focustapLogo} alt="FocusTap" className="h-10" />
         </Link>
 
         {/* Mode Tabs */}
