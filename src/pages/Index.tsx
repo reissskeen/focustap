@@ -76,7 +76,7 @@ const Index = () => {
             transition={{ duration: 0.7 }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              <img src={focustapLogo} alt="FocusTap" className="h-5 w-auto" />
+              <img src={focustapLogo} alt="FocusTap" className="h-40 w-auto" />
               Focus tracking for modern classrooms
             </div>
             <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
@@ -207,7 +207,7 @@ const Index = () => {
       <footer className="border-t py-8 px-4">
         <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 font-display font-bold">
-            <img src={focustapLogo} alt="FocusTap" className="h-7 w-auto" />
+            <img src={focustapLogo} alt="FocusTap" className="h-40 w-auto" />
           </div>
           <p className="text-sm text-muted-foreground">
             © 2026 FocusTap. Privacy-first classroom engagement.
