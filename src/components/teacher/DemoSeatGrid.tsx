@@ -120,7 +120,7 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeat
 
       {/* Grid */}
       <div
-        className="grid gap-3"
+        className="grid gap-2"
         style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
       >
         {seatLabels.map((label, i) => {
@@ -139,7 +139,7 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeat
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.01 }}
               className={[
-                "relative flex flex-col items-center justify-center rounded-xl aspect-square",
+                "relative flex flex-col items-center justify-center rounded-lg aspect-square max-w-[64px]",
                 "ring-1 transition-all duration-300 select-none",
                 cfg
                   ? `${cfg.bg} ${cfg.ring}`
@@ -169,7 +169,7 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeat
               <span
                 className={[
                   "font-mono font-bold leading-none",
-                  seat ? "text-base text-foreground" : "text-xs text-muted-foreground/40",
+                  seat ? "text-sm text-foreground" : "text-[10px] text-muted-foreground/40",
                 ].join(" ")}
               >
                 {label}
