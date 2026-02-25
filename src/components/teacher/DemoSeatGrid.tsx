@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 
 interface DemoSeat {
@@ -15,32 +15,37 @@ interface DemoSeatGridProps {
   cols?: number;
 }
 
-type SeatStatus = "active" | "paused" | "disconnected";
+export type SeatStatus = "active" | "paused" | "disconnected";
 
-const getSeatStatus = (lastPing: string | null): SeatStatus => {
+export const getSeatStatus = (lastPing: string | null): SeatStatus => {
   if (!lastPing) return "disconnected";
   const age = (Date.now() - new Date(lastPing).getTime()) / 1000;
-  if (age < 20) return "active";
-  if (age < 45) return "paused";
+  if (age < 15) return "active";
+  if (age < 30) return "paused";
   return "disconnected";
 };
 
 const statusConfig: Record<SeatStatus, { bg: string; ring: string; pulse: boolean; label: string }> = {
   active:       { bg: "bg-focus-active/15",  ring: "ring-focus-active",  pulse: true,  label: "Active" },
-  paused:       { bg: "bg-focus-paused/15",  ring: "ring-focus-paused",  pulse: false, label: "Paused" },
-  disconnected: { bg: "bg-muted/40",         ring: "ring-muted",         pulse: false, label: "Away" },
+  paused:       { bg: "bg-focus-paused/20",  ring: "ring-focus-paused",  pulse: false, label: "Paused" },
+  disconnected: { bg: "bg-destructive/15",   ring: "ring-destructive",   pulse: false, label: "Away" },
 };
 
 const dotColor: Record<SeatStatus, string> = {
   active:       "bg-focus-active",
   paused:       "bg-focus-paused",
-  disconnected: "bg-muted-foreground/40",
+  disconnected: "bg-destructive",
 };
 
-export default function DemoSeatGrid({ sessionId, rows = 5, cols = 6 }: DemoSeatGridProps) {
+export interface SeatAlert {
+  seat_label: string;
+  status: SeatStatus;
+  secondsAgo: number;
+}
+
+export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeatGridProps) {
   const [seats, setSeats] = useState<DemoSeat[]>([]);
   const [tick, setTick] = useState(0);
-  const totalSeats = rows * cols;
 
   const fetchSeats = useCallback(async () => {
     const { data } = await supabase
@@ -50,9 +55,9 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 6 }: DemoSeat
     if (data) setSeats(data);
   }, [sessionId]);
 
-  // Re-render every 5s so status colours update live
+  // Re-render every 1s so status colours update live
   useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), 5000);
+    const interval = setInterval(() => setTick((t) => t + 1), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -71,36 +76,49 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 6 }: DemoSeat
     return () => { supabase.removeChannel(channel); };
   }, [sessionId, fetchSeats]);
 
-  // Build seat labels: A1, A2... B1, B2...
+  // Build seat labels
   const seatLabels: string[] = [];
   for (let r = 0; r < rows; r++) {
-    const rowLetter = String.fromCharCode(65 + r); // A, B, C...
+    const rowLetter = String.fromCharCode(65 + r);
     for (let c = 1; c <= cols; c++) {
       seatLabels.push(`${rowLetter}${c}`);
     }
   }
 
-  // Map seat_label → seat data
   const seatMap = new Map<string, DemoSeat>();
   for (const s of seats) seatMap.set(s.seat_label, s);
 
   const activeCount = seats.filter((s) => getSeatStatus(s.last_ping) === "active").length;
+  const pausedCount = seats.filter((s) => getSeatStatus(s.last_ping) === "paused").length;
+  const disconnectedCount = seats.filter((s) => getSeatStatus(s.last_ping) === "disconnected").length;
 
   return (
     <div className="space-y-4">
-      {/* Legend + count */}
+      {/* Legend + live count */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-focus-active inline-block" /> Active</span>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-focus-paused inline-block" /> Paused</span>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/40 inline-block" /> Away / Empty</span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-focus-active inline-block animate-pulse" /> Active ({activeCount})
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-focus-paused inline-block" /> Paused ({pausedCount})
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-destructive inline-block" /> Disconnected ({disconnectedCount})
+          </span>
         </div>
-        <span className="text-xs font-medium text-muted-foreground">
-          {activeCount} / {seats.length} active · {seats.length} joined
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-focus-active opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-focus-active"></span>
+          </span>
+          <span className="text-xs font-medium text-muted-foreground">
+            Live · {seats.length} joined
+          </span>
+        </div>
       </div>
 
-      {/* Grid — fixed columns based on `cols` prop */}
+      {/* Grid */}
       <div
         className="grid gap-3"
         style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
@@ -109,6 +127,9 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 6 }: DemoSeat
           const seat = seatMap.get(label);
           const status = seat ? getSeatStatus(seat.last_ping) : null;
           const cfg = status ? statusConfig[status] : null;
+          const secondsAgo = seat?.last_ping
+            ? Math.round((Date.now() - new Date(seat.last_ping).getTime()) / 1000)
+            : null;
 
           return (
             <motion.div
@@ -119,18 +140,28 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 6 }: DemoSeat
               transition={{ delay: i * 0.01 }}
               className={[
                 "relative flex flex-col items-center justify-center rounded-xl aspect-square",
-                "ring-1 transition-all duration-500 select-none",
+                "ring-1 transition-all duration-300 select-none",
                 cfg
                   ? `${cfg.bg} ${cfg.ring}`
                   : "bg-muted/20 ring-border/40",
+                status === "disconnected" && seat ? "animate-pulse" : "",
               ].join(" ")}
             >
               {/* Pulse ring for active */}
               {cfg?.pulse && (
                 <motion.div
                   className="absolute inset-0 rounded-xl ring-1 ring-focus-active"
-                  animate={{ opacity: [0.6, 0, 0.6], scale: [1, 1.08, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  animate={{ opacity: [0.6, 0, 0.6], scale: [1, 1.06, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                />
+              )}
+
+              {/* Warning flash for paused */}
+              {status === "paused" && (
+                <motion.div
+                  className="absolute inset-0 rounded-xl bg-focus-paused/10"
+                  animate={{ opacity: [0, 0.3, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
                 />
               )}
 
@@ -144,9 +175,18 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 6 }: DemoSeat
                 {label}
               </span>
 
-              {/* Status dot */}
+              {/* Status dot + seconds ago */}
               {status && (
-                <div className={`mt-1 w-2 h-2 rounded-full ${dotColor[status]}`} />
+                <div className="flex flex-col items-center mt-1">
+                  <div className={`w-2 h-2 rounded-full ${dotColor[status]}`} />
+                  {secondsAgo !== null && secondsAgo > 10 && (
+                    <span className={`text-[9px] mt-0.5 font-mono ${
+                      status === "disconnected" ? "text-destructive font-bold" : "text-muted-foreground"
+                    }`}>
+                      {secondsAgo}s
+                    </span>
+                  )}
+                </div>
               )}
             </motion.div>
           );
@@ -155,7 +195,7 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 6 }: DemoSeat
 
       {seats.length === 0 && (
         <p className="text-center text-sm text-muted-foreground py-6">
-          No demo participants yet — share the Demo QR code to get started.
+          No participants yet — share the NFC link to get started.
         </p>
       )}
     </div>
