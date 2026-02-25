@@ -9,8 +9,8 @@ import {
   Shield,
   ArrowRight,
   TrendingUp,
-  Presentation,
-} from "lucide-react";
+  Presentation } from
+"lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 
@@ -18,48 +18,48 @@ const fadeUp = {
   initial: { opacity: 0, y: 30 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true },
-  transition: { duration: 0.6 },
+  transition: { duration: 0.6 }
 };
 
 const features = [
-  {
-    icon: Eye,
-    title: "Smart Focus Tracking",
-    description: "Automatically tracks time-on-task using page visibility — no monitoring, no spying.",
-  },
-  {
-    icon: FileText,
-    title: "Built-in Notes Editor",
-    description: "Rich text note-taking with autosave, checklists, and structured formatting.",
-  },
-  {
-    icon: QrCode,
-    title: "QR & NFC Entry",
-    description: "Students join in seconds via QR code scan, NFC tap, or Canvas deep link.",
-  },
-  {
-    icon: BarChart3,
-    title: "Live Dashboard",
-    description: "Real-time view of student engagement with focus scores and participation rates.",
-  },
-  {
-    icon: Shield,
-    title: "Privacy-First",
-    description: "No screen monitoring, no app blocking. FERPA-aligned and student-friendly.",
-  },
-  {
-    icon: Eye,
-    title: "LMS Integration",
-    description: "Seamless Canvas LTI 1.3 integration with automatic roster and role sync.",
-  },
-];
+{
+  icon: Eye,
+  title: "Smart Focus Tracking",
+  description: "Automatically tracks time-on-task using page visibility — no monitoring, no spying."
+},
+{
+  icon: FileText,
+  title: "Built-in Notes Editor",
+  description: "Rich text note-taking with autosave, checklists, and structured formatting."
+},
+{
+  icon: QrCode,
+  title: "QR & NFC Entry",
+  description: "Students join in seconds via QR code scan, NFC tap, or Canvas deep link."
+},
+{
+  icon: BarChart3,
+  title: "Live Dashboard",
+  description: "Real-time view of student engagement with focus scores and participation rates."
+},
+{
+  icon: Shield,
+  title: "Privacy-First",
+  description: "No screen monitoring, no app blocking. FERPA-aligned and student-friendly."
+},
+{
+  icon: Eye,
+  title: "LMS Integration",
+  description: "Seamless Canvas LTI 1.3 integration with automatic roster and role sync."
+}];
+
 
 const steps = [
-  { number: "01", title: "Teacher starts a session", description: "Generate a QR code or share a link in your LMS." },
-  { number: "02", title: "Students tap in", description: "Scan, tap, or click to join the session instantly." },
-  { number: "03", title: "Take notes, stay focused", description: "The built-in editor tracks focus while students write." },
-  { number: "04", title: "Review engagement", description: "See real-time and post-class focus analytics." },
-];
+{ number: "01", title: "Teacher starts a session", description: "Generate a QR code or share a link in your LMS." },
+{ number: "02", title: "Students tap in", description: "Scan, tap, or click to join the session instantly." },
+{ number: "03", title: "Take notes, stay focused", description: "The built-in editor tracks focus while students write." },
+{ number: "04", title: "Review engagement", description: "See real-time and post-class focus analytics." }];
+
 
 const Index = () => {
   return (
@@ -73,10 +73,10 @@ const Index = () => {
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
+            transition={{ duration: 0.7 }}>
+
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              <img src={focustapLogo} alt="FocusTap" className="h-40 w-auto" />
+              <img src={focustapLogo} alt="FocusTap" className="h-1 w-auto" />
               Focus tracking for modern classrooms
             </div>
             <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
@@ -133,22 +133,22 @@ const Index = () => {
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, i) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="glass-card rounded-xl p-6 hover:shadow-xl transition-shadow"
-              >
+            {features.map((feature, i) =>
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="glass-card rounded-xl p-6 hover:shadow-xl transition-shadow">
+
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                   <feature.icon className="w-5 h-5 text-primary" />
                 </div>
                 <h3 className="font-display text-lg font-semibold mb-2">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               </motion.div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -162,15 +162,15 @@ const Index = () => {
           </motion.div>
 
           <div className="space-y-8">
-            {steps.map((step, i) => (
-              <motion.div
-                key={step.number}
-                initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.15 }}
-                className="flex items-start gap-6"
-              >
+            {steps.map((step, i) =>
+            <motion.div
+              key={step.number}
+              initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.15 }}
+              className="flex items-start gap-6">
+
                 <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-primary flex items-center justify-center">
                   <span className="font-display text-lg font-bold text-primary-foreground">{step.number}</span>
                 </div>
@@ -179,7 +179,7 @@ const Index = () => {
                   <p className="text-muted-foreground">{step.description}</p>
                 </div>
               </motion.div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -214,8 +214,8 @@ const Index = () => {
           </p>
         </div>
       </footer>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Index;
