@@ -28,6 +28,7 @@ export default function DemoJoin() {
 
   const pingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seatIdRef = useRef<string | null>(null);
+  const visibilityCleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (!sessionId) {
@@ -70,6 +71,7 @@ export default function DemoJoin() {
 
     return () => {
       if (pingRef.current) clearInterval(pingRef.current);
+      visibilityCleanupRef.current?.();
     };
   }, [sessionId]);
 
@@ -83,6 +85,26 @@ export default function DemoJoin() {
     };
     ping();
     pingRef.current = setInterval(ping, PING_INTERVAL_MS);
+
+    // Immediate visibility-based disconnect/reconnect signals
+    const handleVisibility = async () => {
+      if (document.visibilityState === "hidden") {
+        // Immediately signal disconnect by clearing last_ping
+        await supabase
+          .from("demo_seats")
+          .update({ last_ping: null })
+          .eq("id", id);
+      } else {
+        // Immediately signal reconnect with a fresh ping
+        ping();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    // Store cleanup ref
+    visibilityCleanupRef.current = () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   };
 
   const handleJoin = async (e: React.FormEvent) => {
