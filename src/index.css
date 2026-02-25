@@ -6,33 +6,33 @@
 
 @layer base {
   :root {
-    --background: 180 10% 98%;
-    --foreground: 200 25% 10%;
+    --background: 210 20% 98%;
+    --foreground: 210 30% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 200 25% 10%;
+    --card-foreground: 210 30% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 200 25% 10%;
+    --popover-foreground: 210 30% 10%;
 
-    --primary: 172 66% 30%;
+    --primary: 207 70% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 180 15% 94%;
-    --secondary-foreground: 200 25% 15%;
+    --secondary: 210 20% 94%;
+    --secondary-foreground: 210 30% 15%;
 
-    --muted: 180 10% 94%;
-    --muted-foreground: 200 10% 46%;
+    --muted: 210 15% 94%;
+    --muted-foreground: 210 10% 46%;
 
-    --accent: 38 92% 50%;
+    --accent: 207 55% 65%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 180 12% 89%;
-    --input: 180 12% 89%;
-    --ring: 172 66% 30%;
+    --border: 210 15% 89%;
+    --input: 210 15% 89%;
+    --ring: 207 70% 45%;
 
     --radius: 0.75rem;
 
@@ -40,57 +40,57 @@
     --focus-paused: 38 92% 50%;
     --focus-inactive: 0 0% 65%;
 
-    --sidebar-background: 180 15% 97%;
-    --sidebar-foreground: 200 25% 15%;
-    --sidebar-primary: 172 66% 30%;
+    --sidebar-background: 210 20% 97%;
+    --sidebar-foreground: 210 30% 15%;
+    --sidebar-primary: 207 70% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 180 15% 94%;
-    --sidebar-accent-foreground: 200 25% 15%;
-    --sidebar-border: 180 12% 89%;
-    --sidebar-ring: 172 66% 30%;
+    --sidebar-accent: 210 20% 94%;
+    --sidebar-accent-foreground: 210 30% 15%;
+    --sidebar-border: 210 15% 89%;
+    --sidebar-ring: 207 70% 45%;
   }
 
   .dark {
-    --background: 200 25% 7%;
-    --foreground: 180 10% 94%;
+    --background: 210 30% 7%;
+    --foreground: 210 15% 94%;
 
-    --card: 200 20% 10%;
-    --card-foreground: 180 10% 94%;
+    --card: 210 25% 10%;
+    --card-foreground: 210 15% 94%;
 
-    --popover: 200 20% 10%;
-    --popover-foreground: 180 10% 94%;
+    --popover: 210 25% 10%;
+    --popover-foreground: 210 15% 94%;
 
-    --primary: 172 60% 40%;
+    --primary: 207 65% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 200 15% 15%;
-    --secondary-foreground: 180 10% 94%;
+    --secondary: 210 20% 15%;
+    --secondary-foreground: 210 15% 94%;
 
-    --muted: 200 15% 15%;
-    --muted-foreground: 200 10% 55%;
+    --muted: 210 20% 15%;
+    --muted-foreground: 210 10% 55%;
 
-    --accent: 38 85% 55%;
+    --accent: 207 50% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 200 15% 18%;
-    --input: 200 15% 18%;
-    --ring: 172 60% 40%;
+    --border: 210 20% 18%;
+    --input: 210 20% 18%;
+    --ring: 207 65% 50%;
 
     --focus-active: 152 69% 45%;
     --focus-paused: 38 85% 55%;
     --focus-inactive: 0 0% 45%;
 
-    --sidebar-background: 200 25% 7%;
-    --sidebar-foreground: 180 10% 94%;
-    --sidebar-primary: 172 60% 40%;
+    --sidebar-background: 210 30% 7%;
+    --sidebar-foreground: 210 15% 94%;
+    --sidebar-primary: 207 65% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 200 15% 15%;
-    --sidebar-accent-foreground: 180 10% 94%;
-    --sidebar-border: 200 15% 18%;
-    --sidebar-ring: 172 60% 40%;
+    --sidebar-accent: 210 20% 15%;
+    --sidebar-accent-foreground: 210 15% 94%;
+    --sidebar-border: 210 20% 18%;
+    --sidebar-ring: 207 65% 50%;
   }
 }
 
@@ -114,11 +114,11 @@
   }
 
   .gradient-hero {
-    background: linear-gradient(135deg, hsl(172 66% 30%) 0%, hsl(152 69% 45%) 50%, hsl(38 92% 50%) 100%);
+    background: linear-gradient(135deg, hsl(210 60% 25%) 0%, hsl(207 70% 45%) 50%, hsl(207 55% 65%) 100%);
   }
 
   .gradient-text {
-    background: linear-gradient(135deg, hsl(172 66% 30%), hsl(38 92% 50%));
+    background: linear-gradient(135deg, hsl(210 60% 25%), hsl(207 70% 45%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -132,10 +132,10 @@
 @layer utilities {
   @keyframes focus-pulse {
     0%, 100% {
-      box-shadow: 0 0 0 0 hsl(152 69% 45% / 0.4);
+      box-shadow: 0 0 0 0 hsl(207 70% 45% / 0.4);
     }
     50% {
-      box-shadow: 0 0 0 12px hsl(152 69% 45% / 0);
+      box-shadow: 0 0 0 12px hsl(207 70% 45% / 0);
     }
   }
 }
