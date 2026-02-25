@@ -188,7 +188,7 @@ export default function PitchDeck() {
               <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
               <Tooltip formatter={(v: number) => formatCurrency(v)} />
               <Legend />
-              <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="hsl(var(--primary))" />
+              <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="hsl(var(--destructive))" />
               <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
             </ComposedChart>
           </ResponsiveContainer>
