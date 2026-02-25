@@ -36,7 +36,7 @@ const Navbar = () => {
 
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <Link to="/" className="flex items-center gap-2 font-display font-bold text-xl">
-          <img src={focustapLogo} alt="FocusTap" className="h-40 row-auto rounded-none" />
+          <img src={focustapLogo} alt="FocusTap" className="h-40 row-auto rounded-sm" />
         </Link>
 
         {isLanding &&
