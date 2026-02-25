@@ -12,7 +12,6 @@ import {
   TrendingUp,
   Presentation,
 } from "lucide-react";
-import focustapLogo from "@/assets/focustap-logo.png";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 
@@ -209,7 +208,10 @@ const Index = () => {
       <footer className="border-t py-8 px-4">
         <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 font-display font-bold">
-            <img src={focustapLogo} alt="FocusTap" className="h-6" />
+            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
+              <Zap className="w-3.5 h-3.5 text-primary-foreground" />
+            </div>
+            FocusTap
           </div>
           <p className="text-sm text-muted-foreground">
             © 2026 FocusTap. Privacy-first classroom engagement.
