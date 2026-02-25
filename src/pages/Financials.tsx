@@ -237,7 +237,7 @@ export default function Financials() {
                       <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
                       <Tooltip formatter={(v: number) => formatCurrency(v)} />
                       <Legend />
-                      <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="hsl(var(--primary))" />
+                      <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="hsl(var(--destructive))" />
                       <Bar dataKey="implementationRevenue" name="Impl. Fees" stackId="rev" fill="hsl(210 60% 50%)" />
                       <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill="hsl(var(--accent))" />
                       <Bar dataKey="expansionRevenue" name="Expansion" stackId="rev" fill="hsl(150 60% 45%)" radius={[4, 4, 0, 0]} />
