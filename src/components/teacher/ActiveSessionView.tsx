@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, Clock, BarChart3, Download, Eye, Pause, UserCheck, LayoutGrid, List, ExternalLink, Smartphone, Copy,
-  AlertTriangle, ShieldAlert, WifiOff,
+  AlertTriangle, ShieldAlert, WifiOff, UserX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -194,6 +194,20 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
     { icon: WifiOff, label: "Disconnected", value: `${disconnectedAlerts.length}`, highlight: disconnectedAlerts.length > 0 },
   ];
 
+  const handleRemoveSeat = async (seatLabel: string) => {
+    const { error } = await supabase
+      .from("demo_seats")
+      .delete()
+      .eq("session_id", session.id)
+      .eq("seat_label", seatLabel);
+    if (error) {
+      toast.error(`Failed to remove ${seatLabel}`);
+    } else {
+      toast.success(`${seatLabel} removed from session`);
+      fetchDemoSeats();
+    }
+  };
+
   const demoUrl = `${window.location.origin}/demo?session_id=${session.id}`;
 
   return (
@@ -261,33 +275,24 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
         )}
       </AnimatePresence>
 
-      {/* ===== ALERTS PANEL — FIRST THING ===== */}
-      {alerts.length > 0 && (
+      {/* ===== DISCONNECTED WARNINGS — FIRST THING ===== */}
+      {disconnectedAlerts.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
+          className="mb-4"
         >
-          <div className={`rounded-xl border-2 p-4 space-y-3 ${
-            disconnectedAlerts.length > 0
-              ? "border-destructive/60 bg-destructive/5"
-              : "border-focus-paused/60 bg-focus-paused/5"
-          }`}>
+          <div className="rounded-xl border-2 border-destructive/60 bg-destructive/5 p-4 space-y-3">
             <div className="flex items-center gap-2">
-              <ShieldAlert className={`w-5 h-5 ${disconnectedAlerts.length > 0 ? "text-destructive" : "text-focus-paused"}`} />
-              <h2 className="font-display font-bold text-sm">
-                {disconnectedAlerts.length > 0
-                  ? `⚠ ${disconnectedAlerts.length} student${disconnectedAlerts.length !== 1 ? "s" : ""} disconnected`
-                  : `${pausedAlerts.length} student${pausedAlerts.length !== 1 ? "s" : ""} may have left the screen`
-                }
+              <WifiOff className="w-5 h-5 text-destructive" />
+              <h2 className="font-display font-bold text-sm text-destructive">
+                ⚠ {disconnectedAlerts.length} student{disconnectedAlerts.length !== 1 ? "s" : ""} disconnected
               </h2>
             </div>
-
-            {/* Disconnected alerts */}
-            {disconnectedAlerts.length > 0 && (
-              <div className="space-y-1">
-                {disconnectedAlerts.map((a) => (
-                  <div key={a.seat_label} className="flex items-center gap-2 text-sm">
+            <div className="space-y-2">
+              {disconnectedAlerts.map((a) => (
+                <div key={a.seat_label} className="flex items-center justify-between gap-2 text-sm">
+                  <div className="flex items-center gap-2">
                     <WifiOff className="w-3.5 h-3.5 text-destructive" />
                     <span className="font-mono font-bold text-destructive">{a.seat_label}</span>
                     <span className="text-destructive/80">
@@ -296,29 +301,50 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                       {a.secondsAgo > 30 && a.secondsAgo <= 60 && " (tab switched or phone locked)"}
                     </span>
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Paused alerts */}
-            {pausedAlerts.length > 0 && (
-              <div className="space-y-1">
-                {pausedAlerts.map((a) => (
-                  <div key={a.seat_label} className="flex items-center gap-2 text-sm">
-                    <AlertTriangle className="w-3.5 h-3.5 text-focus-paused" />
-                    <span className="font-mono font-bold text-focus-paused">{a.seat_label}</span>
-                    <span className="text-muted-foreground">
-                      — Inactive for <span className="font-bold">{a.secondsAgo}s</span>
-                      {" "}(switched tabs, minimized, or phone locked)
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="gap-1 text-xs h-7 px-2 shrink-0"
+                    onClick={() => handleRemoveSeat(a.seat_label)}
+                  >
+                    <UserX className="w-3.5 h-3.5" /> Remove
+                  </Button>
+                </div>
+              ))}
+            </div>
             <p className="text-[11px] text-muted-foreground">
               Detects: tab switch · browser minimize · phone lock · page close · app switch · swipe away
             </p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* ===== PAUSED WARNINGS ===== */}
+      {pausedAlerts.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4"
+        >
+          <div className="rounded-xl border-2 border-focus-paused/60 bg-focus-paused/5 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-focus-paused" />
+              <h2 className="font-display font-bold text-sm text-focus-paused">
+                {pausedAlerts.length} student{pausedAlerts.length !== 1 ? "s" : ""} may have left the screen
+              </h2>
+            </div>
+            <div className="space-y-1">
+              {pausedAlerts.map((a) => (
+                <div key={a.seat_label} className="flex items-center gap-2 text-sm">
+                  <AlertTriangle className="w-3.5 h-3.5 text-focus-paused" />
+                  <span className="font-mono font-bold text-focus-paused">{a.seat_label}</span>
+                  <span className="text-muted-foreground">
+                    — Inactive for <span className="font-bold">{a.secondsAgo}s</span>
+                    {" "}(switched tabs, minimized, or phone locked)
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </motion.div>
       )}
