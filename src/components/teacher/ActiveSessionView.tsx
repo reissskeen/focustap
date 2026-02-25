@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  Users, Clock, BarChart3, QrCode, Download, Eye, Pause, UserCheck, LayoutGrid, List, ExternalLink,
+  Users, Clock, BarChart3, Download, Eye, Pause, UserCheck, LayoutGrid, List, ExternalLink, Smartphone, Copy, Link,
 } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -60,7 +59,7 @@ const AttendanceBadge = ({ status }: { status: AttendanceStatus }) => {
 };
 
 const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionViewProps) => {
-  const [showQR, setShowQR] = useState(true);
+  const [showNFC, setShowNFC] = useState(true);
   const [viewMode, setViewMode] = useState<"roster" | "seats">("roster");
   const [roster, setRoster] = useState<RosterStudent[]>([]);
   const [ending, setEnding] = useState(false);
@@ -176,9 +175,9 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowQR(!showQR)}>
-            <QrCode className="w-4 h-4" />
-            {showQR ? "Hide QR" : "Show QR"}
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowNFC(!showNFC)}>
+            <Smartphone className="w-4 h-4" />
+            {showNFC ? "Hide NFC Link" : "Show NFC Link"}
           </Button>
           <a href={demoUrl} target="_blank" rel="noopener noreferrer">
             <Button variant="outline" size="sm" className="gap-2 border-primary/40 text-primary hover:bg-primary/10">
@@ -193,22 +192,34 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
         </div>
       </motion.div>
 
-      {/* QR Code(s) */}
-      {showQR && (
+      {/* NFC Link */}
+      {showNFC && (
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mb-8">
-          <div className="glass-card rounded-xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-8">
-            {/* Student join QR */}
-            <div className="flex flex-col items-center">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Student Join</p>
-              <QRCodeSVG value={launchUrl} size={160} bgColor="transparent" fgColor="hsl(200 25% 10%)" level="M" />
-              <p className="mt-3 text-xs text-muted-foreground font-mono break-all max-w-[220px] text-center">{launchUrl}</p>
+          <div className="glass-card rounded-xl p-6 space-y-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <Smartphone className="w-4 h-4" />
+              <span>NFC Tag URL — program this onto your tags</span>
             </div>
-            {/* Demo QR */}
-            <div className="flex flex-col items-center">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">🎤 Demo / NFC</p>
-              <QRCodeSVG value={demoUrl} size={160} bgColor="transparent" fgColor="hsl(200 25% 10%)" level="M" />
-              <p className="mt-3 text-xs text-muted-foreground font-mono break-all max-w-[220px] text-center">{demoUrl}</p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-muted/40 rounded-lg px-4 py-3 font-mono text-sm break-all select-all border border-border">
+                {demoUrl}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 shrink-0"
+                onClick={() => {
+                  navigator.clipboard.writeText(demoUrl);
+                  toast.success("Link copied to clipboard");
+                }}
+              >
+                <Copy className="w-4 h-4" />
+                Copy
+              </Button>
             </div>
+            <p className="text-xs text-muted-foreground">
+              Students tap the NFC tag → land on the demo page → select their seat → appear live on your Seat Grid.
+            </p>
           </div>
         </motion.div>
       )}
@@ -276,7 +287,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
         {viewMode === "roster" && (
           roster.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground text-sm">
-              No students have joined yet. Share the QR code to get started.
+              No students have joined yet. Share the NFC link to get started.
             </div>
           ) : (
             <div className="overflow-x-auto">
