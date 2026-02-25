@@ -1,14 +1,13 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import focustapLogo from "@/assets/focustap-logo.png";
 import {
-  Zap,
   Eye,
   FileText,
   QrCode,
   BarChart3,
   Shield,
   ArrowRight,
-  Check,
   TrendingUp,
   Presentation,
 } from "lucide-react";
@@ -49,7 +48,7 @@ const features = [
     description: "No screen monitoring, no app blocking. FERPA-aligned and student-friendly.",
   },
   {
-    icon: Zap,
+    icon: Eye,
     title: "LMS Integration",
     description: "Seamless Canvas LTI 1.3 integration with automatic roster and role sync.",
   },
@@ -77,7 +76,7 @@ const Index = () => {
             transition={{ duration: 0.7 }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              <Zap className="w-4 h-4" />
+              <img src={focustapLogo} alt="FocusTap" className="h-5 w-auto" />
               Focus tracking for modern classrooms
             </div>
             <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
@@ -208,10 +207,7 @@ const Index = () => {
       <footer className="border-t py-8 px-4">
         <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 font-display font-bold">
-            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
-              <Zap className="w-3.5 h-3.5 text-primary-foreground" />
-            </div>
-            FocusTap
+            <img src={focustapLogo} alt="FocusTap" className="h-7 w-auto" />
           </div>
           <p className="text-sm text-muted-foreground">
             © 2026 FocusTap. Privacy-first classroom engagement.
