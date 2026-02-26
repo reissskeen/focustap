@@ -104,7 +104,7 @@ export default function PitchDeck() {
         <div className="flex items-center justify-between">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Problem</h2>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted border border-border text-xs font-medium text-muted-foreground">
-            📋 Faculty Survey · n=14 · Flagler College · Feb 2026
+            📋 Faculty Survey  · Flagler College · Feb 2026
           </span>
         </div>
 
