@@ -207,7 +207,7 @@ const Index = () => {
       <footer className="border-t py-8 px-4">
         <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 font-display font-bold">
-            <img src={focustapLogo} alt="FocusTap" className="h-40 w-auto" />
+            <img src={focustapLogo} alt="FocusTap" className="h-10 w-aut0" />
           </div>
           <p className="text-sm text-muted-foreground">
             © 2026 FocusTap. Privacy-first classroom engagement.
