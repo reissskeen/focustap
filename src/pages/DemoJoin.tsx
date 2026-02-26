@@ -12,7 +12,7 @@ const ROW_LETTERS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 
 // Column numbers 1-20
 const COL_NUMBERS = Array.from({ length: 20 }, (_, i) => i + 1);
 
-type Phase = "loading" | "enter" | "joined" | "error";
+type Phase = "loading" | "enter" | "joined" | "left" | "error";
 
 export default function DemoJoin() {
   const [params] = useSearchParams();
@@ -105,6 +105,19 @@ export default function DemoJoin() {
     visibilityCleanupRef.current = () => {
       document.removeEventListener("visibilitychange", handleVisibility);
     };
+  };
+
+  const handleLeave = async () => {
+    if (!seatIdRef.current || !sessionId) return;
+    setSubmitting(true);
+    if (pingRef.current) clearInterval(pingRef.current);
+    visibilityCleanupRef.current?.();
+    await supabase.from("demo_seats").delete().eq("id", seatIdRef.current);
+    localStorage.removeItem(`demo_seat_${sessionId}`);
+    localStorage.removeItem(`demo_label_${sessionId}`);
+    seatIdRef.current = null;
+    setSubmitting(false);
+    setPhase("left");
   };
 
   const handleJoin = async (e: React.FormEvent) => {
@@ -268,6 +281,29 @@ export default function DemoJoin() {
               />
               Live · stay on this page
             </div>
+
+            <Button
+              variant="outline"
+              size="lg"
+              disabled={submitting}
+              onClick={handleLeave}
+              className="mt-4 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+            >
+              {submitting ? "Leaving…" : "Leave Session"}
+            </Button>
+          </motion.div>
+        )}
+
+        {phase === "left" && (
+          <motion.div
+            key="left"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center gap-4 text-center max-w-xs"
+          >
+            <div className="text-4xl">👋</div>
+            <h2 className="font-display text-xl font-bold text-foreground">You've left the session</h2>
+            <p className="text-muted-foreground text-sm">Your teacher has been notified. You can close this page.</p>
           </motion.div>
         )}
 
