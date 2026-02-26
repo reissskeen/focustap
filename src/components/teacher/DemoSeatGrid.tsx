@@ -8,6 +8,7 @@ interface DemoSeat {
   student_name: string | null;
   last_ping: string | null;
   joined_at: string;
+  focus_seconds: number;
 }
 
 interface DemoSeatGridProps {
@@ -51,7 +52,7 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeat
   const fetchSeats = useCallback(async () => {
     const { data } = await supabase
       .from("demo_seats")
-      .select("id, seat_label, student_name, last_ping, joined_at")
+      .select("id, seat_label, student_name, last_ping, joined_at, focus_seconds")
       .eq("session_id", sessionId) as { data: DemoSeat[] | null };
     if (data) setSeats(data);
   }, [sessionId]);
@@ -180,6 +181,13 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeat
               {seat?.student_name && (
                 <span className="text-[8px] leading-tight text-muted-foreground truncate max-w-full px-0.5 mt-0.5">
                   {seat.student_name.split(" ")[0]}
+                </span>
+              )}
+
+              {/* Focus time */}
+              {seat && seat.focus_seconds > 0 && (
+                <span className="text-[8px] font-mono text-primary mt-0.5">
+                  {Math.floor(seat.focus_seconds / 60)}:{String(seat.focus_seconds % 60).padStart(2, "0")}
                 </span>
               )}
 
