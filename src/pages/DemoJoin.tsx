@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const PING_INTERVAL_MS = 1_000;
@@ -22,7 +23,9 @@ export default function DemoJoin() {
   const [courseName, setCourseName] = useState("");
   const [selectedRow, setSelectedRow] = useState("A");
   const [selectedCol, setSelectedCol] = useState(1);
+  const [studentName, setStudentName] = useState("");
   const [deskLabel, setDeskLabel] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -58,7 +61,9 @@ export default function DemoJoin() {
       if (existingId) {
         seatIdRef.current = existingId;
         const existingLabel = localStorage.getItem(`demo_label_${sessionId}`) ?? "";
+        const existingName = localStorage.getItem(`demo_name_${sessionId}`) ?? "";
         setDeskLabel(existingLabel);
+        setDisplayName(existingName);
         setPhase("joined");
         startPing(existingId);
         return;
@@ -141,6 +146,7 @@ export default function DemoJoin() {
     await supabase.from("demo_seats").delete().eq("id", seatIdRef.current);
     localStorage.removeItem(`demo_seat_${sessionId}`);
     localStorage.removeItem(`demo_label_${sessionId}`);
+    localStorage.removeItem(`demo_name_${sessionId}`);
     seatIdRef.current = null;
     setSubmitting(false);
     setPhase("left");
@@ -148,13 +154,15 @@ export default function DemoJoin() {
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmedName = studentName.trim();
+    if (!trimmedName) return;
     const label = `${selectedRow}${selectedCol}`;
     if (!sessionId) return;
 
     setSubmitting(true);
     const { data, error } = await supabase
       .from("demo_seats")
-      .insert({ session_id: sessionId, seat_label: label, last_ping: new Date().toISOString() })
+      .insert({ session_id: sessionId, seat_label: label, student_name: trimmedName, last_ping: new Date().toISOString() } as any)
       .select("id")
       .single();
 
@@ -168,8 +176,10 @@ export default function DemoJoin() {
 
     localStorage.setItem(`demo_seat_${sessionId}`, data.id);
     localStorage.setItem(`demo_label_${sessionId}`, label);
+    localStorage.setItem(`demo_name_${sessionId}`, trimmedName);
     seatIdRef.current = data.id;
     setDeskLabel(label);
+    setDisplayName(trimmedName);
     setPhase("joined");
     startPing(data.id);
   };
@@ -204,11 +214,25 @@ export default function DemoJoin() {
                 <span className="text-3xl">🎓</span>
               </div>
               <h1 className="font-display text-2xl font-bold text-foreground">{courseName}</h1>
-              <p className="mt-1 text-muted-foreground text-sm">Select your seat to join live</p>
+            <p className="mt-1 text-muted-foreground text-sm">Enter your name and select your seat</p>
             </div>
 
             {/* Seat picker */}
             <form onSubmit={handleJoin} className="flex flex-col gap-5">
+              {/* Name input */}
+              <div className="flex flex-col gap-2">
+                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Your Name</Label>
+                <Input
+                  type="text"
+                  placeholder="First and Last Name"
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
+                  maxLength={100}
+                  required
+                  className="h-12 text-base"
+                  autoFocus
+                />
+              </div>
               {/* Preview */}
               <div className="flex items-center justify-center">
                 <div className="bg-primary/10 border border-primary/30 rounded-2xl px-8 py-4 text-center">
@@ -261,8 +285,8 @@ export default function DemoJoin() {
                 </div>
               </div>
 
-              <Button type="submit" size="lg" disabled={submitting} className="h-14 text-base">
-                {submitting ? "Joining…" : `Join as Seat ${selectedRow}${selectedCol}`}
+              <Button type="submit" size="lg" disabled={submitting || !studentName.trim()} className="h-14 text-base">
+                {submitting ? "Joining…" : `Join as ${studentName.trim() || "…"} · Seat ${selectedRow}${selectedCol}`}
               </Button>
             </form>
           </motion.div>
@@ -296,7 +320,10 @@ export default function DemoJoin() {
               <h1 className="font-display text-5xl font-bold text-foreground">
                 Desk {deskLabel}
               </h1>
-              <p className="mt-3 text-muted-foreground text-sm">{courseName}</p>
+              {displayName && (
+                <p className="mt-2 text-lg font-medium text-foreground">{displayName}</p>
+              )}
+              <p className="mt-1 text-muted-foreground text-sm">{courseName}</p>
             </div>
 
             <div className="flex items-center gap-2 text-xs text-muted-foreground">

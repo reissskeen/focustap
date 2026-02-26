@@ -116,6 +116,7 @@ export type Database = {
           last_ping: string | null
           seat_label: string
           session_id: string
+          student_name: string | null
         }
         Insert: {
           created_at?: string
@@ -124,6 +125,7 @@ export type Database = {
           last_ping?: string | null
           seat_label: string
           session_id: string
+          student_name?: string | null
         }
         Update: {
           created_at?: string
@@ -132,6 +134,7 @@ export type Database = {
           last_ping?: string | null
           seat_label?: string
           session_id?: string
+          student_name?: string | null
         }
         Relationships: [
           {

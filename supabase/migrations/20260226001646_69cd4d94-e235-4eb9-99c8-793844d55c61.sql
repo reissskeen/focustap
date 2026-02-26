@@ -1,0 +1,1 @@
+ALTER TABLE public.demo_seats ADD COLUMN student_name text;
