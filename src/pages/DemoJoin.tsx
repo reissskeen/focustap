@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
-const PING_INTERVAL_MS = 5_000;
+const PING_INTERVAL_MS = 1_000;
 
 // Generate row letters A-Z for up to 26 rows
 const ROW_LETTERS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
