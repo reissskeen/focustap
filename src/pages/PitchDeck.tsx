@@ -177,20 +177,32 @@ export default function PitchDeck() {
       </div>
     </SlideWrapper>,
 
-  // Slide 3 — Revenue Forecast
+  // Slide 3 — Go-to-Market Revenue Strategy
   <SlideWrapper key={3}>
       <div className="max-w-4xl w-full space-y-6">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground">3-Year Revenue Forecast</h2>
-        <div className="grid md:grid-cols-3 gap-4 mb-2">
-          {annualData.map((y) =>
-        <div key={y.year} className="p-4 rounded-xl border border-border bg-card text-center">
-              <p className="text-sm font-medium text-muted-foreground">{y.year}</p>
-              <p className="text-2xl font-bold text-foreground mt-1">{formatCurrency(y.revenue)}</p>
-              <p className="text-xs text-muted-foreground">{y.institutions} institutions · {y.students.toLocaleString()} students</p>
-            </div>
-        )}
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground">How We Scale: Data-Driven Sales</h2>
+
+        {/* GTM timeline */}
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="p-5 rounded-xl border-2 border-primary/30 bg-primary/5 space-y-2">
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Year 1 · 2026</p>
+            <p className="text-lg font-bold text-foreground">Free Pilot at Flagler</p>
+            <p className="text-xs text-muted-foreground">Deploy NFC tags campus-wide. Collect engagement, attendance, and focus data across 1,000+ students. Institution pays implementation fee only — zero subscription cost.</p>
+          </div>
+          <div className="p-5 rounded-xl border border-border bg-card space-y-2">
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Year 2 · 2027</p>
+            <p className="text-lg font-bold text-foreground">Sell with Proof</p>
+            <p className="text-xs text-muted-foreground">Use Flagler case study — verified engagement lift, attendance accuracy, and faculty satisfaction — to close 2–4 paid institutions via direct B2B outreach to deans & provosts.</p>
+          </div>
+          <div className="p-5 rounded-xl border border-border bg-card space-y-2">
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Year 3 · 2028</p>
+            <p className="text-lg font-bold text-foreground">Expand & Compound</p>
+            <p className="text-xs text-muted-foreground">Leverage multi-campus success stories. Target 15 institutions via conference demos, referral incentives, and published outcome data. Each school becomes a reference customer.</p>
+          </div>
         </div>
-        <div className="h-64">
+
+        {/* Revenue chart */}
+        <div className="h-52">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
