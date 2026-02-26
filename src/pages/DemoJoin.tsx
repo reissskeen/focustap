@@ -179,7 +179,7 @@ export default function DemoJoin() {
     const ping = async () => {
       await supabase
         .from("demo_seats")
-        .update({ last_ping: new Date().toISOString() })
+        .update({ last_ping: new Date().toISOString(), focus_seconds: getElapsedSeconds() } as any)
         .eq("id", id);
     };
     ping();

@@ -111,6 +111,7 @@ export type Database = {
       demo_seats: {
         Row: {
           created_at: string
+          focus_seconds: number
           id: string
           joined_at: string
           last_ping: string | null
@@ -120,6 +121,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          focus_seconds?: number
           id?: string
           joined_at?: string
           last_ping?: string | null
@@ -129,6 +131,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          focus_seconds?: number
           id?: string
           joined_at?: string
           last_ping?: string | null
