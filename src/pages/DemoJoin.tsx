@@ -13,7 +13,7 @@ const ROW_LETTERS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 
 // Column numbers 1-20
 const COL_NUMBERS = Array.from({ length: 20 }, (_, i) => i + 1);
 
-type Phase = "loading" | "enter" | "joined" | "left" | "error";
+type Phase = "loading" | "enter" | "joined" | "left" | "removed" | "error";
 
 export default function DemoJoin() {
   const [params] = useSearchParams();
@@ -32,6 +32,34 @@ export default function DemoJoin() {
   const pingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seatIdRef = useRef<string | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
+
+  // Listen for teacher removing our seat via realtime
+  useEffect(() => {
+    if (!seatIdRef.current || phase !== "joined") return;
+    const seatId = seatIdRef.current;
+
+    const channel = supabase
+      .channel(`my-seat-${seatId}`)
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "demo_seats", filter: `id=eq.${seatId}` },
+        () => {
+          // Teacher removed us
+          if (pingRef.current) clearInterval(pingRef.current);
+          cleanupRef.current?.();
+          if (sessionId) {
+            localStorage.removeItem(`demo_seat_${sessionId}`);
+            localStorage.removeItem(`demo_label_${sessionId}`);
+            localStorage.removeItem(`demo_name_${sessionId}`);
+          }
+          seatIdRef.current = null;
+          setPhase("removed");
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [phase, sessionId]);
 
   useEffect(() => {
     if (!sessionId) {
@@ -59,6 +87,22 @@ export default function DemoJoin() {
 
       const existingId = localStorage.getItem(`demo_seat_${sessionId}`);
       if (existingId) {
+        // Verify the seat still exists (teacher may have removed it)
+        const { data: seatCheck } = await supabase
+          .from("demo_seats")
+          .select("id")
+          .eq("id", existingId)
+          .maybeSingle();
+
+        if (!seatCheck) {
+          // Seat was removed by teacher
+          localStorage.removeItem(`demo_seat_${sessionId}`);
+          localStorage.removeItem(`demo_label_${sessionId}`);
+          localStorage.removeItem(`demo_name_${sessionId}`);
+          setPhase("enter");
+          return;
+        }
+
         seatIdRef.current = existingId;
         const existingLabel = localStorage.getItem(`demo_label_${sessionId}`) ?? "";
         const existingName = localStorage.getItem(`demo_name_${sessionId}`) ?? "";
@@ -357,6 +401,19 @@ export default function DemoJoin() {
             <div className="text-4xl">👋</div>
             <h2 className="font-display text-xl font-bold text-foreground">You've left the session</h2>
             <p className="text-muted-foreground text-sm">Your teacher has been notified. You can close this page.</p>
+          </motion.div>
+        )}
+
+        {phase === "removed" && (
+          <motion.div
+            key="removed"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center gap-4 text-center max-w-xs"
+          >
+            <div className="text-4xl">🚫</div>
+            <h2 className="font-display text-xl font-bold text-foreground">You've been removed</h2>
+            <p className="text-muted-foreground text-sm">Your teacher removed you from the session. You can close this page.</p>
           </motion.div>
         )}
 
