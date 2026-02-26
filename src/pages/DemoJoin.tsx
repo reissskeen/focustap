@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Eye, EyeOff, Clock } from "lucide-react";
 
 const PING_INTERVAL_MS = 1_000;
 
@@ -32,6 +33,54 @@ export default function DemoJoin() {
   const pingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seatIdRef = useRef<string | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
+
+  // Focus timer state
+  const [focusSeconds, setFocusSeconds] = useState(0);
+  const [isTabVisible, setIsTabVisible] = useState(true);
+  const accumulatedMsRef = useRef(0);
+  const visibleSinceRef = useRef<number | null>(null);
+  const focusTickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const getElapsedSeconds = useCallback(() => {
+    let total = accumulatedMsRef.current;
+    if (visibleSinceRef.current !== null) {
+      total += Date.now() - visibleSinceRef.current;
+    }
+    return Math.floor(total / 1000);
+  }, []);
+
+  const startFocusTimer = useCallback(() => {
+    if (visibleSinceRef.current !== null) return;
+    visibleSinceRef.current = Date.now();
+    if (focusTickRef.current) clearInterval(focusTickRef.current);
+    focusTickRef.current = setInterval(() => {
+      setFocusSeconds(getElapsedSeconds());
+    }, 500);
+  }, [getElapsedSeconds]);
+
+  const pauseFocusTimer = useCallback(() => {
+    if (visibleSinceRef.current !== null) {
+      accumulatedMsRef.current += Date.now() - visibleSinceRef.current;
+      visibleSinceRef.current = null;
+    }
+    if (focusTickRef.current) {
+      clearInterval(focusTickRef.current);
+      focusTickRef.current = null;
+    }
+    setFocusSeconds(getElapsedSeconds());
+  }, [getElapsedSeconds]);
+
+  const resetFocusTimer = useCallback(() => {
+    pauseFocusTimer();
+    accumulatedMsRef.current = 0;
+    setFocusSeconds(0);
+  }, [pauseFocusTimer]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
 
   // Listen for teacher removing our seat via realtime
   useEffect(() => {
@@ -109,6 +158,7 @@ export default function DemoJoin() {
         setDeskLabel(existingLabel);
         setDisplayName(existingName);
         setPhase("joined");
+        startFocusTimer();
         startPing(existingId);
         return;
       }
@@ -158,8 +208,12 @@ export default function DemoJoin() {
     const handleVisibility = () => {
       if (document.visibilityState === "hidden") {
         sendDisconnect();
+        pauseFocusTimer();
+        setIsTabVisible(false);
       } else {
         ping();
+        startFocusTimer();
+        setIsTabVisible(true);
       }
     };
 
@@ -192,7 +246,8 @@ export default function DemoJoin() {
     localStorage.removeItem(`demo_label_${sessionId}`);
     localStorage.removeItem(`demo_name_${sessionId}`);
     seatIdRef.current = null;
-    setSubmitting(false);
+  setSubmitting(false);
+    resetFocusTimer();
     setPhase("left");
   };
 
@@ -225,6 +280,8 @@ export default function DemoJoin() {
     setDeskLabel(label);
     setDisplayName(trimmedName);
     setPhase("joined");
+    resetFocusTimer();
+    startFocusTimer();
     startPing(data.id);
   };
 
@@ -354,6 +411,44 @@ export default function DemoJoin() {
               />
               <div className="w-12 h-12 rounded-full bg-focus-active flex items-center justify-center shadow-lg">
                 <div className="w-4 h-4 rounded-full bg-white" />
+              </div>
+            </div>
+
+            {/* Focus Timer */}
+            <div className="w-full glass-card rounded-xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-muted-foreground">Focus Time</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <motion.div
+                    className={`w-2.5 h-2.5 rounded-full ${isTabVisible ? "bg-focus-active" : "bg-focus-paused"}`}
+                    animate={isTabVisible ? { scale: [1, 1.3, 1] } : {}}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                  />
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {isTabVisible ? "Tracking" : "Paused"}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col items-center">
+                <motion.div
+                  className={`inline-flex items-center justify-center w-24 h-24 rounded-full border-4 ${
+                    isTabVisible ? "border-focus-active" : "border-focus-paused"
+                  }`}
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                >
+                  <span className="font-mono text-3xl font-bold">{formatTime(focusSeconds)}</span>
+                </motion.div>
+                <div className="flex items-center gap-1.5 mt-3 text-xs text-muted-foreground">
+                  {isTabVisible ? (
+                    <><Eye className="w-3.5 h-3.5" /> Tab active — focus counting</>
+                  ) : (
+                    <><EyeOff className="w-3.5 h-3.5" /> Tab hidden — focus paused</>
+                  )}
+                </div>
               </div>
             </div>
 
