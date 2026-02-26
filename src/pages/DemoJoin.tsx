@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
-const PING_INTERVAL_MS = 10_000;
+const PING_INTERVAL_MS = 5_000;
 
 // Generate row letters A-Z for up to 26 rows
 const ROW_LETTERS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
@@ -28,7 +28,7 @@ export default function DemoJoin() {
 
   const pingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seatIdRef = useRef<string | null>(null);
-  const visibilityCleanupRef = useRef<(() => void) | null>(null);
+  const cleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (!sessionId) {
@@ -71,7 +71,7 @@ export default function DemoJoin() {
 
     return () => {
       if (pingRef.current) clearInterval(pingRef.current);
-      visibilityCleanupRef.current?.();
+      cleanupRef.current?.();
     };
   }, [sessionId]);
 
@@ -86,24 +86,50 @@ export default function DemoJoin() {
     ping();
     pingRef.current = setInterval(ping, PING_INTERVAL_MS);
 
-    // Immediate visibility-based disconnect/reconnect signals
-    const handleVisibility = async () => {
-      if (document.visibilityState === "hidden") {
-        // Immediately signal disconnect by clearing last_ping
-        await supabase
-          .from("demo_seats")
-          .update({ last_ping: null })
-          .eq("id", id);
+    const sendDisconnect = () => {
+      // Use sendBeacon for reliable delivery on mobile tab close / swipe away
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/demo_seats?id=eq.${id}`;
+      const headers = {
+        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      };
+      const body = JSON.stringify({ last_ping: null });
+      // Try sendBeacon first (most reliable on mobile), fall back to sync fetch
+      if (navigator.sendBeacon) {
+        const blob = new Blob([body], { type: "application/json" });
+        // sendBeacon only does POST, so also fire a fetch as PATCH
+        fetch(url, { method: "PATCH", headers, body, keepalive: true }).catch(() => {});
       } else {
-        // Immediately signal reconnect with a fresh ping
+        fetch(url, { method: "PATCH", headers, body, keepalive: true }).catch(() => {});
+      }
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        sendDisconnect();
+      } else {
         ping();
       }
     };
 
+    const handlePageHide = () => {
+      sendDisconnect();
+    };
+
+    const handleBeforeUnload = () => {
+      sendDisconnect();
+    };
+
     document.addEventListener("visibilitychange", handleVisibility);
-    // Store cleanup ref
-    visibilityCleanupRef.current = () => {
+    window.addEventListener("pagehide", handlePageHide);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    cleanupRef.current = () => {
       document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pagehide", handlePageHide);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   };
 
@@ -111,7 +137,7 @@ export default function DemoJoin() {
     if (!seatIdRef.current || !sessionId) return;
     setSubmitting(true);
     if (pingRef.current) clearInterval(pingRef.current);
-    visibilityCleanupRef.current?.();
+    cleanupRef.current?.();
     await supabase.from("demo_seats").delete().eq("id", seatIdRef.current);
     localStorage.removeItem(`demo_seat_${sessionId}`);
     localStorage.removeItem(`demo_label_${sessionId}`);
