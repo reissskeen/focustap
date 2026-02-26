@@ -300,8 +300,8 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                     {a.student_name && <span className="font-medium text-destructive">{a.student_name}</span>}
                     <span className="text-destructive/80">
                       — No signal for <span className="font-bold">{a.secondsAgo}s</span>
-                      {a.secondsAgo > 60 && " (likely left the page)"}
-                      {a.secondsAgo > 30 && a.secondsAgo <= 60 && " (tab switched or phone locked)"}
+                      {a.secondsAgo > 30 && " (likely left the page)"}
+                      {a.secondsAgo > 4 && a.secondsAgo <= 30 && " (switched tabs or locked phone)"}
                     </span>
                   </div>
                   <Button
