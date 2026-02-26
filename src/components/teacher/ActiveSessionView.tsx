@@ -30,6 +30,7 @@ interface RosterStudent {
 
 interface DemoSeatRow {
   seat_label: string;
+  student_name: string | null;
   last_ping: string | null;
 }
 
@@ -120,8 +121,8 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
   const fetchDemoSeats = async () => {
     const { data } = await supabase
       .from("demo_seats")
-      .select("seat_label, last_ping")
-      .eq("session_id", session.id);
+      .select("seat_label, student_name, last_ping")
+      .eq("session_id", session.id) as { data: DemoSeatRow[] | null };
     if (data) setDemoSeats(data);
   };
 
@@ -166,7 +167,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
     .map((s) => {
       const status = getSeatStatus(s.last_ping);
       const secondsAgo = s.last_ping ? Math.round((Date.now() - new Date(s.last_ping).getTime()) / 1000) : 999;
-      return { seat_label: s.seat_label, status, secondsAgo };
+      return { seat_label: s.seat_label, student_name: s.student_name, status, secondsAgo };
     })
     .filter((a) => a.status !== "active")
     .sort((a, b) => {
@@ -295,6 +296,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                   <div className="flex items-center gap-2">
                     <WifiOff className="w-3.5 h-3.5 text-destructive" />
                     <span className="font-mono font-bold text-destructive">{a.seat_label}</span>
+                    {a.student_name && <span className="font-medium text-destructive">{a.student_name}</span>}
                     <span className="text-destructive/80">
                       — No signal for <span className="font-bold">{a.secondsAgo}s</span>
                       {a.secondsAgo > 60 && " (likely left the page)"}
@@ -336,10 +338,11 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
             <div className="space-y-1">
               {pausedAlerts.map((a) => (
                 <div key={a.seat_label} className="flex items-center gap-2 text-sm">
-                  <AlertTriangle className="w-3.5 h-3.5 text-focus-paused" />
-                  <span className="font-mono font-bold text-focus-paused">{a.seat_label}</span>
-                  <span className="text-muted-foreground">
-                    — Inactive for <span className="font-bold">{a.secondsAgo}s</span>
+                   <AlertTriangle className="w-3.5 h-3.5 text-focus-paused" />
+                   <span className="font-mono font-bold text-focus-paused">{a.seat_label}</span>
+                   {a.student_name && <span className="font-medium text-focus-paused">{a.student_name}</span>}
+                   <span className="text-muted-foreground">
+                     — Inactive for <span className="font-bold">{a.secondsAgo}s</span>
                     {" "}(switched tabs, minimized, or phone locked)
                   </span>
                 </div>

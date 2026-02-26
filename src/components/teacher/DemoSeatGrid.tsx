@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface DemoSeat {
   id: string;
   seat_label: string;
+  student_name: string | null;
   last_ping: string | null;
   joined_at: string;
 }
@@ -50,8 +51,8 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeat
   const fetchSeats = useCallback(async () => {
     const { data } = await supabase
       .from("demo_seats")
-      .select("id, seat_label, last_ping, joined_at")
-      .eq("session_id", sessionId);
+      .select("id, seat_label, student_name, last_ping, joined_at")
+      .eq("session_id", sessionId) as { data: DemoSeat[] | null };
     if (data) setSeats(data);
   }, [sessionId]);
 
@@ -174,6 +175,13 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeat
               >
                 {label}
               </span>
+
+              {/* Student name */}
+              {seat?.student_name && (
+                <span className="text-[8px] leading-tight text-muted-foreground truncate max-w-full px-0.5 mt-0.5">
+                  {seat.student_name.split(" ")[0]}
+                </span>
+              )}
 
               {/* Status dot + seconds ago */}
               {status && (
