@@ -33,6 +33,7 @@ interface DemoSeatRow {
   seat_label: string;
   student_name: string | null;
   last_ping: string | null;
+  focus_seconds: number;
 }
 
 interface ActiveSessionViewProps {
@@ -122,7 +123,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
   const fetchDemoSeats = async () => {
     const { data } = await supabase
       .from("demo_seats")
-      .select("id, seat_label, student_name, last_ping")
+      .select("id, seat_label, student_name, last_ping, focus_seconds")
       .eq("session_id", session.id) as { data: DemoSeatRow[] | null };
     if (data) setDemoSeats(data);
   };
@@ -403,6 +404,10 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                       status === "paused" ? "bg-focus-paused/15 text-focus-paused" :
                       "bg-destructive/15 text-destructive"
                     }`}>{statusLabel}</span>
+                    <span className="flex items-center gap-1 text-xs font-mono text-muted-foreground">
+                      <Clock className="w-3 h-3" />
+                      {formatTime(seat.focus_seconds || 0)}
+                    </span>
                   </div>
                   <Button
                     variant="ghost"

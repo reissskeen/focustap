@@ -1,0 +1,1 @@
+ALTER TABLE public.demo_seats ADD COLUMN IF NOT EXISTS focus_seconds integer NOT NULL DEFAULT 0;
