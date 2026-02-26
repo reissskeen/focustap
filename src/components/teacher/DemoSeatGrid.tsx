@@ -20,8 +20,8 @@ export type SeatStatus = "active" | "paused" | "disconnected";
 export const getSeatStatus = (lastPing: string | null): SeatStatus => {
   if (!lastPing) return "disconnected";
   const age = (Date.now() - new Date(lastPing).getTime()) / 1000;
-  if (age < 15) return "active";
-  if (age < 30) return "paused";
+  if (age < 8) return "active";
+  if (age < 20) return "paused";
   return "disconnected";
 };
 
