@@ -29,6 +29,7 @@ interface RosterStudent {
 }
 
 interface DemoSeatRow {
+  id: string;
   seat_label: string;
   student_name: string | null;
   last_ping: string | null;
@@ -121,7 +122,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
   const fetchDemoSeats = async () => {
     const { data } = await supabase
       .from("demo_seats")
-      .select("seat_label, student_name, last_ping")
+      .select("id, seat_label, student_name, last_ping")
       .eq("session_id", session.id) as { data: DemoSeatRow[] | null };
     if (data) setDemoSeats(data);
   };
@@ -371,7 +372,54 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
         ))}
       </div>
 
-      {/* View toggle + content */}
+      {/* ===== JOINED STUDENTS LIST ===== */}
+      {demoSeats.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="glass-card rounded-xl overflow-hidden mb-6"
+        >
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-muted-foreground" />
+              <h3 className="text-sm font-bold">Joined Students</h3>
+              <span className="text-xs text-muted-foreground">({demoSeats.length})</span>
+            </div>
+          </div>
+          <div className="divide-y divide-border">
+            {demoSeats.map((seat) => {
+              const status = getSeatStatus(seat.last_ping);
+              const dotColor = status === "active" ? "bg-focus-active" : status === "paused" ? "bg-focus-paused" : "bg-destructive";
+              const statusLabel = status === "active" ? "Active" : status === "paused" ? "Paused" : "Disconnected";
+              return (
+                <div key={seat.id} className="flex items-center justify-between px-4 py-3 hover:bg-muted/20 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-2.5 h-2.5 rounded-full ${dotColor} ${status === "active" ? "animate-pulse" : ""}`} />
+                    <span className="font-mono text-sm font-bold text-muted-foreground">{seat.seat_label}</span>
+                    <span className="text-sm font-medium">{seat.student_name || "Anonymous"}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      status === "active" ? "bg-focus-active/15 text-focus-active" :
+                      status === "paused" ? "bg-focus-paused/15 text-focus-paused" :
+                      "bg-destructive/15 text-destructive"
+                    }`}>{statusLabel}</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
+                    onClick={() => handleRemoveSeat(seat.seat_label)}
+                  >
+                    <UserX className="w-3.5 h-3.5" /> Remove
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
+
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
