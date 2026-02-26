@@ -402,76 +402,65 @@ export default function DemoJoin() {
             exit={{ opacity: 0 }}
             className="w-full max-w-sm flex flex-col items-center gap-6 text-center"
           >
-            {/* Pulsing status indicator */}
-            <div className="relative flex items-center justify-center w-20 h-20">
-              <motion.div
-                className="absolute w-20 h-20 rounded-full bg-focus-active/20"
-                animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              />
-              <div className="w-12 h-12 rounded-full bg-focus-active flex items-center justify-center shadow-lg">
-                <div className="w-4 h-4 rounded-full bg-white" />
-              </div>
-            </div>
-
-            {/* Focus Timer */}
-            <div className="w-full glass-card rounded-xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-muted-foreground">Focus Time</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <motion.div
-                    className={`w-2.5 h-2.5 rounded-full ${isTabVisible ? "bg-focus-active" : "bg-focus-paused"}`}
-                    animate={isTabVisible ? { scale: [1, 1.3, 1] } : {}}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                  />
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {isTabVisible ? "Tracking" : "Paused"}
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-col items-center">
+            {/* Desk info - compact at top */}
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-2">
                 <motion.div
-                  className={`inline-flex items-center justify-center w-24 h-24 rounded-full border-4 ${
-                    isTabVisible ? "border-focus-active" : "border-focus-paused"
-                  }`}
-                  initial={{ scale: 0.9 }}
-                  animate={{ scale: 1 }}
-                >
-                  <span className="font-mono text-3xl font-bold">{formatTime(focusSeconds)}</span>
-                </motion.div>
-                <div className="flex items-center gap-1.5 mt-3 text-xs text-muted-foreground">
-                  {isTabVisible ? (
-                    <><Eye className="w-3.5 h-3.5" /> Tab active — focus counting</>
-                  ) : (
-                    <><EyeOff className="w-3.5 h-3.5" /> Tab hidden — focus paused</>
-                  )}
-                </div>
+                  className="w-3 h-3 rounded-full bg-focus-active"
+                  animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                  Connected
+                </p>
               </div>
-            </div>
-
-            <div>
-              <p className="text-muted-foreground text-sm font-medium uppercase tracking-wider mb-1">
-                Connected
-              </p>
-              <h1 className="font-display text-5xl font-bold text-foreground">
+              <h1 className="font-display text-4xl font-bold text-foreground">
                 Desk {deskLabel}
               </h1>
               {displayName && (
-                <p className="mt-2 text-lg font-medium text-foreground">{displayName}</p>
+                <p className="text-base font-medium text-foreground">{displayName}</p>
               )}
-              <p className="mt-1 text-muted-foreground text-sm">{courseName}</p>
+              <p className="text-muted-foreground text-xs">{courseName}</p>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {/* Focus Timer - hero element */}
+            <div className="w-full flex flex-col items-center gap-4">
               <motion.div
-                className="w-2 h-2 rounded-full bg-focus-active"
-                animate={{ opacity: [1, 0.3, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-              Live · stay on this page
+                className={`relative inline-flex items-center justify-center w-36 h-36 rounded-full border-[5px] ${
+                  isTabVisible ? "border-focus-active" : "border-focus-paused"
+                }`}
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+              >
+                {/* Pulse ring behind timer when active */}
+                {isTabVisible && (
+                  <motion.div
+                    className="absolute inset-[-6px] rounded-full border-2 border-focus-active/40"
+                    animate={{ scale: [1, 1.12, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                )}
+                <span className="font-mono text-4xl font-bold text-foreground">{formatTime(focusSeconds)}</span>
+              </motion.div>
+
+              <div className="flex items-center gap-2">
+                <motion.div
+                  className={`w-2.5 h-2.5 rounded-full ${isTabVisible ? "bg-focus-active" : "bg-focus-paused"}`}
+                  animate={isTabVisible ? { scale: [1, 1.3, 1] } : {}}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                />
+                <span className="text-sm font-medium text-muted-foreground">
+                  {isTabVisible ? "Focus Tracking" : "Paused — come back!"}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                {isTabVisible ? (
+                  <><Eye className="w-3.5 h-3.5" /> Stay on this page to build your score</>
+                ) : (
+                  <><EyeOff className="w-3.5 h-3.5" /> Tab hidden — timer paused</>
+                )}
+              </div>
             </div>
 
             <Button
