@@ -147,22 +147,32 @@ export default function PitchDeck() {
       </div>
     </SlideWrapper>,
 
-  // Slide 2 — Market Opportunity
+  // Slide 2 — Revenue Forecast Graph
   <SlideWrapper key={2}>
-      <div className="max-w-4xl w-full space-y-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground">Market Opportunity</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          {[
-        { label: "TAM", value: "$12B", desc: "Global EdTech market for higher education" },
-        { label: "SAM", value: "$2.4B", desc: "US & Canada classroom engagement tools" },
-        { label: "SOM", value: "$120M", desc: "Achievable in 5 years with current strategy" }].
-        map((m) =>
-        <div key={m.label} className="p-6 rounded-xl border border-border bg-card text-center">
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{m.label}</p>
-              <p className="text-4xl font-bold text-primary mt-2">{m.value}</p>
-              <p className="text-xs text-muted-foreground mt-2">{m.desc}</p>
+      <div className="max-w-4xl w-full space-y-6">
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground">3-Year Revenue Forecast</h2>
+        <div className="grid md:grid-cols-3 gap-4 mb-2">
+          {annualData.map((y) =>
+        <div key={y.year} className="p-4 rounded-xl border border-border bg-card text-center">
+              <p className="text-sm font-medium text-muted-foreground">{y.year}</p>
+              <p className="text-2xl font-bold text-foreground mt-1">{formatCurrency(y.revenue)}</p>
+              <p className="text-xs text-muted-foreground">{y.institutions} institutions · {y.students.toLocaleString()} students</p>
             </div>
         )}
+        </div>
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
+              <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+              <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+              <Tooltip formatter={(v: number) => formatCurrency(v)} />
+              <Legend />
+              <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="hsl(217, 91%, 60%)" />
+              <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill="hsl(38, 92%, 50%)" radius={[4, 4, 0, 0]} />
+              <Area type="monotone" dataKey="grossProfit" name="Gross Profit" fill="hsl(160, 84%, 39%, 0.15)" stroke="hsl(160, 84%, 39%)" strokeWidth={2} />
+            </ComposedChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </SlideWrapper>,
