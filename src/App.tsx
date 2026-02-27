@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import Financials from "./pages/Financials";
 import PitchDeck from "./pages/PitchDeck";
 import DemoJoin from "./pages/DemoJoin";
+import PosterBoard from "./pages/PosterBoard";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/financials" element={<Financials />} />
             <Route path="/pitch-deck" element={<PitchDeck />} />
             <Route path="/demo" element={<DemoJoin />} />
+            <Route path="/poster" element={<PosterBoard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
