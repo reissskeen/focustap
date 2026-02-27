@@ -10,7 +10,7 @@ import {
 "recharts";
 import { defaultAssumptions, generateForecast, formatCurrency, formatPercent, computeNINVTotal, computeAnnualOpexTotal } from "@/lib/financialData";
 
-const TOTAL_SLIDES = 6;
+const TOTAL_SLIDES = 7;
 
 function SlideWrapper({ children }: {children: React.ReactNode;}) {
   return (
@@ -98,17 +98,16 @@ export default function PitchDeck() {
       </div>
     </SlideWrapper>,
 
-  // Slide 1 — Problem & Solution
+  // Slide 1 — The Problem
   <SlideWrapper key={1}>
-      <div className="max-w-4xl w-full space-y-5">
+      <div className="max-w-4xl w-full space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Problem</h2>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted border border-border text-xs font-medium text-muted-foreground">
-            📋 Faculty Survey  · Flagler College · Feb 2026
+            📋 Faculty Survey · Flagler College · Feb 2026
           </span>
         </div>
 
-        {/* Three stat cards from primary research */}
         <div className="grid md:grid-cols-3 gap-4">
           <div className="p-5 rounded-xl bg-destructive/10 border border-destructive/20 space-y-2">
             <p className="text-5xl font-black text-destructive">78.5%</p>
@@ -127,22 +126,84 @@ export default function PitchDeck() {
           </div>
         </div>
 
-        {/* Solution row */}
-        <div className="p-5 rounded-xl bg-primary/5 border border-primary/20">
-          <p className="text-sm font-semibold text-primary mb-3">FocusTap addresses all three — without asking students to install anything</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="p-5 rounded-xl bg-muted/50 border border-border space-y-3">
+          <p className="text-sm font-semibold text-foreground">Why existing solutions fail</p>
+          <div className="grid md:grid-cols-2 gap-3">
             {[
-          "Desk-level NFC tap — instant, verified attendance",
-          "Real-time focus tracking via browser visibility API",
-          "Free pilot at Flagler — implementation fee covers costs",
-          "Proven data → sell school-to-school"].
-          map((item) =>
-          <div key={item} className="flex gap-2 text-xs text-muted-foreground">
-                <span className="text-primary font-bold shrink-0">✓</span>
-                <span>{item}</span>
+              { issue: "Manual attendance", detail: "Paper sign-ins are slow, inaccurate, and easy to fake — faculty waste 5–10 min per class" },
+              { issue: "No focus visibility", detail: "Faculty have zero data on whether students are actually engaged or just present" },
+              { issue: "App fatigue", detail: "Students won't download yet another app — adoption rates for classroom tools average <30%" },
+              { issue: "No LMS connection", detail: "Participation data lives in silos — never reaches the gradebook where it matters" },
+            ].map((f) => (
+              <div key={f.issue} className="flex gap-2 items-start">
+                <span className="text-destructive font-bold shrink-0 mt-0.5">✗</span>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">{f.issue}</p>
+                  <p className="text-xs text-muted-foreground">{f.detail}</p>
+                </div>
               </div>
-          )}
+            ))}
           </div>
+        </div>
+      </div>
+    </SlideWrapper>,
+
+  // Slide 2 — The Solution (What Is FocusTap?)
+  <SlideWrapper key="solution">
+      <div className="max-w-4xl w-full space-y-6">
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Solution: FocusTap</h2>
+        <p className="text-lg text-muted-foreground max-w-2xl">
+          A <span className="font-semibold text-foreground">web & mobile app</span> that turns phones from a distraction into an engagement tool — no downloads required. Students tap an NFC tag, check in, track focus, and take notes. Faculty get real-time data synced straight to Canvas.
+        </p>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-3">
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">For Students</p>
+            {[
+              { icon: "📱", title: "NFC Tap-In", desc: "Tap phone on desk tag — opens the app instantly in browser, no download needed" },
+              { icon: "📊", title: "Live Focus Score", desc: "Browser visibility API tracks on-task time in real time — students see their own score" },
+              { icon: "📝", title: "Built-In Notes", desc: "Rich text editor saved to their account per course — accessible anytime" },
+              { icon: "📈", title: "Personal Insights", desc: "Session history, focus trends, and course performance — all in one dashboard" },
+            ].map((f) => (
+              <div key={f.title} className="flex gap-3 items-start p-3 rounded-lg bg-muted/50">
+                <span className="text-xl shrink-0">{f.icon}</span>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{f.title}</p>
+                  <p className="text-xs text-muted-foreground">{f.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-3">
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">For Faculty</p>
+            {[
+              { icon: "✅", title: "Auto Attendance", desc: "NFC tap = verified check-in. No paper, no manual entry, no buddy-signing" },
+              { icon: "🎯", title: "Participation Grades", desc: "Focus scores translate directly into gradeable participation metrics" },
+              { icon: "🔗", title: "Canvas LMS Sync", desc: "Attendance & focus data auto-push to Canvas gradebook via LTI integration" },
+              { icon: "📋", title: "Class Analytics", desc: "Real-time dashboard showing who's present, focused, and falling behind" },
+            ].map((f) => (
+              <div key={f.title} className="flex gap-3 items-start p-3 rounded-lg bg-muted/50">
+                <span className="text-xl shrink-0">{f.icon}</span>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{f.title}</p>
+                  <p className="text-xs text-muted-foreground">{f.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { val: "0", label: "Apps to install" },
+            { val: "<3s", label: "Check-in time" },
+            { val: "100%", label: "Browser-based" },
+          ].map((s) => (
+            <div key={s.label} className="text-center p-3 rounded-xl bg-primary/5 border border-primary/10">
+              <p className="text-2xl font-bold text-primary">{s.val}</p>
+              <p className="text-xs text-muted-foreground">{s.label}</p>
+            </div>
+          ))}
         </div>
       </div>
     </SlideWrapper>,
