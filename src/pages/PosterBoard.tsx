@@ -1,0 +1,233 @@
+import focustapLogo from "@/assets/focustap-logo.png";
+import { useMemo } from "react";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from "recharts";
+import { defaultAssumptions, generateForecast, formatCurrency } from "@/lib/financialData";
+
+function Section({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-2xl border border-border bg-card p-5 ${className}`}>
+      <h3 className="text-lg font-bold text-primary uppercase tracking-wider mb-3 border-b border-border pb-2">
+        {title}
+      </h3>
+      {children}
+    </div>
+  );
+}
+
+export default function PosterBoard() {
+  const forecast = useMemo(() => generateForecast(defaultAssumptions), []);
+  const annualData = ["FY 2026", "FY 2027", "FY 2028"].map((y) => {
+    const qs = forecast.filter((d) => d.year === y);
+    return {
+      year: y.replace("FY ", ""),
+      revenue: qs.reduce((s, d) => s + d.totalRevenue, 0),
+      institutions: qs[qs.length - 1].institutions,
+    };
+  });
+
+  return (
+    <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="max-w-[1400px] mx-auto space-y-6">
+
+        {/* Header / Logo */}
+        <div className="text-center space-y-2">
+          <img src={focustapLogo} alt="FocusTap" className="h-24 w-auto mx-auto rounded-lg" />
+          <p className="text-sm text-muted-foreground font-medium">NFC-Powered Classroom Engagement & Attendance</p>
+        </div>
+
+        {/* 3-Column Tri-fold Layout */}
+        <div className="grid md:grid-cols-3 gap-5">
+
+          {/* LEFT COLUMN */}
+          <div className="space-y-5">
+            <Section title="Problem">
+              <div className="space-y-3">
+                {[
+                  { num: "01", stat: "78.5%", text: "of faculty say student engagement is a significant issue" },
+                  { num: "02", stat: "85.7%", text: "say phones are the #1 distraction in classrooms" },
+                  { num: "03", stat: "100%", text: "agree students benefit from more active participation" },
+                  { num: "04", stat: "0", text: "existing tools solve this without app installs" },
+                ].map((p) => (
+                  <div key={p.num} className="flex gap-3 items-start">
+                    <span className="shrink-0 w-7 h-7 rounded-full bg-destructive/15 text-destructive text-xs font-bold flex items-center justify-center">
+                      {p.num}
+                    </span>
+                    <div>
+                      <span className="font-bold text-foreground text-sm">{p.stat}</span>
+                      <span className="text-xs text-muted-foreground ml-1">{p.text}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            <Section title="How It Works">
+              <div className="space-y-3">
+                {[
+                  { step: "1", label: "Tap In", desc: "Student taps phone on desk NFC tag — instant check-in, no app needed" },
+                  { step: "2", label: "Stay Focused", desc: "Browser visibility API tracks on-task time automatically" },
+                  { step: "3", label: "Take Notes", desc: "Built-in rich text editor — notes tied to each session" },
+                  { step: "4", label: "Insights", desc: "Teachers see real-time focus & attendance dashboards" },
+                ].map((s) => (
+                  <div key={s.step} className="flex gap-3 items-start">
+                    <span className="shrink-0 w-7 h-7 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">
+                      {s.step}
+                    </span>
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">{s.label}</p>
+                      <p className="text-xs text-muted-foreground">{s.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            <Section title="FAQ">
+              <div className="space-y-2">
+                {[
+                  { q: "Do students need an app?", a: "No — just a browser. Zero installs." },
+                  { q: "What about older phones?", a: "NFC works on all modern smartphones (2018+)." },
+                  { q: "Is data private?", a: "Yes — RLS policies, per-student isolation, FERPA-aware." },
+                ].map((f) => (
+                  <div key={f.q} className="p-2.5 rounded-lg bg-muted/50">
+                    <p className="text-xs font-semibold text-foreground">{f.q}</p>
+                    <p className="text-xs text-muted-foreground">{f.a}</p>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          </div>
+
+          {/* CENTER COLUMN */}
+          <div className="space-y-5">
+            <Section title="Who Are We?">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                FocusTap is a <span className="font-semibold text-foreground">zero-install</span> classroom engagement platform. 
+                Students tap an NFC tag at their desk to check in, and our system tracks focus time through the browser — 
+                no apps, no downloads, no friction.
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed mt-2">
+                Faculty get real-time dashboards showing who's present, who's focused, and how the class is performing — 
+                turning phone distraction into <span className="font-semibold text-foreground">measurable engagement</span>.
+              </p>
+              <div className="grid grid-cols-3 gap-2 mt-4">
+                {[
+                  { val: "0", label: "Apps to install" },
+                  { val: "<3s", label: "Check-in time" },
+                  { val: "100%", label: "Browser-based" },
+                ].map((s) => (
+                  <div key={s.label} className="text-center p-2 rounded-lg bg-primary/5 border border-primary/10">
+                    <p className="text-lg font-bold text-primary">{s.val}</p>
+                    <p className="text-[10px] text-muted-foreground">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            <Section title="Solution Highlights">
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { icon: "📱", label: "NFC Tap", desc: "Desk-level verified attendance" },
+                  { icon: "👁️", label: "Focus Tracking", desc: "Browser visibility API" },
+                  { icon: "📝", label: "Notes", desc: "Session-linked rich editor" },
+                  { icon: "📊", label: "Analytics", desc: "Real-time class dashboards" },
+                ].map((h) => (
+                  <div key={h.label} className="p-3 rounded-lg bg-muted/50 text-center">
+                    <span className="text-2xl">{h.icon}</span>
+                    <p className="text-xs font-semibold text-foreground mt-1">{h.label}</p>
+                    <p className="text-[10px] text-muted-foreground">{h.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            <Section title="Faculty Survey · Flagler College">
+              <p className="text-xs text-muted-foreground mb-2">Feb 2026 · 14 faculty respondents</p>
+              <div className="space-y-2">
+                {[
+                  { pct: "78.5%", label: "say engagement is a crisis" },
+                  { pct: "85.7%", label: "identify phones as top distraction" },
+                  { pct: "100%", label: "agree participation improves outcomes" },
+                ].map((s) => (
+                  <div key={s.label} className="flex items-center gap-3">
+                    <span className="text-lg font-black text-destructive w-16 text-right">{s.pct}</span>
+                    <span className="text-xs text-muted-foreground">{s.label}</span>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          </div>
+
+          {/* RIGHT COLUMN */}
+          <div className="space-y-5">
+            <Section title="Financials">
+              <div className="space-y-2 mb-3">
+                {annualData.map((y) => (
+                  <div key={y.year} className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">{y.year}</span>
+                    <span className="font-bold text-foreground">{formatCurrency(y.revenue)}</span>
+                    <span className="text-xs text-muted-foreground">{y.institutions} schools</span>
+                  </div>
+                ))}
+              </div>
+              <div className="h-36">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={annualData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
+                    <XAxis dataKey="year" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                    <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 9 }} className="fill-muted-foreground" />
+                    <Tooltip formatter={(v: number) => formatCurrency(v)} />
+                    <Bar dataKey="revenue" name="Revenue" fill="hsl(207, 70%, 45%)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </Section>
+
+            <Section title="Future Growth">
+              <div className="space-y-3">
+                {[
+                  { yr: "Y1", label: "Pilot at Flagler", desc: "1,000+ students, free deployment, collect proof data" },
+                  { yr: "Y2", label: "Sell with Data", desc: "Use case study to close 2–4 paid institutions" },
+                  { yr: "Y3", label: "Scale Nationally", desc: "15 institutions via conferences & referrals" },
+                ].map((g) => (
+                  <div key={g.yr} className="flex gap-3 items-start">
+                    <span className="shrink-0 w-8 h-8 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">
+                      {g.yr}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{g.label}</p>
+                      <p className="text-xs text-muted-foreground">{g.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            <Section title="SWOT">
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: "Strengths", color: "bg-green-500/10 text-green-700 dark:text-green-400", items: "Zero-install, NFC simplicity, real faculty data" },
+                  { label: "Weaknesses", color: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400", items: "Early stage, single pilot site, small team" },
+                  { label: "Opportunities", color: "bg-blue-500/10 text-blue-700 dark:text-blue-400", items: "4,000+ US colleges, edtech consolidation" },
+                  { label: "Threats", color: "bg-red-500/10 text-red-700 dark:text-red-400", items: "LMS incumbents, school budget cycles" },
+                ].map((s) => (
+                  <div key={s.label} className={`p-3 rounded-lg ${s.color}`}>
+                    <p className="text-xs font-bold">{s.label}</p>
+                    <p className="text-[10px] mt-1 opacity-80">{s.items}</p>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center text-xs text-muted-foreground pt-2 border-t border-border">
+          FocusTap · Saints Showcase · March 2026 · focustap.com
+        </div>
+      </div>
+    </div>
+  );
+}
