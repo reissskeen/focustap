@@ -34,7 +34,9 @@ export default function PosterBoard() {
         {/* Header / Logo */}
         <div className="text-center space-y-2">
           <img src={focustapLogo} alt="FocusTap" className="h-24 w-auto mx-auto rounded-lg" />
-          <p className="text-sm text-muted-foreground font-medium">NFC-Powered Classroom Engagement & Attendance</p>
+          <p className="text-sm text-muted-foreground font-medium">
+            Web & Mobile App · NFC-Powered Focus Tracking, Attendance & Canvas Gradebook Integration
+          </p>
         </div>
 
         {/* 3-Column Tri-fold Layout */}
@@ -66,10 +68,11 @@ export default function PosterBoard() {
             <Section title="How It Works">
               <div className="space-y-3">
                 {[
-                  { step: "1", label: "Tap In", desc: "Student taps phone on desk NFC tag — instant check-in, no app needed" },
-                  { step: "2", label: "Stay Focused", desc: "Browser visibility API tracks on-task time automatically" },
-                  { step: "3", label: "Take Notes", desc: "Built-in rich text editor — notes tied to each session" },
-                  { step: "4", label: "Insights", desc: "Teachers see real-time focus & attendance dashboards" },
+                  { step: "1", label: "Tap In", desc: "Student taps phone on desk NFC tag — opens the app instantly, no download needed" },
+                  { step: "2", label: "Login & Track", desc: "Students sign in to their personal account to track focus scores & session history" },
+                  { step: "3", label: "Stay Focused", desc: "Browser visibility API tracks on-task time — focus score updates in real time" },
+                  { step: "4", label: "Take Notes", desc: "Built-in rich text editor — notes saved to student's account per course" },
+                  { step: "5", label: "Sync to Canvas", desc: "Attendance & participation auto-sync to Canvas gradebook for faculty grading" },
                 ].map((s) => (
                   <div key={s.step} className="flex gap-3 items-start">
                     <span className="shrink-0 w-7 h-7 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">
@@ -87,9 +90,9 @@ export default function PosterBoard() {
             <Section title="FAQ">
               <div className="space-y-2">
                 {[
-                  { q: "Do students need an app?", a: "No — just a browser. Zero installs." },
-                  { q: "What about older phones?", a: "NFC works on all modern smartphones (2018+)." },
-                  { q: "Is data private?", a: "Yes — RLS policies, per-student isolation, FERPA-aware." },
+                  { q: "Do students need to download an app?", a: "No — it's a web app that works on any phone browser. Also installable as a PWA." },
+                  { q: "How does Canvas integration work?", a: "Focus scores & attendance sync directly to Canvas gradebook via LTI." },
+                  { q: "Is student data private?", a: "Yes — each student has their own secure account. FERPA-compliant." },
                 ].map((f) => (
                   <div key={f.q} className="p-2.5 rounded-lg bg-muted/50">
                     <p className="text-xs font-semibold text-foreground">{f.q}</p>
@@ -102,15 +105,17 @@ export default function PosterBoard() {
 
           {/* CENTER COLUMN */}
           <div className="space-y-5">
-            <Section title="Who Are We?">
+            <Section title="What Is FocusTap?">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                FocusTap is a <span className="font-semibold text-foreground">zero-install</span> classroom engagement platform. 
-                Students tap an NFC tag at their desk to check in, and our system tracks focus time through the browser — 
-                no apps, no downloads, no friction.
+                FocusTap is a <span className="font-semibold text-foreground">web & mobile app</span> that lets students 
+                check in via NFC, track their focus score, and take notes — all from their browser. Student data is stored 
+                securely so they can <span className="font-semibold text-foreground">log in anytime</span> to view focus 
+                insights, session history, and course performance.
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed mt-2">
-                Faculty get real-time dashboards showing who's present, who's focused, and how the class is performing — 
-                turning phone distraction into <span className="font-semibold text-foreground">measurable engagement</span>.
+                For faculty, FocusTap integrates with <span className="font-semibold text-foreground">Canvas LMS</span> to 
+                automatically sync attendance, participation, and focus data — making it easy to grade engagement without 
+                manual tracking.
               </p>
               <div className="grid grid-cols-3 gap-2 mt-4">
                 {[
@@ -126,13 +131,30 @@ export default function PosterBoard() {
               </div>
             </Section>
 
-            <Section title="Solution Highlights">
+            <Section title="Student Experience">
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { icon: "📱", label: "NFC Tap", desc: "Desk-level verified attendance" },
-                  { icon: "👁️", label: "Focus Tracking", desc: "Browser visibility API" },
-                  { icon: "📝", label: "Notes", desc: "Session-linked rich editor" },
-                  { icon: "📊", label: "Analytics", desc: "Real-time class dashboards" },
+                  { icon: "📱", label: "NFC Tap-In", desc: "Instant check-in at your desk" },
+                  { icon: "📊", label: "Focus Score", desc: "Track your on-task time per class" },
+                  { icon: "📝", label: "Notes", desc: "Rich editor saved to your account" },
+                  { icon: "📈", label: "Insights", desc: "View trends & session history" },
+                ].map((h) => (
+                  <div key={h.label} className="p-3 rounded-lg bg-muted/50 text-center">
+                    <span className="text-2xl">{h.icon}</span>
+                    <p className="text-xs font-semibold text-foreground mt-1">{h.label}</p>
+                    <p className="text-[10px] text-muted-foreground">{h.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            <Section title="Faculty Experience">
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { icon: "✅", label: "Attendance", desc: "Auto-logged via NFC tap" },
+                  { icon: "🎯", label: "Participation", desc: "Focus scores as grades" },
+                  { icon: "🔗", label: "Canvas Sync", desc: "Grades push to gradebook" },
+                  { icon: "📋", label: "Dashboards", desc: "Real-time class analytics" },
                 ].map((h) => (
                   <div key={h.label} className="p-3 rounded-lg bg-muted/50 text-center">
                     <span className="text-2xl">{h.icon}</span>
@@ -188,9 +210,9 @@ export default function PosterBoard() {
             <Section title="Future Growth">
               <div className="space-y-3">
                 {[
-                  { yr: "Y1", label: "Pilot at Flagler", desc: "1,000+ students, free deployment, collect proof data" },
-                  { yr: "Y2", label: "Sell with Data", desc: "Use case study to close 2–4 paid institutions" },
-                  { yr: "Y3", label: "Scale Nationally", desc: "15 institutions via conferences & referrals" },
+                  { yr: "Y1", label: "Pilot at Flagler", desc: "1,000+ students, collect focus & attendance data as proof" },
+                  { yr: "Y2", label: "Sell with Data", desc: "Use case study to close 2–4 paid institutions via B2B" },
+                  { yr: "Y3", label: "Scale Nationally", desc: "15 institutions via conferences, referrals & published outcomes" },
                 ].map((g) => (
                   <div key={g.yr} className="flex gap-3 items-start">
                     <span className="shrink-0 w-8 h-8 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">
@@ -208,10 +230,10 @@ export default function PosterBoard() {
             <Section title="SWOT">
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { label: "Strengths", color: "bg-green-500/10 text-green-700 dark:text-green-400", items: "Zero-install, NFC simplicity, real faculty data" },
+                  { label: "Strengths", color: "bg-green-500/10 text-green-700 dark:text-green-400", items: "Zero-install, stored student data, Canvas integration, real faculty data" },
                   { label: "Weaknesses", color: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400", items: "Early stage, single pilot site, small team" },
-                  { label: "Opportunities", color: "bg-blue-500/10 text-blue-700 dark:text-blue-400", items: "4,000+ US colleges, edtech consolidation" },
-                  { label: "Threats", color: "bg-red-500/10 text-red-700 dark:text-red-400", items: "LMS incumbents, school budget cycles" },
+                  { label: "Opportunities", color: "bg-blue-500/10 text-blue-700 dark:text-blue-400", items: "4,000+ US colleges, LMS partnerships, edtech consolidation" },
+                  { label: "Threats", color: "bg-red-500/10 text-red-700 dark:text-red-400", items: "LMS incumbents, school budget cycles, adoption resistance" },
                 ].map((s) => (
                   <div key={s.label} className={`p-3 rounded-lg ${s.color}`}>
                     <p className="text-xs font-bold">{s.label}</p>
