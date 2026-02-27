@@ -108,31 +108,7 @@ const Login = () => {
           <img src={focustapLogo} alt="FocusTap" className="h-40 w-auto" />
         </Link>
 
-        {/* Mode Tabs */}
-        <div className="flex rounded-lg bg-muted p-1 mb-6">
-          <button
-            onClick={() => setMode("login")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors ${
-              mode === "login"
-                ? "bg-card text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <LogIn className="w-4 h-4" />
-            Log In
-          </button>
-          <button
-            onClick={() => setMode("signup")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors ${
-              mode === "signup"
-                ? "bg-card text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <UserPlus className="w-4 h-4" />
-            Sign Up
-          </button>
-        </div>
+        {/* Login Only */}
 
         <div className="glass-card rounded-xl p-6">
           <motion.div
@@ -236,12 +212,7 @@ const Login = () => {
           </motion.div>
         </div>
 
-        <p className="text-xs text-muted-foreground text-center mt-6">
-          {mode === "login" ? "Don't have an account? " : "Already have an account? "}
-          <button onClick={switchMode} className="text-primary hover:underline font-medium">
-            {mode === "login" ? "Sign up" : "Log in"}
-          </button>
-        </p>
+        
 
         <p className="text-xs text-muted-foreground text-center mt-3">
           Professor?{" "}
