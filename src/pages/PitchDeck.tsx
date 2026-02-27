@@ -10,7 +10,7 @@ import {
 "recharts";
 import { defaultAssumptions, generateForecast, formatCurrency, formatPercent, computeNINVTotal, computeAnnualOpexTotal } from "@/lib/financialData";
 
-const TOTAL_SLIDES = 7;
+const TOTAL_SLIDES = 5;
 
 function SlideWrapper({ children }: {children: React.ReactNode;}) {
   return (
@@ -279,69 +279,7 @@ export default function PitchDeck() {
       </div>
     </SlideWrapper>,
 
-  // Slide 4 — Unit Economics
-  <SlideWrapper key={4}>
-      <div className="max-w-4xl w-full space-y-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground">Unit Economics</h2>
-        <div className="grid md:grid-cols-4 gap-4">
-          {[
-        { label: "Price/Student/Yr", value: "$50" },
-        { label: "ARR/Institution", value: formatCurrency(defaultAssumptions.studentsPerInstitution * 50) },
-        { label: "HW Margin/Tag", value: formatCurrency(defaultAssumptions.nfcTagPrice - defaultAssumptions.nfcTagCost) },
-        { label: "Gross Margin", value: formatPercent(lastQ.grossMargin) }].
-        map((m) =>
-        <div key={m.label} className="p-5 rounded-xl border border-border bg-card text-center">
-              <p className="text-sm font-medium text-muted-foreground">{m.label}</p>
-              <p className="text-3xl font-bold text-primary mt-2">{m.value}</p>
-            </div>
-        )}
-        </div>
-        <div className="h-56">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-              <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-              <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-              <Tooltip />
-              <Area type="monotone" dataKey="studentsDeployed" name="Students Deployed" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary))" strokeWidth={2} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </SlideWrapper>,
-
-  // Slide 5 — The Ask
-  <SlideWrapper key={5}>
-      <div className="max-w-3xl w-full text-center space-y-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Ask</h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="p-6 rounded-2xl border-2 border-primary/30 bg-primary/5">
-            <p className="text-4xl font-bold text-primary">{formatCurrency(computeNINVTotal(defaultAssumptions.ninv))}</p>
-            <p className="text-lg text-muted-foreground mt-2">Net Initial Investment</p>
-          </div>
-          <div className="p-6 rounded-2xl border border-border bg-card">
-            <p className="text-4xl font-bold text-foreground">{formatCurrency(computeAnnualOpexTotal(defaultAssumptions.annualOpex))}/yr</p>
-            <p className="text-lg text-muted-foreground mt-2">Year 1 Operating Costs</p>
-          </div>
-        </div>
-        <div className="grid md:grid-cols-3 gap-4 text-left">
-          {[
-        { pct: "67%", label: "Product & Engineering", desc: "MVP analytics platform, NFC integration, LMS connectors" },
-        { pct: "23%", label: "Sales & Marketing", desc: "University partnerships, pilot programs, B2B outreach" },
-        { pct: "10%", label: "Operations", desc: "NFC hardware supply chain, legal, infrastructure" }].
-        map((u) =>
-        <div key={u.label} className="p-4 rounded-xl border border-border bg-card">
-              <p className="text-2xl font-bold text-primary">{u.pct}</p>
-              <p className="font-semibold text-sm mt-1">{u.label}</p>
-              <p className="text-xs text-muted-foreground mt-1">{u.desc}</p>
-            </div>
-        )}
-        </div>
-        <p className="text-lg font-semibold text-foreground pt-4">
-          Target: {formatCurrency(totalRevY3)} rev by FY 2028 · {lastQ.institutions} institutions · Break-even within 18–24 months
-        </p>
-      </div>
-    </SlideWrapper>];
+  ];
 
 
   return (
