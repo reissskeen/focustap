@@ -44,22 +44,18 @@ export default function PosterBoard() {
 
           {/* LEFT COLUMN */}
           <div className="space-y-5">
-            <Section title="Problem">
-              <div className="space-y-3">
+            <Section title="The Problem">
+              <div className="grid grid-cols-2 gap-3">
                 {[
-                  { num: "01", stat: "78.5%", text: "of faculty say student engagement is a significant issue" },
-                  { num: "02", stat: "85.7%", text: "say phones are the #1 distraction in classrooms" },
-                  { num: "03", stat: "100%", text: "agree students benefit from more active participation" },
-                  { num: "04", stat: "0", text: "existing tools solve this without app installs" },
+                  { stat: "78.5%", text: "say engagement is a crisis", icon: "🚨" },
+                  { stat: "85.7%", text: "cite phones as #1 distraction", icon: "📱" },
+                  { stat: "100%", text: "agree participation matters", icon: "✅" },
+                  { stat: "0", text: "tools work without app installs", icon: "❌" },
                 ].map((p) => (
-                  <div key={p.num} className="flex gap-3 items-start">
-                    <span className="shrink-0 w-7 h-7 rounded-full bg-destructive/15 text-destructive text-xs font-bold flex items-center justify-center">
-                      {p.num}
-                    </span>
-                    <div>
-                      <span className="font-bold text-foreground text-sm">{p.stat}</span>
-                      <span className="text-xs text-muted-foreground ml-1">{p.text}</span>
-                    </div>
+                  <div key={p.text} className="relative overflow-hidden rounded-xl bg-destructive/5 border border-destructive/15 p-3 text-center space-y-1">
+                    <span className="text-xl">{p.icon}</span>
+                    <p className="text-xl font-black text-destructive leading-none">{p.stat}</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight">{p.text}</p>
                   </div>
                 ))}
               </div>
