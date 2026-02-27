@@ -179,17 +179,7 @@ export default function Financials() {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-xs text-muted-foreground"
-              onClick={() => {
-                localStorage.removeItem(STORAGE_KEY);
-                setAssumptions(defaultAssumptions);
-              }}
-            >
-              Reset defaults
-            </Button>
+            
             <Link to="/pitch-deck">
               <Button size="sm" className="gap-1.5">
                 <Presentation className="w-4 h-4" /> Present
@@ -236,7 +226,6 @@ export default function Financials() {
             <TabsTrigger value="profitability">Profitability</TabsTrigger>
             <TabsTrigger value="breakeven">Break-Even</TabsTrigger>
             <TabsTrigger value="proforma">Pro-Forma P&L</TabsTrigger>
-            <TabsTrigger value="assumptions">Assumptions</TabsTrigger>
           </TabsList>
 
           {/* Revenue Tab */}
