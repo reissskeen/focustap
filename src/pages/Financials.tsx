@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers, Target, Wallet } from "lucide-react";
+import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers, Target, Wallet, Lock, Unlock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -71,6 +71,18 @@ function loadAssumptions(): Assumptions {
 export default function Financials() {
   const [assumptions, setAssumptions] = useState<Assumptions>(loadAssumptions);
   const [savedIndicator, setSavedIndicator] = useState(false);
+  const [showAssumptions, setShowAssumptions] = useState(false);
+  const [accessCode, setAccessCode] = useState("");
+  const [codeError, setCodeError] = useState(false);
+
+  const handleUnlock = () => {
+    if (accessCode === "1195") {
+      setShowAssumptions(true);
+      setCodeError(false);
+    } else {
+      setCodeError(true);
+    }
+  };
 
   // Auto-save to localStorage whenever assumptions change
   const updateAssumptions = (updater: (prev: Assumptions) => Assumptions) => {
@@ -226,7 +238,27 @@ export default function Financials() {
             <TabsTrigger value="profitability">Profitability</TabsTrigger>
             <TabsTrigger value="breakeven">Break-Even</TabsTrigger>
             <TabsTrigger value="proforma">Pro-Forma P&L</TabsTrigger>
+            {showAssumptions && <TabsTrigger value="assumptions">Assumptions</TabsTrigger>}
           </TabsList>
+
+          {/* Unlock Assumptions */}
+          {!showAssumptions && (
+            <div className="flex items-center gap-2">
+              <Lock className="w-4 h-4 text-muted-foreground" />
+              <Input
+                type="password"
+                placeholder="Enter access code"
+                value={accessCode}
+                onChange={(e) => { setAccessCode(e.target.value); setCodeError(false); }}
+                onKeyDown={(e) => e.key === "Enter" && handleUnlock()}
+                className={`h-8 w-40 font-mono text-sm ${codeError ? "border-destructive" : ""}`}
+              />
+              <Button size="sm" variant="outline" className="h-8 gap-1" onClick={handleUnlock}>
+                <Unlock className="w-3 h-3" /> Unlock
+              </Button>
+              {codeError && <span className="text-xs text-destructive">Invalid code</span>}
+            </div>
+          )}
 
           {/* Revenue Tab */}
           <TabsContent value="revenue" className="space-y-4">
@@ -448,7 +480,17 @@ export default function Financials() {
           {/* Assumptions Tab */}
           <TabsContent value="assumptions">
             <div className="space-y-4">
-              {/* NINV */}
+              <div className="flex items-center justify-between">
+                <div />
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => updateAssumptions(() => defaultAssumptions)}>
+                    Reset to Defaults
+                  </Button>
+                  <Button size="sm" variant="ghost" className="gap-1" onClick={() => { setShowAssumptions(false); setAccessCode(""); }}>
+                    <Lock className="w-3 h-3" /> Lock
+                  </Button>
+                </div>
+              </div>
               <Card>
                 <CardHeader className="pb-2"><CardTitle className="text-sm">Net Initial Investment (NINV) — Total: {formatCurrency(ninvTotal)}</CardTitle></CardHeader>
                 <CardContent>
