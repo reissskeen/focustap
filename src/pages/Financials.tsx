@@ -527,7 +527,7 @@ export default function Financials() {
                       { key: "softwareMaintenance" as const, label: "Software Maintenance" },
                       { key: "salesOutreach" as const, label: "Sales & Outreach" },
                       { key: "customerSupport" as const, label: "Customer Support" },
-                      { key: "generalAdmin" as const, label: "General & Admin" },
+                      { key: "generalAdmin" as const, label: "Contingency Buffer" },
                     ]).map(({ key, label }) => (
                       <div key={key} className="space-y-1.5">
                         <Label className="text-xs">{label}</Label>
