@@ -130,7 +130,7 @@ export default function Financials() {
     { name: "Tier 3", value: lastQ.tier3Inst },
   ].filter(d => d.value > 0);
 
-  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "studentsPerInstitution" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "saasCogsPct" | "pilotFreeInstitutions" | "postForecastHalfYearGrowth", value: string) => {
+  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "studentsPerInstitution" | "deskToStudentRatio" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "saasCogsPct" | "pilotFreeInstitutions" | "postForecastHalfYearGrowth", value: string) => {
     updateAssumptions(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
   };
 
@@ -345,7 +345,7 @@ export default function Financials() {
                   <div className="p-6 rounded-lg border border-primary bg-primary/5 w-full max-w-sm text-center space-y-3">
                     <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">Full Campus Intelligence</span>
                     <p className="text-4xl font-bold text-foreground">${TIERS[3].pricePerStudentPerYear}<span className="text-sm font-normal text-muted-foreground">/student/yr</span></p>
-                    <p className="text-sm text-muted-foreground">Implementation: ${TIERS[3].implementationFeePerTag}/tag · {formatCurrency(assumptions.studentsPerInstitution * TIERS[3].implementationFeePerTag)} for {assumptions.studentsPerInstitution.toLocaleString()} desks</p>
+                    <p className="text-sm text-muted-foreground">Implementation: ${TIERS[3].implementationFeePerTag}/tag · {formatCurrency(Math.ceil(assumptions.studentsPerInstitution / assumptions.deskToStudentRatio) * TIERS[3].implementationFeePerTag)} for {Math.ceil(assumptions.studentsPerInstitution / assumptions.deskToStudentRatio).toLocaleString()} desks</p>
                     <p className="text-sm text-muted-foreground">ARR/Institution: {formatCurrency(assumptions.studentsPerInstitution * TIERS[3].pricePerStudentPerYear)}</p>
                   </div>
                 </CardContent>
@@ -553,6 +553,7 @@ export default function Financials() {
                       { key: "nfcTagCost" as const, label: "NFC Tag Cost ($)", step: 0.1 },
                       { key: "nfcTagPrice" as const, label: "NFC Tag Price ($)", step: 0.5 },
                       { key: "studentsPerInstitution" as const, label: "Students per Institution", step: 100 },
+                      { key: "deskToStudentRatio" as const, label: "Desk:Student Ratio (1:X)", step: 0.1 },
                       { key: "initialRolloutPercent" as const, label: "Initial Rollout %", step: 0.05 },
                       { key: "opexGrowthRate" as const, label: "OPEX Growth/Yr", step: 0.05 },
                       { key: "annualChurnRate" as const, label: "Annual Churn %", step: 0.01 },

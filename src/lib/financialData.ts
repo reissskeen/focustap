@@ -44,6 +44,7 @@ export interface Assumptions {
   nfcTagCost: number;
   nfcTagPrice: number;
   studentsPerInstitution: number;
+  deskToStudentRatio: number; // e.g. 2.5 means 1 desk per 2.5 students
   // Adoption timeline — cumulative institutions by end of each half-year
   h1_2026: HalfYearAdoption;
   h2_2026: HalfYearAdoption;
@@ -81,6 +82,7 @@ export const defaultAssumptions: Assumptions = {
   nfcTagCost: 0.50,
   nfcTagPrice: 2.00,
   studentsPerInstitution: 1000,
+  deskToStudentRatio: 2.5,
   // Adoption timeline: Flagler free pilot Q3 2026 → 3 schools by H1 2027 → 5 by H2 2027 → 8 by H1 2028 → 15 by H2 2028
   h1_2026: { tier3: 0 },
   h2_2026: { tier3: 1 },
@@ -119,6 +121,8 @@ export interface YearlyFinancials {
   newInstitutions: number;
   studentsDeployed: number;
   newStudents: number;
+  desksDeployed: number;
+  newDesks: number;
   // Revenue streams
   hardwareRevenue: number;
   hardwareCogs: number;
@@ -189,11 +193,16 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const churnedStudents = Math.round(cumulativeStudents * (a.annualChurnRate / 4));
     cumulativeStudents = Math.max(0, cumulativeStudents - churnedStudents);
 
-    const hardwareRevenue = totalNewStudents * a.nfcTagPrice;
-    const hardwareCogs = totalNewStudents * a.nfcTagCost;
+    // Desk calculations: 1 desk (tag) per deskToStudentRatio students
+    const desksForStudents = (students: number) => Math.ceil(students / a.deskToStudentRatio);
+    const totalDesks = desksForStudents(cumulativeStudents);
+    const newDesks = Math.max(0, desksForStudents(totalNewStudents));
+
+    const hardwareRevenue = newDesks * a.nfcTagPrice;
+    const hardwareCogs = newDesks * a.nfcTagCost;
     const hardwareGrossProfit = hardwareRevenue - hardwareCogs;
 
-    const implementationRevenue = newT3 * a.studentsPerInstitution * TIERS[3].implementationFeePerTag;
+    const implementationRevenue = newT3 * desksForStudents(a.studentsPerInstitution) * TIERS[3].implementationFeePerTag;
 
     const paidInstitutions = Math.max(0, cumulativeInstitutions - a.pilotFreeInstitutions);
     const paidStudents = paidInstitutions > 0 && cumulativeInstitutions > 0
@@ -227,6 +236,8 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
       newInstitutions: newT3,
       studentsDeployed: cumulativeStudents,
       newStudents: totalNewStudents,
+      desksDeployed: totalDesks,
+      newDesks,
       hardwareRevenue: Math.round(hardwareRevenue),
       hardwareCogs: Math.round(hardwareCogs),
       hardwareGrossProfit: Math.round(hardwareGrossProfit),
