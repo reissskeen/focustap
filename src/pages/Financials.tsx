@@ -499,7 +499,7 @@ export default function Financials() {
                       { key: "softwareDev" as const, label: "Software Dev (MVP)" },
                       { key: "nfcInventory" as const, label: "NFC Inventory" },
                       { key: "pilotDeployment" as const, label: "Pilot Deployment" },
-                      { key: "legalSetup" as const, label: "Legal & Setup" },
+                      { key: "legalSetup" as const, label: "Legal & Compliance" },
                       { key: "brandingWebsite" as const, label: "Branding" },
                     ]).map(({ key, label }) => (
                       <div key={key} className="space-y-1.5">
