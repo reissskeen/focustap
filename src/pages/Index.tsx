@@ -9,7 +9,7 @@ import {
   Shield,
   ArrowRight,
   TrendingUp,
-  Presentation, Nfc } from
+  Presentation } from
 "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
