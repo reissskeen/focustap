@@ -214,8 +214,8 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const grossProfit = totalRevenue - totalCogs;
     const grossMargin = totalRevenue > 0 ? grossProfit / totalRevenue : 0;
 
-    // OPEX scales proportionally to desks deployed (relative to 1-school baseline)
-    const opexScale = Math.max(1, totalDesks / baseDesks);
+    // OPEX scales sub-linearly (√) to reflect SaaS economies of scale
+    const opexScale = Math.max(1, Math.sqrt(totalDesks / baseDesks));
     const yearlyOpex = baseAnnualOpex * opexScale;
     const quarterlyOpex = yearlyOpex / 4;
 
