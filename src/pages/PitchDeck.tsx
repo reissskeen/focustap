@@ -90,7 +90,7 @@ export default function PitchDeck() {
       <div className="text-center space-y-6 max-w-3xl">
         <img src={focustapLogo} alt="FocusTap" className="h-40 w-auto mx-auto rounded-lg " />
         <p className="text-xl md:text-2xl text-muted-foreground font-medium">
-          NFC-Powered Classroom Engagement & Attendance
+          Browser-Based Classroom Engagement & Attendance
         </p>
         <div className="pt-4 text-sm text-muted-foreground">
           Board of Directors Presentation · March 2026
@@ -132,7 +132,7 @@ export default function PitchDeck() {
             {[
               { issue: "Manual attendance", detail: "Paper sign-ins are slow, inaccurate, and easy to fake — faculty waste 5–10 min per class" },
               { issue: "No focus visibility", detail: "Faculty have zero data on whether students are actually engaged or just present" },
-              { issue: "App fatigue", detail: "Existing classroom tools are clunky, hard to use, and don't integrate with the LMS — students abandon them fast" },
+              { issue: "App fatigue", detail: "Tools that require downloads create friction — students won't install yet another app, and adoption drops fast" },
               { issue: "No LMS connection", detail: "Participation data lives in silos — never reaches the gradebook where it matters" },
             ].map((f) => (
               <div key={f.issue} className="flex gap-2 items-start">
@@ -153,14 +153,14 @@ export default function PitchDeck() {
       <div className="max-w-4xl w-full space-y-6">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Solution: FocusTap</h2>
         <p className="text-lg text-muted-foreground max-w-2xl">
-          A <span className="font-semibold text-foreground">dedicated mobile app</span> that turns phones from a distraction into an engagement tool. Students download FocusTap, tap an NFC tag to check in, track focus, and take notes — all in one place. Faculty get real-time data synced straight to Canvas.
+          A <span className="font-semibold text-foreground">browser-based web app</span> that turns devices from a distraction into an engagement tool. Students open FocusTap on any phone, laptop, or iPad — tap an NFC tag to check in, track focus, and take notes — all in one place. Faculty get real-time data synced straight to Canvas.
         </p>
 
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-3">
             <p className="text-xs font-semibold text-primary uppercase tracking-wider">For Students</p>
             {[
-              { icon: "📱", title: "NFC Tap-In", desc: "Download the app, tap phone on desk tag — instant check-in and session launch" },
+              { icon: "📱", title: "NFC Tap-In", desc: "Open the web app on any device, tap phone on desk tag — instant check-in and session launch" },
               { icon: "📊", title: "Live Focus Score", desc: "Browser visibility API tracks on-task time in real time — students see their own score" },
               { icon: "📝", title: "Built-In Notes", desc: "Rich text editor saved to their account per course — accessible anytime" },
               { icon: "📈", title: "Personal Insights", desc: "Session history, focus trends, and course performance — all in one dashboard" },
@@ -195,9 +195,9 @@ export default function PitchDeck() {
 
         <div className="grid grid-cols-3 gap-3">
           {[
-            { val: "1", label: "App to download" },
+            { val: "0", label: "Downloads needed" },
             { val: "<3s", label: "Check-in time" },
-            { val: "NFC", label: "Tap to join" },
+            { val: "Any", label: "Device works" },
           ].map((s) => (
             <div key={s.label} className="text-center p-3 rounded-xl bg-primary/5 border border-primary/10">
               <p className="text-2xl font-bold text-primary">{s.val}</p>
@@ -248,7 +248,7 @@ export default function PitchDeck() {
           <div className="p-5 rounded-xl border-2 border-primary/30 bg-primary/5 space-y-2">
             <p className="text-xs font-semibold text-primary uppercase tracking-wider">Year 1 · 2026</p>
             <p className="text-lg font-bold text-foreground">Free Pilot at Flagler</p>
-            <p className="text-xs text-muted-foreground">Deploy NFC tags campus-wide. Collect engagement, attendance, and focus data across 1,000+ students. Institution pays implementation fee only — zero subscription cost.</p>
+            <p className="text-xs text-muted-foreground">Roll out web platform campus-wide. Collect engagement, attendance, and focus data across 1,000+ students. Institution pays implementation fee only — zero subscription cost.</p>
           </div>
           <div className="p-5 rounded-xl border border-border bg-card space-y-2">
             <p className="text-xs font-semibold text-primary uppercase tracking-wider">Year 2 · 2027</p>
