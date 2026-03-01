@@ -5,10 +5,20 @@ import { ArrowLeft, ArrowRight, ChevronLeft, Maximize2, Minimize2 } from "lucide
 import focustapLogo from "@/assets/focustap-logo.png";
 import { Button } from "@/components/ui/button";
 import {
-  AreaChart, Area, BarChart, Bar, ComposedChart,
+  BarChart, Bar, ComposedChart,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from
 "recharts";
-import { defaultAssumptions, generateForecast, formatCurrency, formatPercent, computeNINVTotal, computeAnnualOpexTotal } from "@/lib/financialData";
+import { defaultAssumptions, generateForecast, formatCurrency, formatPercent, computeNINVTotal, computeAnnualOpexTotal, type Assumptions } from "@/lib/financialData";
+
+const STORAGE_KEY = "focustap_financial_assumptions";
+
+function loadAssumptions(): Assumptions {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return { ...defaultAssumptions, ...JSON.parse(raw) };
+  } catch {}
+  return defaultAssumptions;
+}
 
 const TOTAL_SLIDES = 5;
 
@@ -24,7 +34,7 @@ export default function PitchDeck() {
   const [slide, setSlide] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
 
-  const forecast = useMemo(() => generateForecast(defaultAssumptions), []);
+  const forecast = useMemo(() => generateForecast(loadAssumptions()), []);
   const chartData = forecast.map((d) => ({
     label: `${d.year.replace("FY ", "'")} ${d.quarter}`,
     totalRevenue: d.totalRevenue,
