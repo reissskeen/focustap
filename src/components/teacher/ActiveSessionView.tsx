@@ -80,8 +80,8 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
   const [roster, setRoster] = useState<RosterStudent[]>([]);
   const [demoSeats, setDemoSeats] = useState<DemoSeatRow[]>([]);
   const [ending, setEnding] = useState(false);
-  const [gridRows, setGridRows] = useState(5);
-  const [gridCols, setGridCols] = useState(5);
+  const gridRows = 5;
+  const gridCols = 5;
   const [tick, setTick] = useState(0);
 
   // 1-second tick for live alert updates
@@ -366,22 +366,6 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                 <List className="w-3.5 h-3.5" /> Roster
               </Button>
             </div>
-
-            {viewMode === "seats" && (
-              <div className="flex items-center gap-3">
-                {[
-                  { label: "Rows", value: gridRows, set: setGridRows, max: 20 },
-                  { label: "Cols", value: gridCols, set: setGridCols, max: 20 },
-                ].map(({ label, value, set, max }) => (
-                  <div key={label} className="flex items-center gap-1">
-                    <span className="text-[10px] font-medium text-muted-foreground">{label}</span>
-                    <button onClick={() => set((v) => Math.max(1, v - 1))} className="w-5 h-5 rounded border border-border text-xs font-bold hover:bg-muted transition-colors">−</button>
-                    <span className="w-5 text-center font-mono text-xs font-semibold">{value}</span>
-                    <button onClick={() => set((v) => Math.min(max, v + 1))} className="w-5 h-5 rounded border border-border text-xs font-bold hover:bg-muted transition-colors">+</button>
-                  </div>
-                ))}
-              </div>
-            )}
 
             {viewMode === "roster" && (
               <Button
