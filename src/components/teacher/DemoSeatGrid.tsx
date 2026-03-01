@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 interface DemoSeat {
@@ -77,11 +78,28 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5, refreshKey
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "demo_seats", filter: `session_id=eq.${sessionId}` },
-        () => fetchSeats()
+        (payload: RealtimePostgresChangesPayload<DemoSeat>) => {
+          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
+            const nextSeat = payload.new as DemoSeat;
+            setSeats((prev) => {
+              const idx = prev.findIndex((s) => s.id === nextSeat.id);
+              if (idx === -1) return [...prev, nextSeat];
+              const copy = [...prev];
+              copy[idx] = nextSeat;
+              return copy;
+            });
+            return;
+          }
+
+          // DELETE payloads may miss filtering columns depending on replica identity, so hard-refetch.
+          fetchSeats();
+        }
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [sessionId, fetchSeats]);
 
   // Build seat labels

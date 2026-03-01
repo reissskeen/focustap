@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import {
   Users, Clock, BarChart3, Download, Eye, Pause, UserCheck, LayoutGrid, List, ExternalLink, Smartphone, Copy,
   AlertTriangle, WifiOff, UserX,
@@ -36,6 +37,8 @@ interface DemoSeatRow {
   last_ping: string | null;
   focus_seconds: number;
 }
+
+type StudentSessionRealtimeRow = Omit<RosterStudent, "display_name">;
 
 interface ActiveSessionViewProps {
   session: Tables<"sessions">;
@@ -136,12 +139,56 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
 
     const rosterChannel = supabase
       .channel(`roster-${session.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "student_sessions", filter: `session_id=eq.${session.id}` }, () => fetchRoster())
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "student_sessions", filter: `session_id=eq.${session.id}` },
+        (payload: RealtimePostgresChangesPayload<StudentSessionRealtimeRow>) => {
+          if (payload.eventType === "UPDATE") {
+            const updated = payload.new as StudentSessionRealtimeRow;
+            setRoster((prev) =>
+              prev.map((student) =>
+                student.id === updated.id
+                  ? {
+                      ...student,
+                      focus_seconds: updated.focus_seconds,
+                      joined_at: updated.joined_at,
+                      last_heartbeat: updated.last_heartbeat,
+                      user_id: updated.user_id,
+                    }
+                  : student
+              )
+            );
+            return;
+          }
+
+          // INSERT/DELETE need a full pull to keep names and membership correct.
+          fetchRoster();
+        }
+      )
       .subscribe();
 
     const seatChannel = supabase
       .channel(`seat-alerts-${session.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "demo_seats", filter: `session_id=eq.${session.id}` }, () => fetchDemoSeats())
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "demo_seats", filter: `session_id=eq.${session.id}` },
+        (payload: RealtimePostgresChangesPayload<DemoSeatRow>) => {
+          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
+            const nextSeat = payload.new as DemoSeatRow;
+            setDemoSeats((prev) => {
+              const idx = prev.findIndex((s) => s.id === nextSeat.id);
+              if (idx === -1) return [...prev, nextSeat];
+              const copy = [...prev];
+              copy[idx] = nextSeat;
+              return copy;
+            });
+            return;
+          }
+
+          // DELETE payloads can be partial; hard-refetch for correctness.
+          fetchDemoSeats();
+        }
+      )
       .subscribe();
 
     return () => {
@@ -203,7 +250,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
       toast.error(`Failed to remove ${seatLabel}`);
     } else {
       toast.success(`${seatLabel} removed`);
-      fetchDemoSeats();
+      setDemoSeats((prev) => prev.filter((seat) => seat.seat_label !== seatLabel));
       setSeatRefreshKey((k) => k + 1);
     }
   };
@@ -451,7 +498,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
           ) : (
             <ScrollArea className="h-[400px]">
               <div className="divide-y divide-border/50">
-                {demoSeats
+                {[...demoSeats]
                   .sort((a, b) => {
                     const sa = getSeatStatus(a.last_ping);
                     const sb = getSeatStatus(b.last_ping);
