@@ -278,14 +278,16 @@ export default function PitchDeck() {
         {/* Revenue chart */}
         <div className="h-52">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={chartData}>
+            <ComposedChart data={filteredChartData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
               <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
               <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
               <Tooltip formatter={(v: number) => formatCurrency(v)} />
               <Legend />
-              <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="hsl(var(--primary))" />
-              <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="#3b82f6" />
+              <Bar dataKey="implementationRevenue" name="Impl. Fees" stackId="rev" fill="#10b981" />
+              <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill="#f59e0b" />
+              <Bar dataKey="expansionRevenue" name="Expansion" stackId="rev" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
