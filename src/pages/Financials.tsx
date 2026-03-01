@@ -130,7 +130,7 @@ export default function Financials() {
     { name: "Tier 3", value: lastQ.tier3Inst },
   ].filter(d => d.value > 0);
 
-  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "studentsPerInstitution" | "deskToStudentRatio" | "initialRolloutPercent" | "opexGrowthRate" | "annualChurnRate" | "saasCogsPct" | "pilotFreeInstitutions" | "postForecastHalfYearGrowth", value: string) => {
+  const updateScalar = (key: "nfcTagCost" | "nfcTagPrice" | "studentsPerInstitution" | "deskToStudentRatio" | "saasCogsPct" | "pilotFreeInstitutions" | "postForecastHalfYearGrowth", value: string) => {
     updateAssumptions(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
   };
 
@@ -554,9 +554,6 @@ export default function Financials() {
                       { key: "nfcTagPrice" as const, label: "NFC Tag Price ($)", step: 0.5 },
                       { key: "studentsPerInstitution" as const, label: "Students per Institution", step: 100 },
                       { key: "deskToStudentRatio" as const, label: "Desk:Student Ratio (1:X)", step: 0.1 },
-                      { key: "initialRolloutPercent" as const, label: "Initial Rollout %", step: 0.05 },
-                      { key: "opexGrowthRate" as const, label: "OPEX Growth/Yr", step: 0.05 },
-                      { key: "annualChurnRate" as const, label: "Annual Churn %", step: 0.01 },
                       { key: "saasCogsPct" as const, label: "SaaS COGS %", step: 0.01 },
                       { key: "pilotFreeInstitutions" as const, label: "Free Pilot Schools", step: 1 },
                       { key: "postForecastHalfYearGrowth" as const, label: "Post-2028 Growth (inst/half-yr)", step: 1 },
