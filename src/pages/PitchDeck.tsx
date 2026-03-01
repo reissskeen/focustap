@@ -30,6 +30,8 @@ export default function PitchDeck() {
     totalRevenue: d.totalRevenue,
     subscriptionRevenue: d.subscriptionRevenue,
     hardwareRevenue: d.hardwareRevenue,
+    implementationRevenue: d.implementationRevenue,
+    expansionRevenue: d.expansionRevenue,
     grossProfit: d.grossProfit,
     netIncome: d.netIncome,
     studentsDeployed: d.studentsDeployed,
@@ -37,12 +39,15 @@ export default function PitchDeck() {
   }));
 
   const lastQ = forecast[forecast.length - 1];
-  const totalRevY3 = forecast.filter((d) => d.year === "FY 2028").reduce((s, d) => s + d.totalRevenue, 0);
-  const annualData = ["FY 2026", "FY 2027", "FY 2028"].map((y) => {
+  const allYears = [...new Set(forecast.filter(d => ["FY 2026","FY 2027","FY 2028"].includes(d.year)).map(d => d.year))];
+  const annualData = allYears.map((y) => {
     const qs = forecast.filter((d) => d.year === y);
     return {
       year: y,
       revenue: qs.reduce((s, d) => s + d.totalRevenue, 0),
+      saas: qs.reduce((s, d) => s + d.subscriptionRevenue, 0),
+      hw: qs.reduce((s, d) => s + d.hardwareRevenue, 0),
+      impl: qs.reduce((s, d) => s + d.implementationRevenue, 0),
       grossProfit: qs.reduce((s, d) => s + d.grossProfit, 0),
       netIncome: qs.reduce((s, d) => s + d.netIncome, 0),
       institutions: qs[qs.length - 1].institutions,
@@ -50,8 +55,11 @@ export default function PitchDeck() {
     };
   });
 
+  const filteredChartData = chartData.filter(d => ["'2026","'2027","'2028"].some(y => d.label.startsWith(y)));
+
   const next = useCallback(() => setSlide((s) => Math.min(s + 1, TOTAL_SLIDES - 1)), []);
   const prev = useCallback(() => setSlide((s) => Math.max(s - 1, 0)), []);
+
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -214,24 +222,29 @@ export default function PitchDeck() {
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">3-Year Revenue Forecast</h2>
         <div className="grid md:grid-cols-3 gap-4 mb-2">
           {annualData.map((y) =>
-        <div key={y.year} className="p-4 rounded-xl border border-border bg-card text-center">
+        <div key={y.year} className="p-4 rounded-xl border border-border bg-card space-y-2">
               <p className="text-sm font-medium text-muted-foreground">{y.year}</p>
               <p className="text-2xl font-bold text-foreground mt-1">{formatCurrency(y.revenue)}</p>
-              <p className="text-xs text-muted-foreground">{y.institutions} institutions · {y.students.toLocaleString()} students</p>
+              <div className="text-xs text-muted-foreground space-y-0.5">
+                <p>SaaS: {formatCurrency(y.saas)} · HW: {formatCurrency(y.hw)} · Impl: {formatCurrency(y.impl)}</p>
+                <p>{y.institutions} institutions · {y.students.toLocaleString()} students</p>
+                <p>Net Income: <span className={y.netIncome >= 0 ? "text-primary" : "text-destructive"}>{formatCurrency(y.netIncome)}</span></p>
+              </div>
             </div>
         )}
         </div>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={chartData}>
+            <ComposedChart data={filteredChartData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
               <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
               <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
               <Tooltip formatter={(v: number) => formatCurrency(v)} />
               <Legend />
-              <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="hsl(217, 91%, 60%)" />
-              <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill="hsl(38, 92%, 50%)" radius={[4, 4, 0, 0]} />
-              <Area type="monotone" dataKey="grossProfit" name="Gross Profit" fill="hsl(160, 84%, 39%, 0.15)" stroke="hsl(160, 84%, 39%)" strokeWidth={2} />
+              <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="#3b82f6" />
+              <Bar dataKey="implementationRevenue" name="Impl. Fees" stackId="rev" fill="#10b981" />
+              <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill="#f59e0b" />
+              <Bar dataKey="expansionRevenue" name="Expansion" stackId="rev" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
