@@ -22,8 +22,8 @@ export type SeatStatus = "active" | "paused" | "disconnected";
 export const getSeatStatus = (lastPing: string | null): SeatStatus => {
   if (!lastPing) return "disconnected";
   const age = (Date.now() - new Date(lastPing).getTime()) / 1000;
-  if (age < 2) return "active";
-  if (age < 4) return "paused";
+  if (age < 3) return "active";
+  if (age < 8) return "paused";
   return "disconnected";
 };
 
@@ -122,7 +122,7 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeat
 
       {/* Grid */}
       <div
-        className="grid gap-2"
+        className="grid gap-px bg-border/30 rounded-lg overflow-hidden"
         style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
       >
         {seatLabels.map((label, i) => {
@@ -137,22 +137,22 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeat
             <motion.div
               key={label}
               layout
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.01 }}
+              transition={{ delay: i * 0.008 }}
               className={[
-                "relative flex flex-col items-center justify-center rounded-lg aspect-square max-w-[64px]",
-                "ring-1 transition-all duration-300 select-none",
+                "relative flex flex-col items-center justify-center aspect-square",
+                "transition-all duration-300 select-none",
                 cfg
-                  ? `${cfg.bg} ${cfg.ring}`
-                  : "bg-muted/20 ring-border/40",
+                  ? `${cfg.bg}`
+                  : "bg-muted/10",
                 status === "disconnected" && seat ? "animate-pulse" : "",
               ].join(" ")}
             >
               {/* Pulse ring for active */}
               {cfg?.pulse && (
                 <motion.div
-                  className="absolute inset-0 rounded-xl ring-1 ring-focus-active"
+                  className="absolute inset-0 ring-1 ring-focus-active/50"
                   animate={{ opacity: [0.6, 0, 0.6], scale: [1, 1.06, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                 />
@@ -161,7 +161,7 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeat
               {/* Warning flash for paused */}
               {status === "paused" && (
                 <motion.div
-                  className="absolute inset-0 rounded-xl bg-focus-paused/10"
+                  className="absolute inset-0 bg-focus-paused/10"
                   animate={{ opacity: [0, 0.3, 0] }}
                   transition={{ duration: 1, repeat: Infinity }}
                 />
