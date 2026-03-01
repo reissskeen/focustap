@@ -214,35 +214,37 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
   const demoUrl = `${window.location.origin}/demo?session_id=${session.id}`;
 
   return (
-    <>
-      {/* Header */}
+    <div className="space-y-5">
+      {/* Header — tight, confident */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6"
+        className="flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
-          <div>
-            <h1 className="font-display text-2xl font-bold">{course.name}</h1>
-            <p className="text-sm text-muted-foreground">
-              {course.section ? `${course.section} · ` : ""}
-              Live Session
-            </p>
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <BarChart3 className="w-5 h-5 text-primary" />
           </div>
-          {/* Live heartbeat indicator */}
-          <span className="relative flex h-3 w-3 ml-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-focus-active opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-focus-active"></span>
-          </span>
+          <div>
+            <h1 className="font-display text-xl font-bold leading-tight">{course.name}</h1>
+            <div className="flex items-center gap-2 mt-0.5">
+              {course.section && <span className="text-xs text-muted-foreground">{course.section}</span>}
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-focus-active opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-focus-active" />
+              </span>
+              <span className="text-xs font-medium text-focus-active">Live</span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => setShowNFC(!showNFC)}>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => setShowNFC(!showNFC)}>
             <Smartphone className="w-3.5 h-3.5" />
-            NFC Link
+            Share Link
           </Button>
-          <Button size="sm" variant="destructive" className="gap-1.5 text-xs" onClick={handleEndSession} disabled={ending}>
+          <Button size="sm" variant="destructive" className="gap-1.5 text-xs h-8" onClick={handleEndSession} disabled={ending}>
             <Pause className="w-3.5 h-3.5" />
-            {ending ? "Ending…" : "End Session"}
+            {ending ? "Ending…" : "End"}
           </Button>
         </div>
       </motion.div>
@@ -250,35 +252,50 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
       {/* NFC Link (collapsible) */}
       <AnimatePresence>
         {showNFC && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mb-6 overflow-hidden">
-            <div className="glass-card rounded-xl p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="flex-1 bg-muted/40 rounded-lg px-3 py-2 font-mono text-xs break-all select-all border border-border">
-                  {demoUrl}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1.5 shrink-0 text-xs"
-                  onClick={() => {
-                    navigator.clipboard.writeText(demoUrl);
-                    toast.success("Copied!");
-                  }}
-                >
-                  <Copy className="w-3.5 h-3.5" /> Copy
-                </Button>
-                <a href={demoUrl} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-                    <ExternalLink className="w-3.5 h-3.5" /> Open
-                  </Button>
-                </a>
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+            <div className="rounded-lg border border-border bg-muted/20 p-3 flex items-center gap-2">
+              <div className="flex-1 bg-background rounded px-3 py-2 font-mono text-xs break-all select-all border border-border/50">
+                {demoUrl}
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 shrink-0 text-xs h-8"
+                onClick={() => {
+                  navigator.clipboard.writeText(demoUrl);
+                  toast.success("Copied!");
+                }}
+              >
+                <Copy className="w-3.5 h-3.5" /> Copy
+              </Button>
+              <a href={demoUrl} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+                  <ExternalLink className="w-3.5 h-3.5" /> Open
+                </Button>
+              </a>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ===== DISCONNECTED WARNINGS — FIRST THING ===== */}
+      {/* Stats bar — compact, horizontal */}
+      <div className="grid grid-cols-4 gap-2">
+        {stats.map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.04 }}
+            className={`rounded-lg border p-3 ${stat.highlight ? "border-destructive/40 bg-destructive/5" : "border-border bg-card"}`}
+          >
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <stat.icon className={`w-3.5 h-3.5 ${stat.highlight ? "text-destructive" : "text-muted-foreground"}`} />
+              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{stat.label}</span>
+            </div>
+            <p className={`font-display text-xl font-bold ${stat.highlight ? "text-destructive" : "text-foreground"}`}>{stat.value}</p>
+          </motion.div>
+        ))}
+      </div>
       {disconnectedAlerts.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -550,7 +567,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
           )
         )}
       </motion.div>
-    </>
+    </div>
   );
 };
 

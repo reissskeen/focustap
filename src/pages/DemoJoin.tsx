@@ -185,45 +185,44 @@ export default function DemoJoin() {
     ping();
     pingRef.current = setInterval(ping, PING_INTERVAL_MS);
 
-    const sendDisconnect = () => {
-      // Use sendBeacon for reliable delivery on mobile tab close / swipe away
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/demo_seats?id=eq.${id}`;
-      const headers = {
-        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        "Content-Type": "application/json",
-        Prefer: "return=minimal",
-      };
-      const body = JSON.stringify({ last_ping: null });
-      // Try sendBeacon first (most reliable on mobile), fall back to sync fetch
-      if (navigator.sendBeacon) {
-        const blob = new Blob([body], { type: "application/json" });
-        // sendBeacon only does POST, so also fire a fetch as PATCH
-        fetch(url, { method: "PATCH", headers, body, keepalive: true }).catch(() => {});
-      } else {
-        fetch(url, { method: "PATCH", headers, body, keepalive: true }).catch(() => {});
-      }
+    // Build REST headers once for keepalive requests
+    const restUrl = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/demo_seats?id=eq.${id}`;
+    const restHeaders: Record<string, string> = {
+      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    };
+
+    // Send a final focus_seconds snapshot (keepalive) — does NOT null last_ping
+    // so the teacher dashboard sees the age grow naturally via the 1s tick
+    const sendFinalPing = () => {
+      const body = JSON.stringify({
+        last_ping: new Date().toISOString(),
+        focus_seconds: getElapsedSeconds(),
+      });
+      fetch(restUrl, { method: "PATCH", headers: restHeaders, body, keepalive: true }).catch(() => {});
     };
 
     const handleVisibility = () => {
       if (document.visibilityState === "hidden") {
-        sendDisconnect();
+        // Stop pinging — the age of last_ping will grow, naturally moving to paused → disconnected
+        if (pingRef.current) { clearInterval(pingRef.current); pingRef.current = null; }
+        sendFinalPing();
         pauseFocusTimer();
         setIsTabVisible(false);
       } else {
+        // Resume pinging immediately
         ping();
+        pingRef.current = setInterval(ping, PING_INTERVAL_MS);
         startFocusTimer();
         setIsTabVisible(true);
       }
     };
 
-    const handlePageHide = () => {
-      sendDisconnect();
-    };
-
-    const handleBeforeUnload = () => {
-      sendDisconnect();
-    };
+    // On true page close / swipe-kill, send one last snapshot
+    const handlePageHide = () => sendFinalPing();
+    const handleBeforeUnload = () => sendFinalPing();
 
     document.addEventListener("visibilitychange", handleVisibility);
     window.addEventListener("pagehide", handlePageHide);
