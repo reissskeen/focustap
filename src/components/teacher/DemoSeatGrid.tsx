@@ -15,6 +15,7 @@ interface DemoSeatGridProps {
   sessionId: string;
   rows?: number;
   cols?: number;
+  refreshKey?: number;
 }
 
 export type SeatStatus = "active" | "paused" | "disconnected";
@@ -45,7 +46,7 @@ export interface SeatAlert {
   secondsAgo: number;
 }
 
-export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeatGridProps) {
+export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5, refreshKey = 0 }: DemoSeatGridProps) {
   const [seats, setSeats] = useState<DemoSeat[]>([]);
   const [tick, setTick] = useState(0);
 
@@ -62,6 +63,11 @@ export default function DemoSeatGrid({ sessionId, rows = 5, cols = 5 }: DemoSeat
     const interval = setInterval(() => setTick((t) => t + 1), 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Refetch when refreshKey changes (e.g. after a removal)
+  useEffect(() => {
+    fetchSeats();
+  }, [refreshKey, fetchSeats]);
 
   useEffect(() => {
     fetchSeats();
