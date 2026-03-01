@@ -55,7 +55,7 @@ const features = [
 
 
 const steps = [
-{ number: "01", title: "Teacher starts a session", description: "Generate a QR code or share a link in your LMS." },
+{ number: "01", title: "Teacher starts a session", description: "Generate a URL code or share a link in your LMS." },
 { number: "02", title: "Students tap in", description: "Scan, tap, or click to join the session instantly." },
 { number: "03", title: "Take notes, stay focused", description: "The built-in editor tracks focus while students write." },
 { number: "04", title: "Review engagement", description: "See real-time and post-class focus analytics." }];
