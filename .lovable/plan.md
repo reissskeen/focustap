@@ -1,28 +1,36 @@
 
-# Improve Financial Graph Readability with Distinct Colors
 
-## Overview
-Update all charts on the Financials page to use distinct, vibrant colors for axes, grid lines, and data series so everything is easy to read at a glance.
+## Problem
 
-## Changes (single file: `src/pages/Financials.tsx`)
+The switch from fixed annual OPEX growth (30%/yr) to linear desk-proportional OPEX scaling caused break-even to jump from 33 to 42 months. With 15 institutions, OPEX becomes 15x the base — unrealistically high for a SaaS business that benefits from economies of scale.
 
-### 1. Define a rich color palette
-Add a dedicated `CHART_COLORS` constant with 6+ distinct colors for different data series (e.g., blue, emerald, amber, violet, rose, cyan), replacing the current muted HSL variable references that blend together.
+## Solution
 
-### 2. Update all chart data series colors
-- **Revenue tab (Stacked Bar)**: Each revenue stream gets a unique color -- SaaS Subscription (blue), Implementation Fees (emerald/green), NFC Hardware (amber/orange), Expansion (violet/purple)
-- **MRR Growth (Area)**: Use a distinct teal/cyan fill and stroke
-- **Tier Mix (Bar)**: Keep primary blue but brighten it
-- **Break-Even (Cumulative Profit Area)**: Use emerald green for profit area, red dashed line for NINV reference
-- **Institutions Bar**: Use a distinct indigo
+Replace the linear OPEX scaling with a **sub-linear (square root) scaling** model. This reflects the reality that:
+- Cloud infrastructure scales efficiently
+- Support and admin costs grow slower than deployment
+- Software maintenance is largely fixed
 
-### 3. Style chart axes and grid for contrast
-- Set explicit `stroke` color on `XAxis` and `YAxis` (e.g., a medium gray like `#6b7280`) and increase tick font size slightly for readability
-- Set `CartesianGrid` stroke to a lighter but visible gray (e.g., `#e5e7eb` light mode)
-- Add `axisLine` styling so the axis lines themselves are visible
+### Formula Change
 
-### 4. Improve Tooltip styling
-- Add custom `contentStyle` to Tooltip components with a white background, border, and shadow for better contrast against chart backgrounds
+**Current (linear):**
+```text
+opexScale = max(1, totalDesks / baseDesks)
+```
+15 schools -> 15x OPEX
 
-## Technical Details
-All changes are confined to `src/pages/Financials.tsx`. The color palette will use direct hex/HSL values for maximum control rather than CSS variables that may not render distinctly enough in chart contexts. Approximately 6-8 chart components will be updated with explicit color props on their `XAxis`, `YAxis`, `CartesianGrid`, `Bar`, `Area`, `Line`, and `Tooltip` elements.
+**Proposed (square root):**
+```text
+opexScale = max(1, sqrt(totalDesks / baseDesks))
+```
+15 schools -> ~3.9x OPEX
+
+This is a standard SaaS cost modeling approach — costs grow, but with diminishing marginal cost per additional unit.
+
+## File Changes
+
+### `src/lib/financialData.ts`
+- Line 218: Change `opexScale = Math.max(1, totalDesks / baseDesks)` to `opexScale = Math.max(1, Math.sqrt(totalDesks / baseDesks))`
+- Update the comment to reflect the sub-linear scaling rationale
+
+This single-line change will bring break-even back closer to the original ~33 months while maintaining the more realistic desk-proportional relationship (just with economies of scale built in).
