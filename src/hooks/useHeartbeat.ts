@@ -14,7 +14,7 @@ export function useHeartbeat({
   sessionId,
   userId,
   enabled,
-  intervalMs = 12000,
+  intervalMs = 1000,
 }: UseHeartbeatOptions) {
   const [status, setStatus] = useState<ConnectionStatus>("idle");
   const [focusSeconds, setFocusSeconds] = useState(0);
