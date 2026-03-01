@@ -54,16 +54,10 @@ export interface Assumptions {
   h2_2028: HalfYearAdoption;
   // Post-2028: steady-state new institutions per half-year (Tier 3)
   postForecastHalfYearGrowth: number;
-  // Rollout: fraction of desks deployed in first quarter at new institution
-  initialRolloutPercent: number;
-  // Fixed operating costs (annual)
+  // Fixed operating costs (annual, at base scale of 1 institution)
   annualOpex: AnnualOpex;
   // NINV (one-time initial investment)
   ninv: NINV;
-  // OPEX growth rate per year (infrastructure scaling)
-  opexGrowthRate: number;
-  // Retention
-  annualChurnRate: number;
   // SaaS COGS as % of subscription revenue
   saasCogsPct: number;
   // Free-pilot GTM: number of institutions offered free subscription (implementation fee only)
@@ -90,7 +84,7 @@ export const defaultAssumptions: Assumptions = {
   h2_2027: { tier3: 5 },
   h1_2028: { tier3: 8 },
   h2_2028: { tier3: 15 },
-  initialRolloutPercent: 0.25,
+  // initialRolloutPercent, annualChurnRate, opexGrowthRate removed — hardcoded in engine
   annualOpex: {
     cloudInfra: 2_400,
     softwareMaintenance: 8_000,
@@ -106,8 +100,6 @@ export const defaultAssumptions: Assumptions = {
     brandingWebsite: 2_500,
   },
   postForecastHalfYearGrowth: 4,
-  opexGrowthRate: 0.30,
-  annualChurnRate: 0.03,
   saasCogsPct: 0.15,
   pilotFreeInstitutions: 1,
 };
@@ -168,7 +160,11 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
 
   const ninvTotal = computeNINVTotal(a.ninv);
   const baseAnnualOpex = computeAnnualOpexTotal(a.annualOpex);
-
+  // Base desks at 1 institution — used to scale OPEX proportionally
+  const baseDesks = Math.ceil(a.studentsPerInstitution / a.deskToStudentRatio);
+  // Hardcoded constants (removed from editable assumptions)
+  const INITIAL_ROLLOUT_PCT = 0.25;
+  const ANNUAL_CHURN_RATE = 0.03;
   let cumT3 = 0;
   let cumulativeStudents = 0;
   let cumulativeRevenue = 0;
@@ -184,13 +180,13 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     cumT3 += newT3;
     const cumulativeInstitutions = cumT3;
 
-    const newStudentsFromNewInst = Math.round(newT3 * a.studentsPerInstitution * a.initialRolloutPercent);
+    const newStudentsFromNewInst = Math.round(newT3 * a.studentsPerInstitution * INITIAL_ROLLOUT_PCT);
     const maxStudents = cumulativeInstitutions * a.studentsPerInstitution;
     const rampStudents = Math.round((maxStudents - cumulativeStudents - newStudentsFromNewInst) * 0.3);
     const totalNewStudents = newStudentsFromNewInst + Math.max(0, rampStudents);
     cumulativeStudents = Math.min(maxStudents, cumulativeStudents + totalNewStudents);
 
-    const churnedStudents = Math.round(cumulativeStudents * (a.annualChurnRate / 4));
+    const churnedStudents = Math.round(cumulativeStudents * (ANNUAL_CHURN_RATE / 4));
     cumulativeStudents = Math.max(0, cumulativeStudents - churnedStudents);
 
     // Desk calculations: 1 desk (tag) per deskToStudentRatio students
@@ -218,7 +214,9 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const grossProfit = totalRevenue - totalCogs;
     const grossMargin = totalRevenue > 0 ? grossProfit / totalRevenue : 0;
 
-    const yearlyOpex = baseAnnualOpex * Math.pow(1 + a.opexGrowthRate, yearIndex);
+    // OPEX scales proportionally to desks deployed (relative to 1-school baseline)
+    const opexScale = Math.max(1, totalDesks / baseDesks);
+    const yearlyOpex = baseAnnualOpex * opexScale;
     const quarterlyOpex = yearlyOpex / 4;
 
     const ebitda = grossProfit - quarterlyOpex;
