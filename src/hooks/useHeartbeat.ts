@@ -21,9 +21,15 @@ export function useHeartbeat({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const focusRef = useRef(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const heartbeatInFlightRef = useRef(false);
+  const heartbeatFailuresRef = useRef(0);
 
   const sendHeartbeat = useCallback(async () => {
     if (!sessionId || !userId) return;
+    if (heartbeatInFlightRef.current) return;
+
+    heartbeatInFlightRef.current = true;
+
     try {
       const { error } = await supabase
         .from("student_sessions")
@@ -35,12 +41,21 @@ export function useHeartbeat({
         .eq("session_id", sessionId);
 
       if (error) {
-        setStatus("disconnected");
+        heartbeatFailuresRef.current += 1;
+        if (heartbeatFailuresRef.current >= 2) {
+          setStatus((prev) => (prev === "disconnected" ? prev : "disconnected"));
+        }
       } else {
-        setStatus("connected");
+        heartbeatFailuresRef.current = 0;
+        setStatus((prev) => (prev === "connected" ? prev : "connected"));
       }
     } catch {
-      setStatus("disconnected");
+      heartbeatFailuresRef.current += 1;
+      if (heartbeatFailuresRef.current >= 2) {
+        setStatus((prev) => (prev === "disconnected" ? prev : "disconnected"));
+      }
+    } finally {
+      heartbeatInFlightRef.current = false;
     }
   }, [sessionId, userId]);
 
@@ -74,6 +89,9 @@ export function useHeartbeat({
       setStatus("idle");
       return;
     }
+
+    heartbeatFailuresRef.current = 0;
+    heartbeatInFlightRef.current = false;
 
     // Focus counter (1s tick, only when visible)
     const startFocusTick = () => {

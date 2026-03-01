@@ -33,6 +33,8 @@ export default function DemoJoin() {
   const pingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seatIdRef = useRef<string | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
+  const pingInFlightRef = useRef(false);
+  const pingFailuresRef = useRef(0);
 
   // Focus timer state
   const [focusSeconds, setFocusSeconds] = useState(0);
@@ -175,15 +177,45 @@ export default function DemoJoin() {
   }, [sessionId]);
 
   const startPing = (id: string) => {
-    if (pingRef.current) clearInterval(pingRef.current);
+    if (pingRef.current) {
+      clearInterval(pingRef.current);
+      pingRef.current = null;
+    }
+
+    pingInFlightRef.current = false;
+    pingFailuresRef.current = 0;
+
     const ping = async () => {
-      await supabase
-        .from("demo_seats")
-        .update({ last_ping: new Date().toISOString(), focus_seconds: getElapsedSeconds() } as any)
-        .eq("id", id);
+      if (pingInFlightRef.current) return;
+
+      pingInFlightRef.current = true;
+      try {
+        const { error } = await supabase
+          .from("demo_seats")
+          .update({ last_ping: new Date().toISOString(), focus_seconds: getElapsedSeconds() } as any)
+          .eq("id", id);
+
+        if (error) {
+          pingFailuresRef.current += 1;
+        } else {
+          pingFailuresRef.current = 0;
+        }
+      } finally {
+        pingInFlightRef.current = false;
+      }
     };
-    ping();
-    pingRef.current = setInterval(ping, PING_INTERVAL_MS);
+
+    const startPingInterval = () => {
+      if (pingRef.current) {
+        clearInterval(pingRef.current);
+      }
+      pingRef.current = setInterval(() => {
+        void ping();
+      }, PING_INTERVAL_MS);
+    };
+
+    void ping();
+    startPingInterval();
 
     // Build REST headers once for keepalive requests
     const restUrl = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/demo_seats?id=eq.${id}`;
@@ -207,14 +239,17 @@ export default function DemoJoin() {
     const handleVisibility = () => {
       if (document.visibilityState === "hidden") {
         // Stop pinging — the age of last_ping will grow, naturally moving to paused → disconnected
-        if (pingRef.current) { clearInterval(pingRef.current); pingRef.current = null; }
+        if (pingRef.current) {
+          clearInterval(pingRef.current);
+          pingRef.current = null;
+        }
         sendFinalPing();
         pauseFocusTimer();
         setIsTabVisible(false);
       } else {
         // Resume pinging immediately
-        ping();
-        pingRef.current = setInterval(ping, PING_INTERVAL_MS);
+        void ping();
+        startPingInterval();
         startFocusTimer();
         setIsTabVisible(true);
       }
