@@ -83,6 +83,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
   const gridRows = 5;
   const gridCols = 5;
   const [tick, setTick] = useState(0);
+  const [seatRefreshKey, setSeatRefreshKey] = useState(0);
 
   // 1-second tick for live alert updates
   useEffect(() => {
@@ -203,6 +204,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
     } else {
       toast.success(`${seatLabel} removed`);
       fetchDemoSeats();
+      setSeatRefreshKey((k) => k + 1);
     }
   };
 
@@ -382,7 +384,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
           {/* Grid view */}
           {viewMode === "seats" && (
             <div className="p-3">
-              <DemoSeatGrid sessionId={session.id} rows={gridRows} cols={gridCols} />
+              <DemoSeatGrid sessionId={session.id} rows={gridRows} cols={gridCols} refreshKey={seatRefreshKey} />
             </div>
           )}
 
