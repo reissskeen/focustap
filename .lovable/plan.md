@@ -1,36 +1,27 @@
 
 
-## Problem
+## Update Pitch Deck: Web App Messaging
 
-The switch from fixed annual OPEX growth (30%/yr) to linear desk-proportional OPEX scaling caused break-even to jump from 33 to 42 months. With 15 institutions, OPEX becomes 15x the base — unrealistically high for a SaaS business that benefits from economies of scale.
+Replace all references to "downloading an app" with web-app-first messaging. FocusTap is a browser-based platform that works on any device -- no app store, no downloads.
 
-## Solution
+### Changes in `src/pages/PitchDeck.tsx`
 
-Replace the linear OPEX scaling with a **sub-linear (square root) scaling** model. This reflects the reality that:
-- Cloud infrastructure scales efficiently
-- Support and admin costs grow slower than deployment
-- Software maintenance is largely fixed
+**Slide 0 (Title) -- Line 93**
+- Change subtitle from "NFC-Powered Classroom Engagement & Attendance" to "Browser-Based Classroom Engagement & Attendance"
 
-### Formula Change
+**Slide 1 (Problem) -- Line 135**
+- Update "App fatigue" item: change "Existing classroom tools are clunky, hard to use, and don't integrate with the LMS -- students abandon them fast" to reference that tools requiring downloads create friction and low adoption
 
-**Current (linear):**
-```text
-opexScale = max(1, totalDesks / baseDesks)
-```
-15 schools -> 15x OPEX
+**Slide 2 (Solution) -- Lines 156-206**
+- Change "A dedicated mobile app" to "A web app" in the description paragraph
+- Remove "download FocusTap" language -- replace with "open FocusTap in any browser"
+- Update student feature "NFC Tap-In" description: remove "Download the app" and replace with "Open the web app on any device"
+- Change the bottom stats row:
+  - "1 App to download" becomes "0 Downloads" 
+  - "NFC Tap to join" becomes "Any Device" (phone, laptop, iPad)
+  - Keep "<3s Check-in time"
 
-**Proposed (square root):**
-```text
-opexScale = max(1, sqrt(totalDesks / baseDesks))
-```
-15 schools -> ~3.9x OPEX
+**Slide 4 (Go-to-Market) -- Line 251**
+- Update Year 1 description: remove "Deploy NFC tags campus-wide" and replace with web-app deployment language (e.g., "Roll out web platform campus-wide")
 
-This is a standard SaaS cost modeling approach — costs grow, but with diminishing marginal cost per additional unit.
-
-## File Changes
-
-### `src/lib/financialData.ts`
-- Line 218: Change `opexScale = Math.max(1, totalDesks / baseDesks)` to `opexScale = Math.max(1, Math.sqrt(totalDesks / baseDesks))`
-- Update the comment to reflect the sub-linear scaling rationale
-
-This single-line change will bring break-even back closer to the original ~33 months while maintaining the more realistic desk-proportional relationship (just with economies of scale built in).
+These are purely text/content changes in a single file with no structural or logic modifications.
