@@ -14,14 +14,13 @@ export function useHeartbeat({
   sessionId,
   userId,
   enabled,
-  intervalMs = 12000, // ~12s, within the 10-15s range
+  intervalMs = 12000,
 }: UseHeartbeatOptions) {
   const [status, setStatus] = useState<ConnectionStatus>("idle");
   const [focusSeconds, setFocusSeconds] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const focusRef = useRef(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const isVisibleRef = useRef(document.visibilityState === "visible");
 
   const sendHeartbeat = useCallback(async () => {
     if (!sessionId || !userId) return;
@@ -45,18 +44,30 @@ export function useHeartbeat({
     }
   }, [sessionId, userId]);
 
-  // Log focus events
-  const logFocusEvent = useCallback(
-    async (eventType: "start" | "pause" | "resume") => {
-      if (!sessionId || !userId) return;
-      await supabase.from("focus_events").insert({
-        user_id: userId,
-        session_id: sessionId,
-        event_type: eventType,
+  // Send a final keepalive heartbeat (survives page unload)
+  const sendFinalHeartbeat = useCallback(() => {
+    if (!sessionId || !userId) return;
+    const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/student_sessions?user_id=eq.${userId}&session_id=eq.${sessionId}`;
+    const body = JSON.stringify({
+      last_heartbeat: new Date().toISOString(),
+      focus_seconds: focusRef.current,
+    });
+    try {
+      fetch(url, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Prefer: "return=minimal",
+        },
+        body,
+        keepalive: true,
       });
-    },
-    [sessionId, userId]
-  );
+    } catch {
+      // best-effort
+    }
+  }, [sessionId, userId]);
 
   useEffect(() => {
     if (!enabled || !sessionId || !userId) {
@@ -80,33 +91,49 @@ export function useHeartbeat({
       }
     };
 
-    const handleVisibility = () => {
-      const visible = document.visibilityState === "visible";
-      isVisibleRef.current = visible;
-      if (visible) {
-        startFocusTick();
-        logFocusEvent("resume");
-      } else {
-        stopFocusTick();
-        logFocusEvent("pause");
+    const stopHeartbeat = () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
 
+    const startHeartbeat = () => {
+      if (intervalRef.current) return;
+      intervalRef.current = setInterval(sendHeartbeat, intervalMs);
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        startFocusTick();
+        startHeartbeat();
+        sendHeartbeat(); // immediate resume heartbeat
+      } else {
+        stopFocusTick();
+        stopHeartbeat();
+        sendFinalHeartbeat(); // one last ping with keepalive
+      }
+    };
+
+    const handlePageHide = () => {
+      sendFinalHeartbeat();
+    };
+
     // Start
-    logFocusEvent("start");
     if (document.visibilityState === "visible") startFocusTick();
     sendHeartbeat(); // immediate first heartbeat
-
-    intervalRef.current = setInterval(sendHeartbeat, intervalMs);
+    startHeartbeat();
 
     document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("pagehide", handlePageHide);
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      stopHeartbeat();
       stopFocusTick();
       document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pagehide", handlePageHide);
     };
-  }, [enabled, sessionId, userId, sendHeartbeat, intervalMs, logFocusEvent]);
+  }, [enabled, sessionId, userId, sendHeartbeat, sendFinalHeartbeat, intervalMs]);
 
   return { status, focusSeconds };
 }
