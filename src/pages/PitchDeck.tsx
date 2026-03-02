@@ -273,11 +273,11 @@ export default function PitchDeck() {
         <div className="grid md:grid-cols-3 gap-4">
           <div className="p-5 rounded-xl border-2 border-primary/30 bg-primary/5 space-y-2">
             <p className="text-xs font-semibold text-primary uppercase tracking-wider">Phase 1 · Now</p>
-            <p className="text-lg font-bold text-foreground">Bootstrap & Build</p>
-            <p className="text-xs text-muted-foreground">Self-funded development using founder capital and sweat equity. Minimal burn — browser-based architecture means no hardware R&D costs upfront. Goal: ship MVP and launch the Flagler pilot.</p>
-            <div className="mt-2 pt-2 border-t border-border">
-              <p className="text-xs font-semibold text-foreground">Target: $0 raised</p>
-              <p className="text-[11px] text-muted-foreground">0% dilution · Founder-funded</p>
+            <p className="text-lg font-bold text-foreground">Angel Investment + Small Grants</p>
+            <p className="text-xs text-muted-foreground">Secure early capital through <span className="font-semibold text-foreground">angel investors</span>, pitch competition winnings, and small innovation grants to fund MVP development and the Flagler College pilot. Minimal burn — browser-based architecture keeps costs low.</p>
+            <div className="mt-2 pt-2 border-t border-border space-y-1">
+              <p className="text-xs font-semibold text-foreground">Target: $25K–$75K</p>
+              <p className="text-[11px] text-muted-foreground">Angel checks · Competition prizes · Micro-grants</p>
             </div>
           </div>
           <div className="p-5 rounded-xl border-2 border-green-500/30 bg-green-500/5 space-y-2">
