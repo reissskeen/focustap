@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers, Target, Wallet, Lock, Unlock, Save } from "lucide-react";
@@ -15,9 +15,9 @@ import {
 import {
   defaultAssumptions, generateForecast, formatCurrency, formatPercent,
   TIERS, computeNINVTotal, computeAnnualOpexTotal, computeBreakEven,
-  loadAssumptions, ASSUMPTIONS_STORAGE_KEY, ASSUMPTIONS_BASELINE_VERSION,
   type Assumptions, type HalfYearAdoption, type AnnualOpex, type NINV,
 } from "@/lib/financialData";
+import { useFinancialAssumptions } from "@/hooks/useFinancialAssumptions";
 
 const KPICard = ({ title, value, subtitle, icon: Icon, accent }: { title: string; value: string; subtitle: string; icon: any; accent?: boolean }) => (
   <Card className={`border-border/60 ${accent ? "border-primary/40 bg-primary/5" : ""}`}>
@@ -54,17 +54,14 @@ const TOOLTIP_STYLE = { backgroundColor: "#fff", border: "1px solid #e5e7eb", bo
 const TIER_COLORS = [CHART_COLORS.institutions, CHART_COLORS.expansion, CHART_COLORS.saas];
 
 export default function Financials() {
-  const [assumptions, setAssumptions] = useState<Assumptions>(loadAssumptions);
-  const [savedAssumptions, setSavedAssumptions] = useState<Assumptions>(loadAssumptions);
-  const [savedIndicator, setSavedIndicator] = useState(false);
+  const {
+    assumptions, setAssumptions,
+    hasUnsavedChanges, save: saveAssumptions, saving,
+    savedIndicator, loading: assumptionsLoading,
+  } = useFinancialAssumptions();
   const [showAssumptions, setShowAssumptions] = useState(false);
   const [accessCode, setAccessCode] = useState("");
   const [codeError, setCodeError] = useState(false);
-
-  const hasUnsavedChanges = useMemo(
-    () => JSON.stringify(assumptions) !== JSON.stringify(savedAssumptions),
-    [assumptions, savedAssumptions],
-  );
 
   const handleUnlock = () => {
     if (accessCode === "1195") {
@@ -80,18 +77,6 @@ export default function Financials() {
     setAssumptions(prev => updater(prev));
   };
 
-  // Persist to localStorage on explicit save
-  const saveAssumptions = useCallback(() => {
-    try {
-      localStorage.setItem(
-        ASSUMPTIONS_STORAGE_KEY,
-        JSON.stringify({ ...assumptions, __baselineVersion: ASSUMPTIONS_BASELINE_VERSION }),
-      );
-    } catch { /* ignore */ }
-    setSavedAssumptions(assumptions);
-    setSavedIndicator(true);
-    setTimeout(() => setSavedIndicator(false), 2000);
-  }, [assumptions]);
   const forecast = useMemo(() => generateForecast(assumptions), [assumptions]);
 
   const ninvTotal = useMemo(() => computeNINVTotal(assumptions.ninv), [assumptions.ninv]);
