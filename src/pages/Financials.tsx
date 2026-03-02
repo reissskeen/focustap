@@ -15,7 +15,7 @@ import {
 import {
   defaultAssumptions, generateForecast, formatCurrency, formatPercent,
   TIERS, computeNINVTotal, computeAnnualOpexTotal, computeBreakEven,
-  loadAssumptions, ASSUMPTIONS_STORAGE_KEY,
+  loadAssumptions, ASSUMPTIONS_STORAGE_KEY, ASSUMPTIONS_BASELINE_VERSION,
   type Assumptions, type HalfYearAdoption, type AnnualOpex, type NINV,
 } from "@/lib/financialData";
 
@@ -74,7 +74,10 @@ export default function Financials() {
     setAssumptions(prev => {
       const next = updater(prev);
       try {
-        localStorage.setItem(ASSUMPTIONS_STORAGE_KEY, JSON.stringify(next));
+        localStorage.setItem(
+          ASSUMPTIONS_STORAGE_KEY,
+          JSON.stringify({ ...next, __baselineVersion: ASSUMPTIONS_BASELINE_VERSION }),
+        );
       } catch { /* ignore */ }
       setSavedIndicator(true);
       setTimeout(() => setSavedIndicator(false), 1500);

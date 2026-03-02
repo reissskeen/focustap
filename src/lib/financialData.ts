@@ -340,12 +340,22 @@ export function computeBreakEven(forecast: YearlyFinancials[], ninvTotal: number
   return { operatingBreakEvenQ, fullBreakEvenQ, monthsToOperating, monthsToFull };
 }
 
-export const ASSUMPTIONS_STORAGE_KEY = "focustap_financial_assumptions_v2";
+export const ASSUMPTIONS_STORAGE_KEY = "focustap_financial_assumptions_v3";
+export const ASSUMPTIONS_BASELINE_VERSION = 3;
+
+type StoredAssumptions = Partial<Assumptions> & {
+  __baselineVersion?: number;
+};
 
 export function loadAssumptions(): Assumptions {
   try {
     const raw = localStorage.getItem(ASSUMPTIONS_STORAGE_KEY);
-    if (raw) return { ...defaultAssumptions, ...JSON.parse(raw) };
+    if (raw) {
+      const parsed = JSON.parse(raw) as StoredAssumptions;
+      if (parsed.__baselineVersion === ASSUMPTIONS_BASELINE_VERSION) {
+        return { ...defaultAssumptions, ...parsed };
+      }
+    }
   } catch {}
   return defaultAssumptions;
 }
