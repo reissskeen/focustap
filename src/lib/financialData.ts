@@ -170,6 +170,8 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
   let cumulativeRevenue = 0;
   let cumulativeProfit = 0;
 
+  let ninvExpensed = false; // track whether NINV has been booked
+
   // Helper to process one quarter
   const processQuarter = (
     yearLabel: string,
@@ -177,6 +179,7 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     yearIndex: number,   // 0-based from 2026
     newT3: number,
   ) => {
+    const prevCumT3 = cumT3;
     cumT3 += newT3;
     const cumulativeInstitutions = cumT3;
 
@@ -194,12 +197,24 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const totalDesks = desksForStudents(cumulativeStudents);
     const newDesks = Math.max(0, desksForStudents(totalNewStudents));
 
-    const hardwareRevenue = newDesks * a.nfcTagPrice;
-    const hardwareCogs = newDesks * a.nfcTagCost;
+    // --- Pilot logic: pilot institutions get ZERO revenue (we absorb all costs) ---
+    // Determine how many of the new institutions are pilot (free) vs paid
+    const pilotSlots = Math.max(0, a.pilotFreeInstitutions - prevCumT3);
+    const newPilotInst = Math.min(newT3, pilotSlots);
+    const newPaidInst = newT3 - newPilotInst;
+
+    // Hardware: we always pay COGS, but only charge paid institutions
+    const paidNewDesks = newPaidInst > 0 && newT3 > 0
+      ? Math.round(newDesks * (newPaidInst / newT3))
+      : 0;
+    const hardwareRevenue = paidNewDesks * a.nfcTagPrice;
+    const hardwareCogs = newDesks * a.nfcTagCost; // we pay for ALL tags including pilot
     const hardwareGrossProfit = hardwareRevenue - hardwareCogs;
 
-    const implementationRevenue = newT3 * desksForStudents(a.studentsPerInstitution) * TIERS[3].implementationFeePerTag;
+    // Implementation: only charge paid institutions
+    const implementationRevenue = newPaidInst * desksForStudents(a.studentsPerInstitution) * TIERS[3].implementationFeePerTag;
 
+    // Subscription: only paid institutions generate subscription revenue
     const paidInstitutions = Math.max(0, cumulativeInstitutions - a.pilotFreeInstitutions);
     const paidStudents = paidInstitutions > 0 && cumulativeInstitutions > 0
       ? Math.round(cumulativeStudents * (paidInstitutions / cumulativeInstitutions))
@@ -219,7 +234,11 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const yearlyOpex = baseAnnualOpex * opexScale;
     const quarterlyOpex = yearlyOpex / 4;
 
-    const ebitda = grossProfit - quarterlyOpex;
+    // NINV is expensed as a one-time cost in the first quarter
+    const ninvThisQuarter = !ninvExpensed ? ninvTotal : 0;
+    ninvExpensed = true;
+
+    const ebitda = grossProfit - quarterlyOpex - ninvThisQuarter;
     const ebitdaMargin = totalRevenue > 0 ? ebitda / totalRevenue : 0;
     const netIncome = ebitda;
 
