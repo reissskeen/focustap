@@ -75,15 +75,15 @@ export function computeAnnualOpexTotal(opex: AnnualOpex): number {
 export const defaultAssumptions: Assumptions = {
   nfcTagCost: 0.50,
   nfcTagPrice: 2.00,
-  studentsPerInstitution: 1000,
+  studentsPerInstitution: 2500,
   deskToStudentRatio: 2.5,
-  // Adoption timeline: Flagler free pilot Q3 2026 → 3 schools by H1 2027 → 5 by H2 2027 → 8 by H1 2028 → 15 by H2 2028
+  // Adoption timeline: Flagler free pilot Q3 2026 → hold at 1 by H1 2027 → 2 by H2 2027 → 4 by H1 2028 → 7 by H2 2028
   h1_2026: { tier3: 0 },
   h2_2026: { tier3: 1 },
-  h1_2027: { tier3: 3 },
-  h2_2027: { tier3: 5 },
-  h1_2028: { tier3: 8 },
-  h2_2028: { tier3: 15 },
+  h1_2027: { tier3: 1 },
+  h2_2027: { tier3: 2 },
+  h1_2028: { tier3: 4 },
+  h2_2028: { tier3: 7 },
   // initialRolloutPercent, annualChurnRate, opexGrowthRate removed — hardcoded in engine
   annualOpex: {
     cloudInfra: 2_400,
@@ -340,7 +340,7 @@ export function computeBreakEven(forecast: YearlyFinancials[], ninvTotal: number
   return { operatingBreakEvenQ, fullBreakEvenQ, monthsToOperating, monthsToFull };
 }
 
-export const ASSUMPTIONS_STORAGE_KEY = "focustap_financial_assumptions";
+export const ASSUMPTIONS_STORAGE_KEY = "focustap_financial_assumptions_v2";
 
 export function loadAssumptions(): Assumptions {
   try {
