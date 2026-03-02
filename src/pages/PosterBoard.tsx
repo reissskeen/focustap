@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { defaultAssumptions, generateForecast, formatCurrency } from "@/lib/financialData";
+import { loadAssumptions, generateForecast, formatCurrency } from "@/lib/financialData";
 
 function Section({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
   return (
@@ -17,7 +17,7 @@ function Section({ title, children, className = "" }: { title: string; children:
 }
 
 export default function PosterBoard() {
-  const forecast = useMemo(() => generateForecast(defaultAssumptions), []);
+  const forecast = useMemo(() => generateForecast(loadAssumptions()), []);
   const annualData = ["FY 2026", "FY 2027", "FY 2028"].map((y) => {
     const qs = forecast.filter((d) => d.year === y);
     return {

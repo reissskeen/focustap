@@ -15,6 +15,7 @@ import {
 import {
   defaultAssumptions, generateForecast, formatCurrency, formatPercent,
   TIERS, computeNINVTotal, computeAnnualOpexTotal, computeBreakEven,
+  loadAssumptions, ASSUMPTIONS_STORAGE_KEY,
   type Assumptions, type HalfYearAdoption, type AnnualOpex, type NINV,
 } from "@/lib/financialData";
 
@@ -52,22 +53,6 @@ const TOOLTIP_STYLE = { backgroundColor: "#fff", border: "1px solid #e5e7eb", bo
 
 const TIER_COLORS = [CHART_COLORS.institutions, CHART_COLORS.expansion, CHART_COLORS.saas];
 
-const STORAGE_KEY = "focustap_financial_assumptions";
-
-function loadAssumptions(): Assumptions {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      // Merge with defaults to handle new keys added in future
-      return { ...defaultAssumptions, ...parsed };
-    }
-  } catch {
-    // ignore parse errors
-  }
-  return defaultAssumptions;
-}
-
 export default function Financials() {
   const [assumptions, setAssumptions] = useState<Assumptions>(loadAssumptions);
   const [savedIndicator, setSavedIndicator] = useState(false);
@@ -89,7 +74,7 @@ export default function Financials() {
     setAssumptions(prev => {
       const next = updater(prev);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        localStorage.setItem(ASSUMPTIONS_STORAGE_KEY, JSON.stringify(next));
       } catch { /* ignore */ }
       setSavedIndicator(true);
       setTimeout(() => setSavedIndicator(false), 1500);
