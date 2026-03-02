@@ -66,7 +66,7 @@ export default function PitchDeck() {
     };
   });
 
-  
+
 
   const next = useCallback(() => setSlide((s) => Math.min(s + 1, TOTAL_SLIDES - 1)), []);
   const prev = useCallback(() => setSlide((s) => Math.max(s - 1, 0)), []);
@@ -175,17 +175,17 @@ export default function PitchDeck() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { stat: "23 min", label: "to refocus after a single distraction", source: "University of California Irvine" },
-            { stat: "95%", label: "of teens own a smartphone", source: "Pew Research Center" },
-            { stat: "90%+", label: "of students use phones in lectures for non-academic purposes", source: "Junco, 2012; McCoy, 2016" },
-            { stat: "5–8 min", label: "average interval between phone checks during lectures", source: "Classroom observation studies" },
-          ].map((d) => (
-            <div key={d.stat} className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-center space-y-1.5">
+        { stat: "23 min", label: "to refocus after a single distraction", source: "University of California Irvine" },
+        { stat: "95%", label: "of teens own a smartphone", source: "Pew Research Center" },
+        { stat: "90%+", label: "of students use phones in lectures for non-academic purposes", source: "Junco, 2012; McCoy, 2016" },
+        { stat: "5–8 min", label: "average interval between phone checks during lectures", source: "Classroom observation studies" }].
+        map((d) =>
+        <div key={d.stat} className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-center space-y-1.5">
               <p className="text-3xl md:text-4xl font-black text-destructive">{d.stat}</p>
               <p className="text-xs font-medium text-foreground leading-tight">{d.label}</p>
               <p className="text-[10px] text-muted-foreground italic">{d.source}</p>
             </div>
-          ))}
+        )}
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
@@ -193,18 +193,18 @@ export default function PitchDeck() {
             <p className="text-sm font-semibold text-foreground">Impact on Grades</p>
             <div className="space-y-2.5">
               {[
-                { fact: "0.36 GPA points lower", detail: "for heavy in-class phone multitaskers", ref: "Junco, 2012" },
-                { fact: "30–35% lower test scores", detail: "on material covered while texting or browsing", ref: "Sana et al., 2013" },
-                { fact: "3.52× phone checks/hour", detail: "negatively correlated with academic performance", ref: "Joshi et al., 2022" },
-              ].map((f) => (
-                <div key={f.fact} className="flex gap-2 items-start">
+            { fact: "0.36 GPA points lower", detail: "for heavy in-class phone multitaskers", ref: "Junco, 2012" },
+            { fact: "30–35% lower test scores", detail: "on material covered while texting or browsing", ref: "Sana et al., 2013" },
+            { fact: "3.52× phone checks/hour", detail: "negatively correlated with academic performance", ref: "Joshi et al., 2022" }].
+            map((f) =>
+            <div key={f.fact} className="flex gap-2 items-start">
                   <span className="text-destructive font-bold shrink-0 mt-0.5">↓</span>
                   <div>
                     <p className="text-xs font-semibold text-foreground">{f.fact}</p>
                     <p className="text-[11px] text-muted-foreground">{f.detail} <span className="italic">({f.ref})</span></p>
                   </div>
                 </div>
-              ))}
+            )}
             </div>
           </div>
 
@@ -212,19 +212,19 @@ export default function PitchDeck() {
             <p className="text-sm font-semibold text-foreground">What Happens When Phones Are Managed</p>
             <div className="space-y-2.5">
               {[
-                { fact: "6.3% test score increase", detail: "overall when schools banned phones", ref: "Beland & Murphy, 2016 — LSE" },
-                { fact: "14% increase", detail: "for low-performing students specifically", ref: "Beland & Murphy, 2016 — LSE" },
-                { fact: "72% of HS teachers", detail: "say cellphone distraction is a major classroom problem", ref: "Pew Research, 2024" },
-                { fact: "53% of school leaders", detail: "report negative impacts on academic performance & mental health", ref: "National survey data" },
-              ].map((f) => (
-                <div key={f.fact} className="flex gap-2 items-start">
+            { fact: "6.3% test score increase", detail: "overall when schools banned phones", ref: "Beland & Murphy, 2016 — LSE" },
+            { fact: "14% increase", detail: "for low-performing students specifically", ref: "Beland & Murphy, 2016 — LSE" },
+            { fact: "72% of HS teachers", detail: "say cellphone distraction is a major classroom problem", ref: "Pew Research, 2024" },
+            { fact: "53% of school leaders", detail: "report negative impacts on academic performance & mental health", ref: "National survey data" }].
+            map((f) =>
+            <div key={f.fact} className="flex gap-2 items-start">
                   <span className="text-primary font-bold shrink-0 mt-0.5">↑</span>
                   <div>
                     <p className="text-xs font-semibold text-foreground">{f.fact}</p>
                     <p className="text-[11px] text-muted-foreground">{f.detail} <span className="italic">({f.ref})</span></p>
                   </div>
                 </div>
-              ))}
+            )}
             </div>
           </div>
         </div>
@@ -331,7 +331,9 @@ export default function PitchDeck() {
       <div className="max-w-4xl w-full space-y-6">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">Funding Strategy</h2>
         <p className="text-base text-muted-foreground max-w-2xl">
+          
           A capital-efficient path from bootstrapped launch to grant-funded growth — minimizing dilution while maximizing proof.
+        
         </p>
 
         {/* Funding timeline */}
@@ -342,7 +344,7 @@ export default function PitchDeck() {
             <p className="text-xs text-muted-foreground">Self-funded development using founder capital and sweat equity. Minimal burn — browser-based architecture means no hardware R&D costs upfront. Goal: ship MVP and launch the Flagler pilot.</p>
             <div className="mt-2 pt-2 border-t border-border">
               <p className="text-xs font-semibold text-foreground">Target: $0 raised</p>
-              <p className="text-[11px] text-muted-foreground">0% dilution · Founder-funded</p>
+              <p className="text-[11px] text-muted-foreground">10% dilution · Founder-funded</p>
             </div>
           </div>
           <div className="p-5 rounded-xl border-2 border-green-500/30 bg-green-500/5 space-y-2">
@@ -351,16 +353,16 @@ export default function PitchDeck() {
             <p className="text-xs text-muted-foreground">Apply for the <span className="font-semibold">Call for Effective Technology (CET) Grant</span> — $150K–$250K for AI-driven edtech tested with real students. Flagler pilot data is the proof. Also pursue NSF SBIR/STTR and state education innovation grants.</p>
             <div className="mt-2 pt-2 border-t border-border">
               <p className="text-xs font-semibold text-foreground">Target: $150K–$250K</p>
-              <p className="text-[11px] text-muted-foreground">0% dilution · Non-dilutive capital</p>
+              <p className="text-[11px] text-muted-foreground">10% dilution · Non-dilutive capital</p>
             </div>
           </div>
           <div className="p-5 rounded-xl border border-border bg-card space-y-2">
-            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Phase 3 · Profitable Growth</p>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Post-pilot, FocusTap is profitable with recurring SaaS revenue. To accelerate national expansion, we pursue a combination of strategic equity placement (10–20% to an edtech-aligned partner) and venture debt — preserving founder control while funding sales infrastructure and enterprise onboarding.</p>
              <p className="text-lg font-bold text-foreground">Strategic Equity + Growth Capital</p>
              <p className="text-xs text-muted-foreground">Post-pilot, FocusTap is profitable with recurring SaaS revenue. To accelerate national expansion, we pursue a combination of strategic equity placement (5–10% to an edtech-aligned partner) and venture debt — preserving founder control while funding sales infrastructure and enterprise onboarding.</p>
             <div className="mt-2 pt-2 border-t border-border">
               <p className="text-xs font-semibold text-foreground">Target: $300K–$500K total</p>
-              <p className="text-[11px] text-muted-foreground">≤10% dilution · Grant-heavy mix</p>
+              <p className="text-[11px] text-muted-foreground">≤20% dilution · Grant-heavy mix</p>
             </div>
           </div>
         </div>
@@ -369,9 +371,7 @@ export default function PitchDeck() {
         <div className="p-5 rounded-xl bg-muted/50 border border-border space-y-3">
           <p className="text-sm font-semibold text-foreground">Grant Pipeline</p>
           <div className="grid md:grid-cols-2 gap-3">
-            {[
-          { name: "CET Grant", amount: "$150K–$250K", fit: "Primary target — FocusTap is classroom-tested edtech, a perfect fit" },
-          { name: "NSF SBIR Phase I", amount: "$275K", fit: "NSF backing adds credibility; supports software/edtech innovation" },
+            {[{ name: "CET Grant", amount: "$150K–$250K", fit: "Primary target — FocusTap is classroom-tested edtech, a perfect fit" }, { name: "NSF SBIR Phase I", amount: "$275K", fit: "NSF backing adds credibility; supports software/edtech innovation" },
           { name: "University Innovation Funds", amount: "$10K–$50K", fit: "Many universities offer internal grants for technology improving student outcomes" },
           { name: "State Education Grants", amount: "$25K–$100K", fit: "State-level programs funding technology adoption in higher education" }].
           map((g) =>
