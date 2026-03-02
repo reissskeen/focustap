@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers, Target, Wallet, Lock, Unlock } from "lucide-react";
+import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers, Target, Wallet, Lock, Unlock, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -55,10 +55,16 @@ const TIER_COLORS = [CHART_COLORS.institutions, CHART_COLORS.expansion, CHART_CO
 
 export default function Financials() {
   const [assumptions, setAssumptions] = useState<Assumptions>(loadAssumptions);
+  const [savedAssumptions, setSavedAssumptions] = useState<Assumptions>(loadAssumptions);
   const [savedIndicator, setSavedIndicator] = useState(false);
   const [showAssumptions, setShowAssumptions] = useState(false);
   const [accessCode, setAccessCode] = useState("");
   const [codeError, setCodeError] = useState(false);
+
+  const hasUnsavedChanges = useMemo(
+    () => JSON.stringify(assumptions) !== JSON.stringify(savedAssumptions),
+    [assumptions, savedAssumptions],
+  );
 
   const handleUnlock = () => {
     if (accessCode === "1195") {
@@ -69,21 +75,23 @@ export default function Financials() {
     }
   };
 
-  // Auto-save to localStorage whenever assumptions change
+  // Stage assumption edits without persisting
   const updateAssumptions = (updater: (prev: Assumptions) => Assumptions) => {
-    setAssumptions(prev => {
-      const next = updater(prev);
-      try {
-        localStorage.setItem(
-          ASSUMPTIONS_STORAGE_KEY,
-          JSON.stringify({ ...next, __baselineVersion: ASSUMPTIONS_BASELINE_VERSION }),
-        );
-      } catch { /* ignore */ }
-      setSavedIndicator(true);
-      setTimeout(() => setSavedIndicator(false), 1500);
-      return next;
-    });
+    setAssumptions(prev => updater(prev));
   };
+
+  // Persist to localStorage on explicit save
+  const saveAssumptions = useCallback(() => {
+    try {
+      localStorage.setItem(
+        ASSUMPTIONS_STORAGE_KEY,
+        JSON.stringify({ ...assumptions, __baselineVersion: ASSUMPTIONS_BASELINE_VERSION }),
+      );
+    } catch { /* ignore */ }
+    setSavedAssumptions(assumptions);
+    setSavedIndicator(true);
+    setTimeout(() => setSavedIndicator(false), 2000);
+  }, [assumptions]);
   const forecast = useMemo(() => generateForecast(assumptions), [assumptions]);
 
   const ninvTotal = useMemo(() => computeNINVTotal(assumptions.ninv), [assumptions.ninv]);
@@ -172,11 +180,6 @@ export default function Financials() {
             <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
               Enterprise B2B SaaS · March 2026
             </span>
-            {savedIndicator && (
-              <span className="text-xs text-primary animate-in fade-in slide-in-from-left-2 duration-300">
-                ✓ Auto-saved
-              </span>
-            )}
           </div>
           <div className="flex items-center gap-2">
             
@@ -469,8 +472,18 @@ export default function Financials() {
           <TabsContent value="assumptions">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div />
+                <div>
+                  {hasUnsavedChanges && (
+                    <span className="text-xs text-destructive/80 font-medium">● Unsaved changes</span>
+                  )}
+                  {savedIndicator && (
+                    <span className="text-xs text-primary font-medium animate-in fade-in duration-300">✓ Saved</span>
+                  )}
+                </div>
                 <div className="flex gap-2">
+                  <Button size="sm" className="gap-1.5" disabled={!hasUnsavedChanges} onClick={saveAssumptions}>
+                    <Save className="w-3.5 h-3.5" /> Save Changes
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => updateAssumptions(() => defaultAssumptions)}>
                     Reset to Defaults
                   </Button>
