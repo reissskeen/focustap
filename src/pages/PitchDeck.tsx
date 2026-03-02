@@ -10,7 +10,7 @@ import {
 "recharts";
 import { defaultAssumptions, generateForecast, formatCurrency, formatPercent, computeNINVTotal, computeAnnualOpexTotal, loadAssumptions, ASSUMPTIONS_STORAGE_KEY, type Assumptions } from "@/lib/financialData";
 
-const TOTAL_SLIDES = 5;
+const TOTAL_SLIDES = 6;
 
 function SlideWrapper({ children }: {children: React.ReactNode;}) {
   return (
@@ -173,7 +173,71 @@ export default function PitchDeck() {
       </div>
     </SlideWrapper>,
 
-  // Slide 2 — The Solution (What Is FocusTap?)
+  // Slide 2 — The Research
+  <SlideWrapper key="research">
+      <div className="max-w-4xl w-full space-y-6">
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Research Is Clear</h2>
+        <p className="text-sm text-muted-foreground">Peer-reviewed studies paint a consistent picture: phones destroy focus and tank grades.</p>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { stat: "23 min", label: "to refocus after a single distraction", source: "University of California Irvine" },
+            { stat: "95%", label: "of teens own a smartphone", source: "Pew Research Center" },
+            { stat: "90%+", label: "of students use phones in lectures for non-academic purposes", source: "Junco, 2012; McCoy, 2016" },
+            { stat: "5–8 min", label: "average interval between phone checks during lectures", source: "Classroom observation studies" },
+          ].map((d) => (
+            <div key={d.stat} className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-center space-y-1.5">
+              <p className="text-3xl md:text-4xl font-black text-destructive">{d.stat}</p>
+              <p className="text-xs font-medium text-foreground leading-tight">{d.label}</p>
+              <p className="text-[10px] text-muted-foreground italic">{d.source}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="p-5 rounded-xl bg-muted/50 border border-border space-y-3">
+            <p className="text-sm font-semibold text-foreground">Impact on Grades</p>
+            <div className="space-y-2.5">
+              {[
+                { fact: "0.36 GPA points lower", detail: "for heavy in-class phone multitaskers", ref: "Junco, 2012" },
+                { fact: "30–35% lower test scores", detail: "on material covered while texting or browsing", ref: "Sana et al., 2013" },
+                { fact: "3.52× phone checks/hour", detail: "negatively correlated with academic performance", ref: "Joshi et al., 2022" },
+              ].map((f) => (
+                <div key={f.fact} className="flex gap-2 items-start">
+                  <span className="text-destructive font-bold shrink-0 mt-0.5">↓</span>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">{f.fact}</p>
+                    <p className="text-[11px] text-muted-foreground">{f.detail} <span className="italic">({f.ref})</span></p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-5 rounded-xl bg-primary/5 border border-primary/10 space-y-3">
+            <p className="text-sm font-semibold text-foreground">What Happens When Phones Are Managed</p>
+            <div className="space-y-2.5">
+              {[
+                { fact: "6.3% test score increase", detail: "overall when schools banned phones", ref: "Beland & Murphy, 2016 — LSE" },
+                { fact: "14% increase", detail: "for low-performing students specifically", ref: "Beland & Murphy, 2016 — LSE" },
+                { fact: "72% of HS teachers", detail: "say cellphone distraction is a major classroom problem", ref: "Pew Research, 2024" },
+                { fact: "53% of school leaders", detail: "report negative impacts on academic performance & mental health", ref: "National survey data" },
+              ].map((f) => (
+                <div key={f.fact} className="flex gap-2 items-start">
+                  <span className="text-primary font-bold shrink-0 mt-0.5">↑</span>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">{f.fact}</p>
+                    <p className="text-[11px] text-muted-foreground">{f.detail} <span className="italic">({f.ref})</span></p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </SlideWrapper>,
+
+  // Slide 3 — The Solution (What Is FocusTap?)
   <SlideWrapper key="solution">
       <div className="max-w-4xl w-full space-y-6">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">The Solution: FocusTap</h2>
