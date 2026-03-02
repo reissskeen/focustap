@@ -25,13 +25,20 @@ export default function PitchDeck() {
   const [fullscreen, setFullscreen] = useState(false);
   const [assumptionsVersion, setAssumptionsVersion] = useState(0);
 
-  // Re-compute forecast when assumptions change in another tab/page
+  // Re-compute forecast when assumptions change (cross-tab, navigation, or window focus)
   useEffect(() => {
-    const handler = (e: StorageEvent) => {
+    const storageHandler = (e: StorageEvent) => {
       if (e.key === ASSUMPTIONS_STORAGE_KEY) setAssumptionsVersion((v) => v + 1);
     };
-    window.addEventListener("storage", handler);
-    return () => window.removeEventListener("storage", handler);
+    const focusHandler = () => setAssumptionsVersion((v) => v + 1);
+    window.addEventListener("storage", storageHandler);
+    window.addEventListener("focus", focusHandler);
+    // Also bump on mount so navigating here always picks up latest
+    setAssumptionsVersion((v) => v + 1);
+    return () => {
+      window.removeEventListener("storage", storageHandler);
+      window.removeEventListener("focus", focusHandler);
+    };
   }, []);
 
   const forecast = useMemo(() => generateForecast(loadAssumptions()), [assumptionsVersion]);
