@@ -65,7 +65,7 @@ export default function PitchDeck() {
     };
   });
 
-  const filteredChartData = chartData.filter((d) => ["'2026", "'2027", "'2028"].some((y) => d.label.startsWith(y)));
+  
 
   const next = useCallback(() => setSlide((s) => Math.min(s + 1, TOTAL_SLIDES - 1)), []);
   const prev = useCallback(() => setSlide((s) => Math.max(s - 1, 0)), []);
@@ -245,7 +245,7 @@ export default function PitchDeck() {
         </div>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={filteredChartData}>
+            <ComposedChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
               <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
               <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
