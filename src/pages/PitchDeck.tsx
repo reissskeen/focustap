@@ -8,17 +8,7 @@ import {
   BarChart, Bar, ComposedChart,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from
 "recharts";
-import { defaultAssumptions, generateForecast, formatCurrency, formatPercent, computeNINVTotal, computeAnnualOpexTotal, type Assumptions } from "@/lib/financialData";
-
-const STORAGE_KEY = "focustap_financial_assumptions";
-
-function loadAssumptions(): Assumptions {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return { ...defaultAssumptions, ...JSON.parse(raw) };
-  } catch {}
-  return defaultAssumptions;
-}
+import { defaultAssumptions, generateForecast, formatCurrency, formatPercent, computeNINVTotal, computeAnnualOpexTotal, loadAssumptions, ASSUMPTIONS_STORAGE_KEY, type Assumptions } from "@/lib/financialData";
 
 const TOTAL_SLIDES = 5;
 
@@ -33,8 +23,18 @@ function SlideWrapper({ children }: {children: React.ReactNode;}) {
 export default function PitchDeck() {
   const [slide, setSlide] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
+  const [assumptionsVersion, setAssumptionsVersion] = useState(0);
 
-  const forecast = useMemo(() => generateForecast(loadAssumptions()), []);
+  // Re-compute forecast when assumptions change in another tab/page
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key === ASSUMPTIONS_STORAGE_KEY) setAssumptionsVersion((v) => v + 1);
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
+
+  const forecast = useMemo(() => generateForecast(loadAssumptions()), [assumptionsVersion]);
   const chartData = forecast.map((d) => ({
     label: `${d.year.replace("FY ", "'")} ${d.quarter}`,
     totalRevenue: d.totalRevenue,

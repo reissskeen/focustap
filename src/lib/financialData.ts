@@ -340,6 +340,16 @@ export function computeBreakEven(forecast: YearlyFinancials[], ninvTotal: number
   return { operatingBreakEvenQ, fullBreakEvenQ, monthsToOperating, monthsToFull };
 }
 
+export const ASSUMPTIONS_STORAGE_KEY = "focustap_financial_assumptions";
+
+export function loadAssumptions(): Assumptions {
+  try {
+    const raw = localStorage.getItem(ASSUMPTIONS_STORAGE_KEY);
+    if (raw) return { ...defaultAssumptions, ...JSON.parse(raw) };
+  } catch {}
+  return defaultAssumptions;
+}
+
 export function formatCurrency(value: number): string {
   if (Math.abs(value) >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
   if (Math.abs(value) >= 1_000) return `$${(value / 1_000).toFixed(0)}K`;
