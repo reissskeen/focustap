@@ -221,6 +221,34 @@ export default function Financials() {
           <KPICard title="Gross Margin" value={formatPercent(lastQ.grossMargin)} subtitle="End of forecast period" icon={BarChart3} />
         </motion.div>
 
+        {/* Unit Economics */}
+        {lastQ.studentsDeployed > 0 && (() => {
+          const totalStudents = lastQ.studentsDeployed;
+          const totalCogs = forecast.reduce((s, d) => s + d.totalCogs, 0);
+          const revPerStudent = lastQ.arr / totalStudents;
+          const vcPerStudent = (totalCogs / forecast.length) * 4 / totalStudents; // annualized
+          const cmPerStudent = revPerStudent - vcPerStudent;
+          const beStudents = cmPerStudent > 0 ? Math.ceil((ninvTotal + annualOpexTotal) / cmPerStudent) : Infinity;
+          const beInstitutions = cmPerStudent > 0 ? Math.ceil(beStudents / assumptions.studentsPerInstitution) : Infinity;
+          const cac = lastQ.institutions > 0 ? assumptions.annualOpex.salesOutreach / lastQ.institutions : 0;
+          const monthlyRevPerInst = lastQ.institutions > 0 ? lastQ.mrr / lastQ.institutions : 0;
+          const paybackMonths = monthlyRevPerInst > 0 ? Math.round(cac / monthlyRevPerInst) : Infinity;
+          return (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-2">
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Unit Economics</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                <KPICard title="Var. Cost / Student" value={`$${vcPerStudent.toFixed(2)}`} subtitle="Annualized COGS" icon={DollarSign} />
+                <KPICard title="CM / Student" value={`$${cmPerStudent.toFixed(2)}`} subtitle="Contribution margin" icon={TrendingUp} />
+                <KPICard title="BE Students" value={beStudents === Infinity ? "N/A" : beStudents.toLocaleString()} subtitle="To cover fixed costs" icon={Target} accent />
+                <KPICard title="BE Institutions" value={beInstitutions === Infinity ? "N/A" : beInstitutions.toString()} subtitle={`@ ${assumptions.studentsPerInstitution.toLocaleString()} students ea.`} icon={Building2} accent />
+                <KPICard title="Marginal Profit" value={`$${cmPerStudent.toFixed(2)}`} subtitle="Per student added" icon={Layers} />
+                <KPICard title="CAC" value={formatCurrency(cac)} subtitle="Per institution" icon={Wallet} />
+                <KPICard title="Payback Period" value={paybackMonths === Infinity ? "N/A" : `${paybackMonths} mo`} subtitle="Months to recover CAC" icon={BarChart3} />
+              </div>
+            </motion.div>
+          );
+        })()}
+
         <Tabs defaultValue="revenue" className="space-y-4">
           <TabsList className="bg-muted">
             <TabsTrigger value="revenue">Revenue</TabsTrigger>
