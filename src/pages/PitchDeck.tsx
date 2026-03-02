@@ -49,7 +49,7 @@ export default function PitchDeck() {
   }));
 
   const lastQ = forecast[forecast.length - 1];
-  const allYears = [...new Set(forecast.filter(d => ["FY 2026","FY 2027","FY 2028"].includes(d.year)).map(d => d.year))];
+  const allYears = [...new Set(forecast.filter((d) => ["FY 2026", "FY 2027", "FY 2028"].includes(d.year)).map((d) => d.year))];
   const annualData = allYears.map((y) => {
     const qs = forecast.filter((d) => d.year === y);
     return {
@@ -65,7 +65,7 @@ export default function PitchDeck() {
     };
   });
 
-  const filteredChartData = chartData.filter(d => ["'2026","'2027","'2028"].some(y => d.label.startsWith(y)));
+  const filteredChartData = chartData.filter((d) => ["'2026", "'2027", "'2028"].some((y) => d.label.startsWith(y)));
 
   const next = useCallback(() => setSlide((s) => Math.min(s + 1, TOTAL_SLIDES - 1)), []);
   const prev = useCallback(() => setSlide((s) => Math.max(s - 1, 0)), []);
@@ -148,19 +148,19 @@ export default function PitchDeck() {
           <p className="text-sm font-semibold text-foreground">Why existing solutions fail</p>
           <div className="grid md:grid-cols-2 gap-3">
             {[
-              { issue: "Manual attendance", detail: "Paper sign-ins are slow, inaccurate, and easy to fake — faculty waste 5–10 min per class" },
-              { issue: "No focus visibility", detail: "Faculty have zero data on whether students are actually engaged or just present" },
-              { issue: "App fatigue", detail: "Tools that require downloads create friction — students won't install yet another app, and adoption drops fast" },
-              { issue: "No LMS connection", detail: "Participation data lives in silos — never reaches the gradebook where it matters" },
-            ].map((f) => (
-              <div key={f.issue} className="flex gap-2 items-start">
+          { issue: "Manual attendance", detail: "Paper sign-ins are slow, inaccurate, and easy to fake — faculty waste 5–10 min per class" },
+          { issue: "No focus visibility", detail: "Faculty have zero data on whether students are actually engaged or just present" },
+          { issue: "App fatigue", detail: "Tools that require downloads create friction — students won't install yet another app, and adoption drops fast" },
+          { issue: "No LMS connection", detail: "Participation data lives in silos — never reaches the gradebook where it matters" }].
+          map((f) =>
+          <div key={f.issue} className="flex gap-2 items-start">
                 <span className="text-destructive font-bold shrink-0 mt-0.5">✗</span>
                 <div>
                   <p className="text-xs font-semibold text-foreground">{f.issue}</p>
                   <p className="text-xs text-muted-foreground">{f.detail}</p>
                 </div>
               </div>
-            ))}
+          )}
           </div>
         </div>
       </div>
@@ -178,50 +178,50 @@ export default function PitchDeck() {
           <div className="space-y-3">
             <p className="text-xs font-semibold text-primary uppercase tracking-wider">For Students</p>
             {[
-              { icon: "📱", title: "NFC Tap-In", desc: "Open the web app on any device, tap phone on desk tag — instant check-in and session launch" },
-              { icon: "📊", title: "Live Focus Score", desc: "Browser visibility API tracks on-task time in real time — students see their own score" },
-              { icon: "📝", title: "Built-In Notes", desc: "Rich text editor saved to their account per course — accessible anytime" },
-              { icon: "📈", title: "Personal Insights", desc: "Session history, focus trends, and course performance — all in one dashboard" },
-            ].map((f) => (
-              <div key={f.title} className="flex gap-3 items-start p-3 rounded-lg bg-muted/50">
+          { icon: "📱", title: "NFC Tap-In", desc: "Open the web app on any device, tap phone on desk tag — instant check-in and session launch" },
+          { icon: "📊", title: "Live Focus Score", desc: "Browser visibility API tracks on-task time in real time — students see their own score" },
+          { icon: "📝", title: "Built-In Notes", desc: "Rich text editor saved to their account per course — accessible anytime" },
+          { icon: "📈", title: "Personal Insights", desc: "Session history, focus trends, and course performance — all in one dashboard" }].
+          map((f) =>
+          <div key={f.title} className="flex gap-3 items-start p-3 rounded-lg bg-muted/50">
                 <span className="text-xl shrink-0">{f.icon}</span>
                 <div>
                   <p className="text-sm font-semibold text-foreground">{f.title}</p>
                   <p className="text-xs text-muted-foreground">{f.desc}</p>
                 </div>
               </div>
-            ))}
+          )}
           </div>
           <div className="space-y-3">
             <p className="text-xs font-semibold text-primary uppercase tracking-wider">For Faculty</p>
             {[
-              { icon: "✅", title: "Auto Attendance", desc: "NFC tap = verified check-in. No paper, no manual entry, no buddy-signing" },
-              { icon: "🎯", title: "Participation Grades", desc: "Focus scores translate directly into gradeable participation metrics" },
-              { icon: "🔗", title: "Canvas LMS Sync", desc: "Attendance & focus data auto-push to Canvas gradebook via LTI integration" },
-              { icon: "📋", title: "Class Analytics", desc: "Real-time dashboard showing who's present, focused, and falling behind" },
-            ].map((f) => (
-              <div key={f.title} className="flex gap-3 items-start p-3 rounded-lg bg-muted/50">
+          { icon: "✅", title: "Auto Attendance", desc: "NFC tap = verified check-in. No paper, no manual entry, no buddy-signing" },
+          { icon: "🎯", title: "Participation Grades", desc: "Focus scores translate directly into gradeable participation metrics" },
+          { icon: "🔗", title: "Canvas LMS Sync", desc: "Attendance & focus data auto-push to Canvas gradebook via LTI integration" },
+          { icon: "📋", title: "Class Analytics", desc: "Real-time dashboard showing who's present, focused, and falling behind" }].
+          map((f) =>
+          <div key={f.title} className="flex gap-3 items-start p-3 rounded-lg bg-muted/50">
                 <span className="text-xl shrink-0">{f.icon}</span>
                 <div>
                   <p className="text-sm font-semibold text-foreground">{f.title}</p>
                   <p className="text-xs text-muted-foreground">{f.desc}</p>
                 </div>
               </div>
-            ))}
+          )}
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           {[
-            { val: "0", label: "Downloads needed" },
-            { val: "<3s", label: "Check-in time" },
-            { val: "Any", label: "Device works" },
-          ].map((s) => (
-            <div key={s.label} className="text-center p-3 rounded-xl bg-primary/5 border border-primary/10">
+        { val: "0", label: "Downloads needed" },
+        { val: "<3s", label: "Check-in time" },
+        { val: "Any", label: "Device works" }].
+        map((s) =>
+        <div key={s.label} className="text-center p-3 rounded-xl bg-primary/5 border border-primary/10">
               <p className="text-2xl font-bold text-primary">{s.val}</p>
               <p className="text-xs text-muted-foreground">{s.label}</p>
             </div>
-          ))}
+        )}
         </div>
       </div>
     </SlideWrapper>,
@@ -273,11 +273,11 @@ export default function PitchDeck() {
         <div className="grid md:grid-cols-3 gap-4">
           <div className="p-5 rounded-xl border-2 border-primary/30 bg-primary/5 space-y-2">
             <p className="text-xs font-semibold text-primary uppercase tracking-wider">Phase 1 · Now</p>
-            <p className="text-lg font-bold text-foreground">Angel Investment + Small Grants</p>
-            <p className="text-xs text-muted-foreground">Secure early capital through <span className="font-semibold text-foreground">angel investors</span>, pitch competition winnings, and small innovation grants to fund MVP development and the Flagler College pilot. Minimal burn — browser-based architecture keeps costs low.</p>
-            <div className="mt-2 pt-2 border-t border-border space-y-1">
-              <p className="text-xs font-semibold text-foreground">Target: $25K–$75K</p>
-              <p className="text-[11px] text-muted-foreground">Angel checks · Competition prizes · Micro-grants</p>
+            <p className="text-lg font-bold text-foreground">                  Small Grants + Angel Investments   </p>
+            <p className="text-xs text-muted-foreground">Self-funded development using founder capital and sweat equity. Minimal burn — browser-based architecture means no hardware R&D costs upfront. Goal: ship MVP and launch the Flagler pilot.</p>
+            <div className="mt-2 pt-2 border-t border-border">
+              <p className="text-xs font-semibold text-foreground">Target: $0 raised</p>
+              <p className="text-[11px] text-muted-foreground">0% dilution · Founder-funded</p>
             </div>
           </div>
           <div className="p-5 rounded-xl border-2 border-green-500/30 bg-green-500/5 space-y-2">
@@ -305,19 +305,19 @@ export default function PitchDeck() {
           <p className="text-sm font-semibold text-foreground">Grant Pipeline</p>
           <div className="grid md:grid-cols-2 gap-3">
             {[
-              { name: "CET Grant", amount: "$150K–$250K", fit: "Primary target — FocusTap is classroom-tested edtech, a perfect fit" },
-              { name: "NSF SBIR Phase I", amount: "$275K", fit: "NSF backing adds credibility; supports software/edtech innovation" },
-              { name: "University Innovation Funds", amount: "$10K–$50K", fit: "Many universities offer internal grants for technology improving student outcomes" },
-              { name: "State Education Grants", amount: "$25K–$100K", fit: "State-level programs funding technology adoption in higher education" },
-            ].map((g) => (
-              <div key={g.name} className="flex gap-2 items-start">
+          { name: "CET Grant", amount: "$150K–$250K", fit: "Primary target — FocusTap is classroom-tested edtech, a perfect fit" },
+          { name: "NSF SBIR Phase I", amount: "$275K", fit: "NSF backing adds credibility; supports software/edtech innovation" },
+          { name: "University Innovation Funds", amount: "$10K–$50K", fit: "Many universities offer internal grants for technology improving student outcomes" },
+          { name: "State Education Grants", amount: "$25K–$100K", fit: "State-level programs funding technology adoption in higher education" }].
+          map((g) =>
+          <div key={g.name} className="flex gap-2 items-start">
                 <span className="text-green-600 dark:text-green-400 font-bold shrink-0 mt-0.5">✓</span>
                 <div>
                   <p className="text-xs font-semibold text-foreground">{g.name} <span className="text-muted-foreground font-normal">· {g.amount}</span></p>
                   <p className="text-xs text-muted-foreground">{g.fit}</p>
                 </div>
               </div>
-            ))}
+          )}
           </div>
         </div>
 
@@ -330,9 +330,9 @@ export default function PitchDeck() {
           </div>
         </div>
       </div>
-    </SlideWrapper>,
+    </SlideWrapper>];
 
-  ];
+
 
 
   return (
