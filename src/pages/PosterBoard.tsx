@@ -1,9 +1,10 @@
 import focustapLogo from "@/assets/focustap-logo.png";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { loadAssumptions, generateForecast, formatCurrency } from "@/lib/financialData";
+import { defaultAssumptions, generateForecast, formatCurrency } from "@/lib/financialData";
+import { loadAssumptionsFromDB } from "@/hooks/useFinancialAssumptions";
 
 function Section({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
   return (
@@ -17,7 +18,9 @@ function Section({ title, children, className = "" }: { title: string; children:
 }
 
 export default function PosterBoard() {
-  const forecast = useMemo(() => generateForecast(loadAssumptions()), []);
+  const [assumptions, setAssumptions] = useState(defaultAssumptions);
+  useEffect(() => { loadAssumptionsFromDB().then(setAssumptions); }, []);
+  const forecast = useMemo(() => generateForecast(assumptions), [assumptions]);
   const annualData = ["FY 2026", "FY 2027", "FY 2028"].map((y) => {
     const qs = forecast.filter((d) => d.year === y);
     return {

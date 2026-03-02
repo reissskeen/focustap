@@ -8,7 +8,8 @@ import {
   BarChart, Bar, ComposedChart,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from
 "recharts";
-import { defaultAssumptions, generateForecast, formatCurrency, formatPercent, computeNINVTotal, computeAnnualOpexTotal, loadAssumptions, ASSUMPTIONS_STORAGE_KEY, type Assumptions } from "@/lib/financialData";
+import { defaultAssumptions, generateForecast, formatCurrency, formatPercent, computeNINVTotal, computeAnnualOpexTotal, type Assumptions } from "@/lib/financialData";
+import { loadAssumptionsFromDB } from "@/hooks/useFinancialAssumptions";
 
 const TOTAL_SLIDES = 6;
 
@@ -23,25 +24,18 @@ function SlideWrapper({ children }: {children: React.ReactNode;}) {
 export default function PitchDeck() {
   const [slide, setSlide] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
-  const [assumptionsVersion, setAssumptionsVersion] = useState(0);
+  const [loadedAssumptions, setLoadedAssumptions] = useState<Assumptions>(defaultAssumptions);
 
-  // Re-compute forecast when assumptions change (cross-tab, navigation, or window focus)
+  // Load assumptions from DB on mount and on focus
   useEffect(() => {
-    const storageHandler = (e: StorageEvent) => {
-      if (e.key === ASSUMPTIONS_STORAGE_KEY) setAssumptionsVersion((v) => v + 1);
-    };
-    const focusHandler = () => setAssumptionsVersion((v) => v + 1);
-    window.addEventListener("storage", storageHandler);
+    const load = () => loadAssumptionsFromDB().then(setLoadedAssumptions);
+    load();
+    const focusHandler = () => load();
     window.addEventListener("focus", focusHandler);
-    // Also bump on mount so navigating here always picks up latest
-    setAssumptionsVersion((v) => v + 1);
-    return () => {
-      window.removeEventListener("storage", storageHandler);
-      window.removeEventListener("focus", focusHandler);
-    };
+    return () => window.removeEventListener("focus", focusHandler);
   }, []);
 
-  const forecast = useMemo(() => generateForecast(loadAssumptions()), [assumptionsVersion]);
+  const forecast = useMemo(() => generateForecast(loadedAssumptions), [loadedAssumptions]);
   const chartData = forecast.map((d) => ({
     label: `${d.year.replace("FY ", "'")} ${d.quarter}`,
     totalRevenue: d.totalRevenue,
