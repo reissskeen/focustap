@@ -163,8 +163,8 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
   // Base desks at 1 institution — used to scale OPEX proportionally
   const baseDesks = Math.ceil(a.studentsPerInstitution / a.deskToStudentRatio);
   // Hardcoded constants (removed from editable assumptions)
-  const INITIAL_ROLLOUT_PCT = 0.25;
-  const ANNUAL_CHURN_RATE = 0.03;
+  const INITIAL_ROLLOUT_PCT = 1.0;
+  const ANNUAL_CHURN_RATE = 0.0;
   let cumT3 = 0;
   let cumulativeStudents = 0;
   let cumulativeRevenue = 0;
