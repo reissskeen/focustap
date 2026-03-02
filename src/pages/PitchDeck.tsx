@@ -290,9 +290,9 @@ export default function PitchDeck() {
             </div>
           </div>
           <div className="p-5 rounded-xl border border-border bg-card space-y-2">
-            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Phase 3 · Scale</p>
-            <p className="text-lg font-bold text-foreground">Strategic Equity + More Grants</p>
-            <p className="text-xs text-muted-foreground">Offer a small equity stake (5–10%) to a strategic angel or edtech-focused fund to accelerate sales. Continue stacking grants — university innovation funds, state education grants, and federal programs like IES and DOE.</p>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Phase 3 · Profitable Growth</p>
+             <p className="text-lg font-bold text-foreground">Strategic Equity + Growth Capital</p>
+             <p className="text-xs text-muted-foreground">Post-pilot, FocusTap is profitable with recurring SaaS revenue. To accelerate national expansion, we pursue a combination of strategic equity placement (5–10% to an edtech-aligned partner) and venture debt — preserving founder control while funding sales infrastructure and enterprise onboarding.</p>
             <div className="mt-2 pt-2 border-t border-border">
               <p className="text-xs font-semibold text-foreground">Target: $300K–$500K total</p>
               <p className="text-[11px] text-muted-foreground">≤10% dilution · Grant-heavy mix</p>
