@@ -261,45 +261,73 @@ export default function PitchDeck() {
       </div>
     </SlideWrapper>,
 
-  // Slide 3 — Go-to-Market Revenue Strategy
+  // Slide 4 — Funding Strategy
   <SlideWrapper key={3}>
       <div className="max-w-4xl w-full space-y-6">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground">How We Scale: Data-Driven Sales</h2>
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground">Funding Strategy</h2>
+        <p className="text-base text-muted-foreground max-w-2xl">
+          A capital-efficient path from bootstrapped launch to grant-funded growth — minimizing dilution while maximizing proof.
+        </p>
 
-        {/* GTM timeline */}
+        {/* Funding timeline */}
         <div className="grid md:grid-cols-3 gap-4">
           <div className="p-5 rounded-xl border-2 border-primary/30 bg-primary/5 space-y-2">
-            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Year 1 · 2026</p>
-            <p className="text-lg font-bold text-foreground">Free Pilot at Flagler</p>
-            <p className="text-xs text-muted-foreground">Roll out web platform campus-wide. Collect engagement, attendance, and focus data across 1,000+ students. Institution pays implementation fee only — zero subscription cost.</p>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Phase 1 · Now</p>
+            <p className="text-lg font-bold text-foreground">Bootstrap & Build</p>
+            <p className="text-xs text-muted-foreground">Self-funded development using founder capital and sweat equity. Minimal burn — browser-based architecture means no hardware R&D costs upfront. Goal: ship MVP and launch the Flagler pilot.</p>
+            <div className="mt-2 pt-2 border-t border-border">
+              <p className="text-xs font-semibold text-foreground">Target: $0 raised</p>
+              <p className="text-[11px] text-muted-foreground">0% dilution · Founder-funded</p>
+            </div>
+          </div>
+          <div className="p-5 rounded-xl border-2 border-green-500/30 bg-green-500/5 space-y-2">
+            <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase tracking-wider">Phase 2 · Post-Pilot</p>
+            <p className="text-lg font-bold text-foreground">Grant Funding</p>
+            <p className="text-xs text-muted-foreground">Apply for the <span className="font-semibold">Call for Effective Technology (CET) Grant</span> — $150K–$250K for AI-driven edtech tested with real students. Flagler pilot data is the proof. Also pursue NSF SBIR/STTR and state education innovation grants.</p>
+            <div className="mt-2 pt-2 border-t border-border">
+              <p className="text-xs font-semibold text-foreground">Target: $150K–$250K</p>
+              <p className="text-[11px] text-muted-foreground">0% dilution · Non-dilutive capital</p>
+            </div>
           </div>
           <div className="p-5 rounded-xl border border-border bg-card space-y-2">
-            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Year 2 · 2027</p>
-            <p className="text-lg font-bold text-foreground">Sell with Proof</p>
-            <p className="text-xs text-muted-foreground">Use Flagler case study — verified engagement lift, attendance accuracy, and faculty satisfaction — to close 2–4 paid institutions via direct B2B outreach to deans & provosts.</p>
-          </div>
-          <div className="p-5 rounded-xl border border-border bg-card space-y-2">
-            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Year 3 · 2028</p>
-            <p className="text-lg font-bold text-foreground">Expand & Compound</p>
-            <p className="text-xs text-muted-foreground">Leverage multi-campus success stories. Target 15 institutions via conference demos, referral incentives, and published outcome data. Each school becomes a reference customer.</p>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Phase 3 · Scale</p>
+            <p className="text-lg font-bold text-foreground">Strategic Equity + More Grants</p>
+            <p className="text-xs text-muted-foreground">Offer a small equity stake (5–10%) to a strategic angel or edtech-focused fund to accelerate sales. Continue stacking grants — university innovation funds, state education grants, and federal programs like IES and DOE.</p>
+            <div className="mt-2 pt-2 border-t border-border">
+              <p className="text-xs font-semibold text-foreground">Target: $300K–$500K total</p>
+              <p className="text-[11px] text-muted-foreground">≤10% dilution · Grant-heavy mix</p>
+            </div>
           </div>
         </div>
 
-        {/* Revenue chart */}
-        <div className="h-52">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={filteredChartData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-              <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-              <YAxis tickFormatter={(v) => formatCurrency(v)} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-              <Tooltip formatter={(v: number) => formatCurrency(v)} />
-              <Legend />
-              <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill="#3b82f6" />
-              <Bar dataKey="implementationRevenue" name="Impl. Fees" stackId="rev" fill="#10b981" />
-              <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill="#f59e0b" />
-              <Bar dataKey="expansionRevenue" name="Expansion" stackId="rev" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-            </ComposedChart>
-          </ResponsiveContainer>
+        {/* Grant pipeline */}
+        <div className="p-5 rounded-xl bg-muted/50 border border-border space-y-3">
+          <p className="text-sm font-semibold text-foreground">Grant Pipeline</p>
+          <div className="grid md:grid-cols-2 gap-3">
+            {[
+              { name: "CET Grant", amount: "$150K–$250K", fit: "Primary target — FocusTap is classroom-tested edtech, a perfect fit" },
+              { name: "NSF SBIR Phase I", amount: "$275K", fit: "NSF backing adds credibility; supports software/edtech innovation" },
+              { name: "University Innovation Funds", amount: "$10K–$50K", fit: "Many universities offer internal grants for technology improving student outcomes" },
+              { name: "State Education Grants", amount: "$25K–$100K", fit: "State-level programs funding technology adoption in higher education" },
+            ].map((g) => (
+              <div key={g.name} className="flex gap-2 items-start">
+                <span className="text-green-600 dark:text-green-400 font-bold shrink-0 mt-0.5">✓</span>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">{g.name} <span className="text-muted-foreground font-normal">· {g.amount}</span></p>
+                  <p className="text-xs text-muted-foreground">{g.fit}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Key principle */}
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
+          <span className="text-2xl">🎯</span>
+          <div>
+            <p className="text-sm font-semibold text-foreground">Capital Philosophy</p>
+            <p className="text-xs text-muted-foreground">Maximize non-dilutive funding first. Give away minimal equity only to strategic partners who accelerate distribution. Grants are the primary engine — real classroom data is our competitive advantage in every application.</p>
+          </div>
         </div>
       </div>
     </SlideWrapper>,
