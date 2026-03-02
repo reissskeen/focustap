@@ -298,31 +298,7 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     processQuarter(yearLabel, quarters[q], y, newT3);
   }
 
-  // --- Phase 2: extend beyond 2028 until full break-even ---
-  const MAX_EXTENSION_QUARTERS = 40; // safety cap (~10 extra years)
-  let extraQuarter = 0;
-  let calYear = 2029;
-  let calQ = 0; // 0-based quarter index within year
-
-  while (cumulativeProfit < ninvTotal && extraQuarter < MAX_EXTENSION_QUARTERS) {
-    const yearLabel = `FY ${calYear}`;
-    const yearIndex = calYear - 2026;
-    const isFirstOfHalf = calQ === 0 || calQ === 2;
-
-    // Steady-state growth: postForecastHalfYearGrowth new institutions every half-year
-    const newT3 = isFirstOfHalf
-      ? Math.ceil(a.postForecastHalfYearGrowth * 0.5)
-      : Math.floor(a.postForecastHalfYearGrowth * 0.5);
-
-    processQuarter(yearLabel, quarters[calQ], yearIndex, newT3);
-
-    extraQuarter++;
-    calQ++;
-    if (calQ === 4) {
-      calQ = 0;
-      calYear++;
-    }
-  }
+  // Forecast ends at 2028 — no extension beyond modeled period
 
   return data;
 }
