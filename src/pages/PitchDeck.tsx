@@ -357,7 +357,7 @@ export default function PitchDeck() {
             </div>
           </div>
           <div className="p-5 rounded-xl border border-border bg-card space-y-2">
-            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Post-pilot, FocusTap is profitable with recurring SaaS revenue. To accelerate national expansion, we pursue a combination of strategic equity placement (10–20% to an edtech-aligned partner) and venture debt — preserving founder control while funding sales infrastructure and enterprise onboarding.</p>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Phase 3 · Profitable Growth                      </p>
              <p className="text-lg font-bold text-foreground">Strategic Equity + Growth Capital</p>
              <p className="text-xs text-muted-foreground">Post-pilot, FocusTap is profitable with recurring SaaS revenue. To accelerate national expansion, we pursue a combination of strategic equity placement (5–10% to an edtech-aligned partner) and venture debt — preserving founder control while funding sales infrastructure and enterprise onboarding.</p>
             <div className="mt-2 pt-2 border-t border-border">
