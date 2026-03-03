@@ -331,7 +331,7 @@ export default function PitchDeck() {
       <div className="max-w-4xl w-full space-y-6">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">Funding Strategy</h2>
         <p className="text-base text-muted-foreground max-w-2xl">
-          Grants and revenue first, equity last — stay lean, keep control.
+          Fund early growth with grants and minimal seed equity. Once revenue covers costs, bootstrap from there — giving up as little ownership as possible.
         </p>
 
         {/* Funding timeline */}
