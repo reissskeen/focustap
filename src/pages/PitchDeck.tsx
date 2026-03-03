@@ -331,7 +331,7 @@ export default function PitchDeck() {
       <div className="max-w-4xl w-full space-y-6">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">Funding Strategy</h2>
         <p className="text-base text-muted-foreground max-w-2xl">
-          A staged capital strategy prioritizing non-dilutive instruments and operational self-sufficiency — deploying external funding to derisk validation, then transitioning to cash-flow-funded growth.
+          Grants and revenue first, equity last — stay lean, keep control.
         </p>
 
         {/* Funding timeline */}
