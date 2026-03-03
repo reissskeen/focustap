@@ -169,6 +169,23 @@ const TeacherDashboard = () => {
                     ))}
                   </div>
 
+                  {/* Demo Report Link */}
+                  <div className="space-y-3">
+                    <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-primary" /> Demo Analytics
+                    </h2>
+                    <div className="glass-card rounded-lg p-4 flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-sm text-foreground">Demo Session — Reiss, Jesse, Phil</p>
+                        <p className="text-xs text-muted-foreground">Example session report with sample data</p>
+                      </div>
+                      <Button variant="outline" size="sm" className="gap-1.5"
+                        onClick={() => navigate("/teacher/session/e93a2ded-d912-4de0-92bd-ffe55e62368d/report")}>
+                        <BarChart3 className="h-3.5 w-3.5" /> View Report
+                      </Button>
+                    </div>
+                  </div>
+
                   {/* Past Sessions */}
                   {pastSessions.length > 0 && (
                     <div className="space-y-3">
