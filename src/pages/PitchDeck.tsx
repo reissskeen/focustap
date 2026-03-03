@@ -331,38 +331,36 @@ export default function PitchDeck() {
       <div className="max-w-4xl w-full space-y-6">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground">Funding Strategy</h2>
         <p className="text-base text-muted-foreground max-w-2xl">
-          
-          A capital-efficient path from bootstrapped launch to grant-funded growth — minimizing dilution while maximizing proof.
-        
+          A staged capital strategy prioritizing non-dilutive instruments and operational self-sufficiency — deploying external funding to derisk validation, then transitioning to cash-flow-funded growth.
         </p>
 
         {/* Funding timeline */}
         <div className="grid md:grid-cols-3 gap-4">
           <div className="p-5 rounded-xl border-2 border-primary/30 bg-primary/5 space-y-2">
-            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Phase 1 · Now</p>
-            <p className="text-lg font-bold text-foreground">                  Small Grants + Angel Investments   </p>
-            <p className="text-xs text-muted-foreground">Self-funded development using founder capital and sweat equity. Minimal burn — browser-based architecture means no hardware R&D costs upfront. Goal: ship MVP and launch the Flagler pilot.</p>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Phase 1 · Pre-Revenue</p>
+            <p className="text-lg font-bold text-foreground">Non-Dilutive Grants + Seed Equity</p>
+            <p className="text-xs text-muted-foreground">Initial capitalization via angel placement (≤10% dilution) and early-stage innovation grants. Funds allocated to MVP engineering, NFC procurement, and Flagler pilot deployment. Browser-native architecture eliminates hardware R&D overhead, keeping burn under $5K/mo.</p>
             <div className="mt-2 pt-2 border-t border-border">
-              <p className="text-xs font-semibold text-foreground">Target: $0 raised</p>
-              <p className="text-[11px] text-muted-foreground">10% dilution · Founder-funded</p>
+              <p className="text-xs font-semibold text-foreground">Target: $25K–$75K</p>
+              <p className="text-[11px] text-muted-foreground">≤10% dilution · Grant + angel mix</p>
             </div>
           </div>
           <div className="p-5 rounded-xl border-2 border-green-500/30 bg-green-500/5 space-y-2">
-            <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase tracking-wider">Phase 2 · Post-Pilot</p>
-            <p className="text-lg font-bold text-foreground">Grant Funding</p>
-            <p className="text-xs text-muted-foreground">Apply for the <span className="font-semibold">Call for Effective Technology (CET) Grant</span> — $150K–$250K for AI-driven edtech tested with real students. Flagler pilot data is the proof. Also pursue NSF SBIR/STTR and state education innovation grants.</p>
+            <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase tracking-wider">Phase 2 · Post-Pilot Validation</p>
+            <p className="text-lg font-bold text-foreground">Grant-Funded Scaling</p>
+            <p className="text-xs text-muted-foreground">Leverage Flagler engagement data to secure the <span className="font-semibold">CET Grant</span> ($150K–$250K) and pursue NSF SBIR/STTR Phase I ($275K). Non-dilutive capital funds multi-institution expansion, sales infrastructure buildout, and enterprise onboarding tooling.</p>
             <div className="mt-2 pt-2 border-t border-border">
-              <p className="text-xs font-semibold text-foreground">Target: $150K–$250K</p>
-              <p className="text-[11px] text-muted-foreground">10% dilution · Non-dilutive capital</p>
+              <p className="text-xs font-semibold text-foreground">Target: $150K–$275K</p>
+              <p className="text-[11px] text-muted-foreground">0% additional dilution · Non-dilutive</p>
             </div>
           </div>
           <div className="p-5 rounded-xl border border-border bg-card space-y-2">
-            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Phase 3 · Profitable Growth                      </p>
-             <p className="text-lg font-bold text-foreground">Strategic Equity + Growth Capital</p>
-             <p className="text-xs text-muted-foreground">Post-pilot, FocusTap is profitable with recurring SaaS revenue. To accelerate national expansion, we pursue a combination of strategic equity placement (5–10% to an edtech-aligned partner) and venture debt — preserving founder control while funding sales infrastructure and enterprise onboarding.</p>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Phase 3 · Self-Sustaining</p>
+            <p className="text-lg font-bold text-foreground">Cash-Flow Bootstrapped</p>
+            <p className="text-xs text-muted-foreground">With recurring SaaS ARR exceeding operating costs, growth is funded from revenue. Selective strategic equity (5–10% to an edtech-aligned distribution partner) or venture debt deployed only if unit economics justify accelerated national expansion — preserving ≥80% founder ownership.</p>
             <div className="mt-2 pt-2 border-t border-border">
-              <p className="text-xs font-semibold text-foreground">Target: $300K–$500K total</p>
-              <p className="text-[11px] text-muted-foreground">≤20% dilution · Grant-heavy mix</p>
+              <p className="text-xs font-semibold text-foreground">Organic growth · Revenue-funded</p>
+              <p className="text-[11px] text-muted-foreground">≤20% total dilution · Equity-minimized</p>
             </div>
           </div>
         </div>
@@ -390,8 +388,8 @@ export default function PitchDeck() {
         <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10">
           <span className="text-2xl">🎯</span>
           <div>
-            <p className="text-sm font-semibold text-foreground">Capital Philosophy</p>
-            <p className="text-xs text-muted-foreground">Maximize non-dilutive funding first. Give away minimal equity only to strategic partners who accelerate distribution. Grants are the primary engine — real classroom data is our competitive advantage in every application.</p>
+            <p className="text-sm font-semibold text-foreground">Capital Allocation Philosophy</p>
+            <p className="text-xs text-muted-foreground">Exhaust non-dilutive instruments before equity. Grants are the primary funding engine — empirical pilot data is our competitive moat in every application. Equity is reserved exclusively for strategic partners who unlock distribution channels. Target: ≤20% total dilution through profitability.</p>
           </div>
         </div>
       </div>
