@@ -20,6 +20,7 @@ import Financials from "./pages/Financials";
 import PitchDeck from "./pages/PitchDeck";
 import DemoJoin from "./pages/DemoJoin";
 import PosterBoard from "./pages/PosterBoard";
+import SessionReport from "./pages/SessionReport";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,9 @@ const App = () => (
             <Route path="/pitch-deck" element={<PitchDeck />} />
             <Route path="/demo" element={<DemoJoin />} />
             <Route path="/poster" element={<PosterBoard />} />
+            <Route path="/teacher/session/:sessionId/report" element={
+              <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><SessionReport /></RoleProtectedRoute>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

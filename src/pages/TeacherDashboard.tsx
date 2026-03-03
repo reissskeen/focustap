@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Play, Plus, BookOpen } from "lucide-react";
+import { Play, Plus, BookOpen, BarChart3 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -19,12 +20,14 @@ import ActiveSessionView from "@/components/teacher/ActiveSessionView";
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [courses, setCourses] = useState<Tables<"courses">[]>([]);
   const [activeSession, setActiveSession] = useState<Tables<"sessions"> | null>(null);
   const [activeCourse, setActiveCourse] = useState<Tables<"courses"> | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showCreateCourse, setShowCreateCourse] = useState(false);
+  const [pastSessions, setPastSessions] = useState<Array<Tables<"sessions"> & { course_name: string }>>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -54,6 +57,22 @@ const TeacherDashboard = () => {
           setActiveSession(session);
           const course = teacherCourses.find((c) => c.id === session.course_id) || null;
           setActiveCourse(course);
+        }
+
+        // Fetch past ended sessions (last 10)
+        const { data: ended } = await supabase
+          .from("sessions")
+          .select("*")
+          .eq("created_by", user.id)
+          .eq("status", "ended")
+          .order("end_time", { ascending: false })
+          .limit(10);
+
+        if (ended) {
+          const courseMap = Object.fromEntries(teacherCourses.map((c) => [c.id, c.name]));
+          setPastSessions(
+            ended.map((s) => ({ ...s, course_name: courseMap[s.course_id] || "Unknown" }))
+          );
         }
       }
 
@@ -149,6 +168,29 @@ const TeacherDashboard = () => {
                       </div>
                     ))}
                   </div>
+
+                  {/* Past Sessions */}
+                  {pastSessions.length > 0 && (
+                    <div className="space-y-3">
+                      <h2 className="font-display text-lg font-semibold">Past Sessions</h2>
+                      <div className="space-y-2">
+                        {pastSessions.map((s) => (
+                          <div key={s.id} className="glass-card rounded-lg p-4 flex items-center justify-between">
+                            <div>
+                              <p className="font-medium text-sm text-foreground">{s.course_name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(s.start_time).toLocaleDateString()} · {new Date(s.start_time).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                              </p>
+                            </div>
+                            <Button variant="outline" size="sm" className="gap-1.5"
+                              onClick={() => navigate(`/teacher/session/${s.id}/report`)}>
+                              <BarChart3 className="h-3.5 w-3.5" /> Report
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
