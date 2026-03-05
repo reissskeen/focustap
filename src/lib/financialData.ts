@@ -171,6 +171,7 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
   let cumulativeProfit = 0;
 
   let ninvExpensed = false; // track whether NINV has been booked
+  let quarterIndex = 0; // track quarter number for NINV timing
 
   // Helper to process one quarter
   const processQuarter = (
@@ -234,9 +235,10 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const yearlyOpex = baseAnnualOpex * opexScale;
     const quarterlyOpex = yearlyOpex / 4;
 
-    // NINV is expensed as a one-time cost in the first quarter
-    const ninvThisQuarter = !ninvExpensed ? ninvTotal : 0;
-    ninvExpensed = true;
+    // NINV is expensed in Q2 (production start quarter)
+    const ninvThisQuarter = (!ninvExpensed && quarterIndex === 1) ? ninvTotal : 0;
+    if (quarterIndex >= 1) ninvExpensed = true;
+    quarterIndex++;
 
     const ebitda = grossProfit - quarterlyOpex - ninvThisQuarter;
     const ebitdaMargin = totalRevenue > 0 ? ebitda / totalRevenue : 0;
