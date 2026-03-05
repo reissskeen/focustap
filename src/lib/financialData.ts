@@ -318,7 +318,7 @@ export interface BreakEvenResult {
   monthsToFull: number | null;
 }
 
-export function computeBreakEven(forecast: YearlyFinancials[], ninvTotal: number): BreakEvenResult {
+export function computeBreakEven(forecast: YearlyFinancials[], _ninvTotal: number): BreakEvenResult {
   let operatingBreakEvenQ: string | null = null;
   let fullBreakEvenQ: string | null = null;
   let monthsToOperating: number | null = null;
@@ -330,7 +330,8 @@ export function computeBreakEven(forecast: YearlyFinancials[], ninvTotal: number
       operatingBreakEvenQ = `${d.year} ${d.quarter}`;
       monthsToOperating = (i + 1) * 3;
     }
-    if (!fullBreakEvenQ && d.cumulativeProfit >= ninvTotal) {
+    // Full break-even: cumulative profit (which already includes NINV) crosses zero
+    if (!fullBreakEvenQ && d.cumulativeProfit >= 0) {
       fullBreakEvenQ = `${d.year} ${d.quarter}`;
       monthsToFull = (i + 1) * 3;
     }
