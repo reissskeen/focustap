@@ -230,10 +230,12 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     const grossProfit = totalRevenue - totalCogs;
     const grossMargin = totalRevenue > 0 ? grossProfit / totalRevenue : 0;
 
+    // No operations in Q1 2026 (pre-production)
+    const preOps = quarterIndex === 0;
     // OPEX scales sub-linearly (√) to reflect SaaS economies of scale
     const opexScale = Math.max(1, Math.sqrt(totalDesks / baseDesks));
     const yearlyOpex = baseAnnualOpex * opexScale;
-    const quarterlyOpex = yearlyOpex / 4;
+    const quarterlyOpex = preOps ? 0 : yearlyOpex / 4;
 
     // NINV is expensed in Q2 (production start quarter)
     const ninvThisQuarter = (!ninvExpensed && quarterIndex === 1) ? ninvTotal : 0;
