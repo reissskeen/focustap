@@ -40,7 +40,7 @@ const KPICard = ({ title, value, subtitle, icon: Icon, accent }: { title: string
 
 const CHART_COLORS = {
   saas: "#3b82f6",        // blue
-  implementation: "#10b981", // emerald
+  implementation: "#a855f7", // purple
   hardware: "#f59e0b",     // amber
   expansion: "#8b5cf6",    // violet
   mrr: "#06b6d4",          // cyan
