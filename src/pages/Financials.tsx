@@ -89,6 +89,7 @@ export default function Financials() {
     subscriptionRevenue: d.subscriptionRevenue,
     hardwareRevenue: d.hardwareRevenue,
     implementationRevenue: d.implementationRevenue,
+    implNeg: -d.implementationRevenue,
     expansionRevenue: d.expansionRevenue,
     grossProfit: d.grossProfit,
     netIncome: d.netIncome,
@@ -282,11 +283,11 @@ export default function Financials() {
                       <ReferenceLine y={0} stroke="#9ca3af" strokeWidth={1} />
                       {/* Revenue (positive) */}
                       <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill={CHART_COLORS.saas} />
-                      <Bar dataKey="implementationRevenue" name="Impl. Fees" stackId="rev" fill={CHART_COLORS.implementation} />
                       <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill={CHART_COLORS.hardware} />
                       <Bar dataKey="expansionRevenue" name="Expansion" stackId="rev" fill={CHART_COLORS.expansion} radius={[4, 4, 0, 0]} />
                       {/* Costs (negative) */}
-                      <Bar dataKey="opexNeg" name="OPEX" stackId="cost" fill="#f97316" radius={[0, 0, 4, 4]} />
+                      <Bar dataKey="implNeg" name="Impl. Fees" stackId="cost" fill={CHART_COLORS.implementation} radius={[0, 0, 0, 0]} />
+                      <Bar dataKey="opexNeg" name="OPEX" stackId="cost" fill="#f97316" radius={[0, 0, 0, 0]} />
                       <Bar dataKey="ninv" name="NINV" stackId="cost" fill={CHART_COLORS.destructive} radius={[0, 0, 4, 4]} />
                       {/* Cumulative P&L line */}
                       <Line dataKey="cumulativeProfit" name="Total P&L" type="monotone" stroke="#10b981" strokeWidth={2.5} dot={{ r: 3 }} />
