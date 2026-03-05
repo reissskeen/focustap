@@ -1,7 +1,9 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers, Target, Wallet, Lock, Unlock, Save } from "lucide-react";
+import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers, Target, Wallet, Lock, Unlock, Save, Download } from "lucide-react";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -52,6 +54,97 @@ const GRID_STYLE = { stroke: "#d1d5db", strokeDasharray: "3 3" };
 const TOOLTIP_STYLE = { backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" };
 
 const TIER_COLORS = [CHART_COLORS.institutions, CHART_COLORS.expansion, CHART_COLORS.saas];
+import type { YearlyFinancials } from "@/lib/financialData";
+
+function exportToExcel(
+  forecast: YearlyFinancials[],
+  assumptions: Assumptions,
+  ninvTotal: number,
+  annualOpexTotal: number,
+  annualSummary: { year: string; revenue: number; saas: number; hw: number; impl: number; opex: number; grossProfit: number; netIncome: number; institutions: number; students: number }[],
+) {
+  const wb = XLSX.utils.book_new();
+
+  // --- Sheet 1: Quarterly Forecast ---
+  const qHeaders = [
+    "Year", "Quarter", "Institutions", "New Inst.", "Students Deployed", "New Students",
+    "Desks Deployed", "New Desks", "SaaS Revenue", "Hardware Revenue", "Implementation Revenue",
+    "Total Revenue", "Hardware COGS", "Total COGS", "Gross Profit", "Gross Margin",
+    "OPEX", "EBITDA", "EBITDA Margin", "Net Income", "MRR", "ARR",
+    "Cumulative Revenue", "Cumulative Profit",
+  ];
+  const qRows = forecast.map(d => [
+    d.year, d.quarter, d.institutions, d.newInstitutions, d.studentsDeployed, d.newStudents,
+    d.desksDeployed, d.newDesks, d.subscriptionRevenue, d.hardwareRevenue, d.implementationRevenue,
+    d.totalRevenue, d.hardwareCogs, d.totalCogs, d.grossProfit, d.grossMargin,
+    d.opex, d.ebitda, d.ebitdaMargin, d.netIncome, d.mrr, d.arr,
+    d.cumulativeRevenue, d.cumulativeProfit,
+  ]);
+  const ws1 = XLSX.utils.aoa_to_sheet([qHeaders, ...qRows]);
+  // Format percentage columns
+  const pctCols = [15, 18]; // grossMargin, ebitdaMargin (0-indexed)
+  qRows.forEach((_, ri) => {
+    pctCols.forEach(ci => {
+      const cell = ws1[XLSX.utils.encode_cell({ r: ri + 1, c: ci })];
+      if (cell) cell.z = "0.0%";
+    });
+  });
+  // Set column widths
+  ws1["!cols"] = qHeaders.map((h) => ({ wch: Math.max(h.length, 14) }));
+  XLSX.utils.book_append_sheet(wb, ws1, "Quarterly Forecast");
+
+  // --- Sheet 2: Annual Summary ---
+  const aHeaders = ["Year", "Revenue", "SaaS", "Hardware", "Implementation", "OPEX", "Gross Profit", "Net Income", "Institutions", "Students"];
+  const aRows = annualSummary.map(a => [a.year, a.revenue, a.saas, a.hw, a.impl, a.opex, a.grossProfit, a.netIncome, a.institutions, a.students]);
+  const ws2 = XLSX.utils.aoa_to_sheet([aHeaders, ...aRows]);
+  ws2["!cols"] = aHeaders.map((h) => ({ wch: Math.max(h.length, 14) }));
+  XLSX.utils.book_append_sheet(wb, ws2, "Annual Summary");
+
+  // --- Sheet 3: Assumptions ---
+  const assumptionRows = [
+    ["FocusTap Financial Model — Assumptions"],
+    [],
+    ["Parameter", "Value"],
+    ["NFC Tag Cost", assumptions.nfcTagCost],
+    ["NFC Tag Price", assumptions.nfcTagPrice],
+    ["Students per Institution", assumptions.studentsPerInstitution],
+    ["Desk-to-Student Ratio", assumptions.deskToStudentRatio],
+    ["SaaS COGS %", assumptions.saasCogsPct],
+    ["Pilot Free Institutions", assumptions.pilotFreeInstitutions],
+    ["Tier 3 Price ($/student/yr)", TIERS[3].pricePerStudentPerYear],
+    ["Implementation Fee ($/tag)", TIERS[3].implementationFeePerTag],
+    [],
+    ["NINV (One-Time Investment)", "Amount"],
+    ["Software Development", assumptions.ninv.softwareDev],
+    ["NFC Inventory", assumptions.ninv.nfcInventory],
+    ["Pilot Deployment", assumptions.ninv.pilotDeployment],
+    ["Legal Setup", assumptions.ninv.legalSetup],
+    ["Contingency Buffer", assumptions.ninv.brandingWebsite],
+    ["Total NINV", ninvTotal],
+    [],
+    ["Annual OPEX (Base)", "Amount"],
+    ["Cloud Infrastructure", assumptions.annualOpex.cloudInfra],
+    ["Software Maintenance", assumptions.annualOpex.softwareMaintenance],
+    ["Sales & Outreach", assumptions.annualOpex.salesOutreach],
+    ["Customer Support", assumptions.annualOpex.customerSupport],
+    ["General & Admin", assumptions.annualOpex.generalAdmin],
+    ["Total Annual OPEX", annualOpexTotal],
+    [],
+    ["Adoption Timeline", "Tier 3 Institutions"],
+    ["H1 2026", assumptions.h1_2026.tier3],
+    ["H2 2026", assumptions.h2_2026.tier3],
+    ["H1 2027", assumptions.h1_2027.tier3],
+    ["H2 2027", assumptions.h2_2027.tier3],
+    ["H1 2028", assumptions.h1_2028.tier3],
+    ["H2 2028", assumptions.h2_2028.tier3],
+  ];
+  const ws3 = XLSX.utils.aoa_to_sheet(assumptionRows);
+  ws3["!cols"] = [{ wch: 28 }, { wch: 20 }];
+  XLSX.utils.book_append_sheet(wb, ws3, "Assumptions");
+
+  const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  saveAs(new Blob([wbout], { type: "application/octet-stream" }), "FocusTap_Financial_Model.xlsx");
+}
 
 export default function Financials() {
   const {
@@ -170,7 +263,9 @@ export default function Financials() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            
+            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => exportToExcel(forecast, assumptions, ninvTotal, annualOpexTotal, annualSummary)}>
+              <Download className="w-4 h-4" /> Export Excel
+            </Button>
             <Link to="/pitch-deck">
               <Button size="sm" className="gap-1.5">
                 <Presentation className="w-4 h-4" /> Present
