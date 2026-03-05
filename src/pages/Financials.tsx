@@ -83,7 +83,7 @@ export default function Financials() {
   const annualOpexTotal = useMemo(() => computeAnnualOpexTotal(assumptions.annualOpex), [assumptions.annualOpex]);
   const breakEven = useMemo(() => computeBreakEven(forecast, ninvTotal), [forecast, ninvTotal]);
 
-  const chartData = forecast.map((d) => ({
+  const chartData = forecast.map((d, i) => ({
     label: `${d.year.replace("FY ", "'")} ${d.quarter}`,
     totalRevenue: d.totalRevenue,
     subscriptionRevenue: d.subscriptionRevenue,
@@ -93,6 +93,8 @@ export default function Financials() {
     grossProfit: d.grossProfit,
     netIncome: d.netIncome,
     opex: d.opex,
+    opexNeg: -d.opex,
+    ninv: i === 0 ? -ninvTotal : 0,
     studentsDeployed: d.studentsDeployed,
     institutions: d.institutions,
     tier3Inst: d.tier3Inst,
@@ -268,19 +270,24 @@ export default function Financials() {
           <TabsContent value="revenue" className="space-y-4">
             <div className="grid lg:grid-cols-2 gap-4">
               <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Quarterly Revenue by Stream</CardTitle></CardHeader>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Quarterly Revenue & Costs</CardTitle></CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={280}>
+                  <ResponsiveContainer width="100%" height={320}>
                     <ComposedChart data={chartData}>
                       <CartesianGrid {...GRID_STYLE} />
                       <XAxis dataKey="label" tick={AXIS_STYLE} />
                       <YAxis tickFormatter={(v) => formatCurrency(v)} tick={AXIS_STYLE} />
-                      <Tooltip formatter={(v: number) => formatCurrency(v)} contentStyle={TOOLTIP_STYLE} />
+                      <Tooltip formatter={(v: number, name: string) => [formatCurrency(Math.abs(v)), name]} contentStyle={TOOLTIP_STYLE} />
                       <Legend />
+                      <ReferenceLine y={0} stroke="#9ca3af" strokeWidth={1} />
+                      {/* Revenue (positive) */}
                       <Bar dataKey="subscriptionRevenue" name="SaaS Subscription" stackId="rev" fill={CHART_COLORS.saas} />
                       <Bar dataKey="implementationRevenue" name="Impl. Fees" stackId="rev" fill={CHART_COLORS.implementation} />
                       <Bar dataKey="hardwareRevenue" name="NFC Hardware" stackId="rev" fill={CHART_COLORS.hardware} />
                       <Bar dataKey="expansionRevenue" name="Expansion" stackId="rev" fill={CHART_COLORS.expansion} radius={[4, 4, 0, 0]} />
+                      {/* Costs (negative) */}
+                      <Bar dataKey="opexNeg" name="OPEX" stackId="cost" fill="#f97316" radius={[0, 0, 4, 4]} />
+                      <Bar dataKey="ninv" name="NINV" stackId="cost" fill={CHART_COLORS.destructive} radius={[0, 0, 4, 4]} />
                     </ComposedChart>
                   </ResponsiveContainer>
                 </CardContent>
