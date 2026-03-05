@@ -323,15 +323,17 @@ export function computeBreakEven(forecast: YearlyFinancials[], _ninvTotal: numbe
   let fullBreakEvenQ: string | null = null;
   let monthsToOperating: number | null = null;
   let monthsToFull: number | null = null;
+  let hasGoneNegative = false;
 
   for (let i = 0; i < forecast.length; i++) {
     const d = forecast[i];
-    if (!operatingBreakEvenQ && d.ebitda >= 0) {
+    if (d.cumulativeProfit < 0) hasGoneNegative = true;
+    if (!operatingBreakEvenQ && d.ebitda > 0) {
       operatingBreakEvenQ = `${d.year} ${d.quarter}`;
       monthsToOperating = (i + 1) * 3;
     }
-    // Full break-even: cumulative profit (which already includes NINV) crosses zero
-    if (!fullBreakEvenQ && d.cumulativeProfit >= 0) {
+    // Full break-even: cumulative profit crosses back to zero after going negative
+    if (!fullBreakEvenQ && hasGoneNegative && d.cumulativeProfit >= 0) {
       fullBreakEvenQ = `${d.year} ${d.quarter}`;
       monthsToFull = (i + 1) * 3;
     }
