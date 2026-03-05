@@ -288,12 +288,15 @@ export default function Financials() {
                       {/* Costs (negative) */}
                       <Bar dataKey="opexNeg" name="OPEX" stackId="cost" fill="#f97316" radius={[0, 0, 4, 4]} />
                       <Bar dataKey="ninv" name="NINV" stackId="cost" fill={CHART_COLORS.destructive} radius={[0, 0, 4, 4]} />
-                      {/* Net Income line */}
-                      <Line dataKey="netIncome" name="Net Income" type="monotone" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
-                      {/* Break-even reference */}
-                      {breakEven.operatingBreakEvenQ && (
-                        <ReferenceLine x={breakEven.operatingBreakEvenQ.replace("FY ", "'")} stroke="#10b981" strokeDasharray="4 4" strokeWidth={2} label={{ value: "Break-Even", position: "top", fill: "#10b981", fontSize: 11 }} />
-                      )}
+                      {/* Cumulative P&L line */}
+                      <Line dataKey="cumulativeProfit" name="Total P&L" type="monotone" stroke="#10b981" strokeWidth={2.5} dot={{ r: 3 }} />
+                      {/* Break-even: where cumulative profit crosses zero */}
+                      {(() => {
+                        const beIdx = chartData.findIndex(d => d.cumulativeProfit >= 0);
+                        return beIdx > 0 ? (
+                          <ReferenceLine x={chartData[beIdx].label} stroke="#10b981" strokeDasharray="4 4" strokeWidth={2} label={{ value: "Break-Even", position: "top", fill: "#10b981", fontSize: 11 }} />
+                        ) : null;
+                      })()}
                     </ComposedChart>
                   </ResponsiveContainer>
                 </CardContent>
