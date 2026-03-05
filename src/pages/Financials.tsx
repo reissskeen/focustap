@@ -83,7 +83,7 @@ export default function Financials() {
   const annualOpexTotal = useMemo(() => computeAnnualOpexTotal(assumptions.annualOpex), [assumptions.annualOpex]);
   const breakEven = useMemo(() => computeBreakEven(forecast, ninvTotal), [forecast, ninvTotal]);
 
-  const chartData = forecast.map((d, i) => ({
+  const chartData = forecast.slice(1).map((d, i) => ({
     label: `${d.year.replace("FY ", "'")} ${d.quarter}`,
     totalRevenue: d.totalRevenue,
     subscriptionRevenue: d.subscriptionRevenue,
@@ -94,7 +94,7 @@ export default function Financials() {
     netIncome: d.netIncome,
     opex: d.opex,
     opexNeg: -d.opex,
-    ninv: i === 1 ? -ninvTotal : 0,
+    ninv: i === 0 ? -ninvTotal : 0,
     studentsDeployed: d.studentsDeployed,
     institutions: d.institutions,
     tier3Inst: d.tier3Inst,
