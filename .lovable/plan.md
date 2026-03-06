@@ -1,44 +1,42 @@
 
 
-## Plan: Integrate HeroSection Dark Component & Replace Current Hero
+# Add Key Unit Economics Metrics to Financials Page
 
-### Overview
-Add the `HeroSection` component with its `RetroGrid` background to `src/components/ui/` and replace the current `ContainerScroll` hero with this new component, adapted to FocusTap's content and branding.
+## New Metrics (computed from existing forecast data -- no number changes)
 
-### Prerequisites
-All met: shadcn structure, Tailwind, TypeScript, lucide-react already installed. No new dependencies needed.
+These 7 metrics will be added as a new row of KPI cards below the existing KPIs, grouped under a "Unit Economics" heading:
 
-### Changes
+1. **Variable Cost per Student** -- (total COGS) / students deployed
+2. **Contribution Margin per Student** -- (revenue per student) - (variable cost per student)
+3. **Breakeven Students** -- Total Fixed Costs (NINV + annual OPEX) / CM per student
+4. **Breakeven Institutions** -- Breakeven students / average students per institution
+5. **Marginal Profit per Student** -- Revenue per student - Variable cost per student (same as CM, shown explicitly)
+6. **CAC (Customer Acquisition Cost)** -- Sales & outreach costs / total institutions gained
+7. **Payback Period** -- Months to recover CAC from per-institution revenue
 
-#### 1. Add `animate-grid` keyframe to `tailwind.config.ts`
-The `RetroGrid` sub-component uses an `animate-grid` class. Add the keyframe and animation:
-- Keyframe: `grid` -- translates background position vertically by one cell size over 15s linear infinite
-- Animation: `grid: "grid 15s linear infinite"`
+## Where They Appear
 
-#### 2. Create `src/components/ui/hero-section-dark.tsx`
-Copy the component as-is with these adaptations:
-- Remove `"use client"` (not needed in Vite)
-- Replace `font-geist` references with `font-display` (project uses Space Grotesk via `font-display`)
-- Keep `RetroGrid` inline within the same file
-- Keep all props and defaults intact
+A new "Unit Economics" card grid rendered directly below the existing 8 KPI cards on the Financials page. Uses the same `KPICard` component for visual consistency.
 
-#### 3. Update `src/pages/Index.tsx` -- Replace Hero Section
-Replace the `ContainerScroll` hero block (lines 70-124) with the new `HeroSection` component:
-- **title**: `"Focus tracking for modern classrooms"`
-- **subtitle**: `{ regular: "Measure focus, ", gradient: "not compliance." }`
-- **description**: Current hero description text
-- **ctaText**: `"Get Started"` linking to `/login?mode=login`
-- **bottomImage**: Use the existing Unsplash classroom image for both light/dark (or two different ones)
-- **gridOptions**: Tuned for the blue FocusTap palette (`lightLineColor: "#3b82f6"`, `darkLineColor: "#1e40af"`, opacity 0.3)
-- Keep the Student Login / Professor Login buttons and Pitch Deck / Financial Model tags below the hero component as an overlay or additional section
-- Remove the `ContainerScroll` import (the component file can remain for potential future use)
-- Add appropriate top padding to account for the fixed Navbar
+## Technical Details
 
-#### 4. Adapt CTA styling
-The `HeroSection` component uses an animated spinning border CTA button. We'll keep it but wire it to the existing login route via `<Link>` instead of a plain `<a>` tag.
+All computations happen inside the `Financials` component using existing `forecast`, `assumptions`, `ninvTotal`, and `annualOpexTotal` values:
 
-### What stays the same
-- Features section, How It Works, CTA, Footer -- all untouched
-- Navbar -- untouched
-- All scroll animations on Features/How It Works -- preserved
+```text
+totalStudents       = lastQ.studentsDeployed
+totalRevenue        = sum of all forecast totalRevenue
+totalCogs           = sum of all forecast totalCogs
+revPerStudent       = (lastQ.arr) / totalStudents
+vcPerStudent        = totalCogs / totalStudents  (annualized from forecast)
+cmPerStudent        = revPerStudent - vcPerStudent
+beStudents          = (ninvTotal + annualOpexTotal) / cmPerStudent
+beInstitutions      = beStudents / assumptions.studentsPerInstitution
+cac                 = assumptions.annualOpex.salesOutreach / lastQ.institutions
+paybackMonths       = cac / (per-institution monthly revenue)
+```
 
+### Files Modified
+
+- **`src/pages/Financials.tsx`** -- Add ~20 lines of derived metric calculations after existing `useMemo` blocks, plus a new KPI grid section (~30 lines of JSX) between the existing KPI grid and the Tabs.
+
+No changes to `financialData.ts`, chart data, or any other file.
