@@ -1,8 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, X, LogOut, ChevronDown, GraduationCap, BookOpen } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown, GraduationCap, BookOpen, Sun, Moon } from "lucide-react";
 import focustapLogo from "@/assets/focustap-logo.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -18,6 +18,13 @@ const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const [dark, setDark] = useState(() =>
+    document.documentElement.classList.contains("dark")
+  );
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", dark);
+  }, [dark]);
 
   const isLanding = location.pathname === "/";
 
@@ -64,6 +71,15 @@ const Navbar = () => {
             </div>
 
             <div className="hidden md:flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setDark(!dark)}
+                className="h-9 w-9"
+                aria-label="Toggle dark mode"
+              >
+                {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </Button>
               {user ?
             <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
                   <LogOut className="w-3.5 h-3.5" /> Sign out
