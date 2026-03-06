@@ -1,42 +1,36 @@
 
 
-# Add Key Unit Economics Metrics to Financials Page
+## Plan: Integrate ContainerScroll Animation & Elevate Landing Page
 
-## New Metrics (computed from existing forecast data -- no number changes)
+### Overview
+Add the `ContainerScroll` component from 21st.dev to `src/components/ui/` and integrate it into the landing page hero section to create a dramatic scroll-driven 3D product showcase.
 
-These 7 metrics will be added as a new row of KPI cards below the existing KPIs, grouped under a "Unit Economics" heading:
+### Prerequisites Check
+- **shadcn structure**: Already in place (`components/ui/` exists)
+- **Tailwind CSS**: Configured
+- **TypeScript**: Configured
+- **framer-motion**: Already installed (v12.34.0)
+- No new dependencies needed
 
-1. **Variable Cost per Student** -- (total COGS) / students deployed
-2. **Contribution Margin per Student** -- (revenue per student) - (variable cost per student)
-3. **Breakeven Students** -- Total Fixed Costs (NINV + annual OPEX) / CM per student
-4. **Breakeven Institutions** -- Breakeven students / average students per institution
-5. **Marginal Profit per Student** -- Revenue per student - Variable cost per student (same as CM, shown explicitly)
-6. **CAC (Customer Acquisition Cost)** -- Sales & outreach costs / total institutions gained
-7. **Payback Period** -- Months to recover CAC from per-institution revenue
+### Changes
 
-## Where They Appear
+#### 1. Create `src/components/ui/container-scroll-animation.tsx`
+- Copy the component as-is, removing the `"use client"` directive (not needed in Vite/React)
+- No modifications needed -- it uses `framer-motion` which is already installed
 
-A new "Unit Economics" card grid rendered directly below the existing 8 KPI cards on the Financials page. Uses the same `KPICard` component for visual consistency.
+#### 2. Update `src/pages/Index.tsx` -- Hero Section Redesign
+Replace the current static hero with the `ContainerScroll` component:
+- **Title component**: Keep the existing hero text (badge, headline, subtitle, CTA buttons, pitch/financials tags) as the `titleComponent` prop
+- **Children (card content)**: Show a product screenshot mockup of the FocusTap dashboard using an Unsplash classroom/dashboard image (e.g. `https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1400&q=80`) as an `<img>` tag (not Next.js `Image`)
+- Remove the old `<section>` wrapper and replace with `ContainerScroll` which provides its own spacing and perspective container
+- Adjust padding: remove `pt-32 pb-20` from hero since `ContainerScroll` handles vertical space (`h-[60rem] md:h-[80rem]`)
+- Keep Navbar above the scroll container
 
-## Technical Details
+#### 3. No other files need changes
+- All existing sections (Features, How It Works, CTA, Footer) remain untouched below the new hero
 
-All computations happen inside the `Financials` component using existing `forecast`, `assumptions`, `ninvTotal`, and `annualOpexTotal` values:
+### Key Adaptations from Demo
+- Replace `next/image` `Image` with standard `<img>` tag
+- Use a real Unsplash URL instead of the aceternity placeholder
+- Wire existing hero content as `titleComponent` rather than the demo's generic text
 
-```text
-totalStudents       = lastQ.studentsDeployed
-totalRevenue        = sum of all forecast totalRevenue
-totalCogs           = sum of all forecast totalCogs
-revPerStudent       = (lastQ.arr) / totalStudents
-vcPerStudent        = totalCogs / totalStudents  (annualized from forecast)
-cmPerStudent        = revPerStudent - vcPerStudent
-beStudents          = (ninvTotal + annualOpexTotal) / cmPerStudent
-beInstitutions      = beStudents / assumptions.studentsPerInstitution
-cac                 = assumptions.annualOpex.salesOutreach / lastQ.institutions
-paybackMonths       = cac / (per-institution monthly revenue)
-```
-
-### Files Modified
-
-- **`src/pages/Financials.tsx`** -- Add ~20 lines of derived metric calculations after existing `useMemo` blocks, plus a new KPI grid section (~30 lines of JSX) between the existing KPI grid and the Tabs.
-
-No changes to `financialData.ts`, chart data, or any other file.
