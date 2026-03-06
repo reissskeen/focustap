@@ -497,15 +497,16 @@ export default function DemoJoin() {
               </div>
             </div>
 
-            <Button
+            <ButtonColorful
               variant="outline"
               size="lg"
+              gradient="destructive"
               disabled={submitting}
               onClick={handleLeave}
               className="mt-4 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
             >
               {submitting ? "Leaving…" : "Leave Session"}
-            </Button>
+            </ButtonColorful>
           </motion.div>
         )}
 

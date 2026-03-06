@@ -398,33 +398,33 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
           {/* Toggle header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/20 gap-3 flex-wrap">
             <div className="flex items-center gap-1 bg-background rounded-lg p-0.5 border border-border/50">
-              <Button
+              <ButtonColorful
                 variant={viewMode === "seats" ? "default" : "ghost"}
                 size="sm"
                 className="gap-1.5 text-xs h-7 px-3"
                 onClick={() => setViewMode("seats")}
               >
                 <LayoutGrid className="w-3.5 h-3.5" /> Grid
-              </Button>
-              <Button
+              </ButtonColorful>
+              <ButtonColorful
                 variant={viewMode === "roster" ? "default" : "ghost"}
                 size="sm"
                 className="gap-1.5 text-xs h-7 px-3"
                 onClick={() => setViewMode("roster")}
               >
                 <List className="w-3.5 h-3.5" /> Roster
-              </Button>
+              </ButtonColorful>
             </div>
 
             {viewMode === "roster" && (
-              <Button
+              <ButtonColorful
                 variant="ghost"
                 size="sm"
                 className="gap-1.5 text-xs"
                 onClick={() => exportRosterCSV(roster, session.start_time, session.late_join_cutoff, course.name)}
               >
                 <Download className="w-3.5 h-3.5" /> Export CSV
-              </Button>
+              </ButtonColorful>
             )}
           </div>
 
