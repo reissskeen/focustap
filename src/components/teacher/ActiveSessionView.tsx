@@ -365,7 +365,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                   onClick={() => handleRemoveSeat(a.seat_label)}
                 >
                   <UserX className="w-3 h-3" /> Remove
-                </Button>
+                </ButtonColorful>
               </div>
             ))}
           </div>
