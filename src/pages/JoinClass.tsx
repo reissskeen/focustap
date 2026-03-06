@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Play, Loader2, Clock, Users, ChevronRight, QrCode, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,7 +91,7 @@ const JoinClass = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <Button
+            <ButtonColorful
               variant="ghost"
               size="sm"
               onClick={() => navigate(-1)}
@@ -99,7 +99,7 @@ const JoinClass = () => {
             >
               <ArrowLeft className="w-4 h-4" />
               Back
-            </Button>
+            </ButtonColorful>
             <h1 className="font-display text-2xl font-bold mb-1">Join a Class</h1>
             <p className="text-sm text-muted-foreground">
               Select an active session below, or scan a QR code / tap an NFC tag in your classroom.
@@ -165,11 +165,11 @@ const JoinClass = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 ml-4">
-                        <Button size="sm" className="gap-1.5 group-hover:gap-2 transition-all">
+                        <ButtonColorful size="sm" gradient="green" className="gap-1.5 group-hover:gap-2 transition-all">
                           <Play className="w-4 h-4" />
                           Join
                           <ChevronRight className="w-3.5 h-3.5" />
-                        </Button>
+                        </ButtonColorful>
                       </div>
                     </div>
                   </button>

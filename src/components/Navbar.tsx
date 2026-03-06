@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Menu, X, LogOut, ChevronDown, GraduationCap, BookOpen, Sun, Moon } from "lucide-react";
 import focustapLogo from "@/assets/focustap-logo.png";
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -71,7 +71,7 @@ const Navbar = () => {
             </div>
 
             <div className="hidden md:flex items-center gap-3">
-              <Button
+              <ButtonColorful
                 variant="ghost"
                 size="icon"
                 onClick={() => setDark(!dark)}
@@ -79,17 +79,17 @@ const Navbar = () => {
                 aria-label="Toggle dark mode"
               >
                 {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </Button>
+              </ButtonColorful>
               {user ?
-            <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
+            <ButtonColorful variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
                   <LogOut className="w-3.5 h-3.5" /> Sign out
-                </Button> :
+                </ButtonColorful> :
 
             <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button size="sm" className="gap-1.5">
+                    <ButtonColorful size="sm" gradient="blue" className="gap-1.5">
                       Get Started <ChevronDown className="w-3.5 h-3.5" />
-                    </Button>
+                    </ButtonColorful>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem asChild>
@@ -119,15 +119,15 @@ const Navbar = () => {
         {!isLanding &&
         <div className="flex items-center gap-3">
             <Link to="/teacher">
-              <Button variant="ghost" size="sm">Dashboard</Button>
+              <ButtonColorful variant="ghost" size="sm">Dashboard</ButtonColorful>
             </Link>
             {user ?
-          <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
+          <ButtonColorful variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
                 <LogOut className="w-3.5 h-3.5" /> Sign out
-              </Button> :
+              </ButtonColorful> :
 
           <Link to="/login">
-                <Button variant="ghost" size="sm">Log in</Button>
+                <ButtonColorful variant="ghost" size="sm">Log in</ButtonColorful>
               </Link>
           }
           </div>
@@ -163,16 +163,16 @@ const Navbar = () => {
         )}
           <div className="flex flex-col gap-2 mt-3">
             {user ?
-          <Button variant="ghost" size="sm" className="w-full gap-1.5" onClick={() => {signOut();setMobileOpen(false);}}>
+          <ButtonColorful variant="ghost" size="sm" className="w-full gap-1.5" onClick={() => {signOut();setMobileOpen(false);}}>
                 <LogOut className="w-3.5 h-3.5" /> Sign out
-              </Button> :
+              </ButtonColorful> :
 
           <>
                 <Link to="/login?mode=signup" onClick={() => setMobileOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start gap-2"><GraduationCap className="w-3.5 h-3.5" /> Student Sign Up</Button>
+                  <ButtonColorful variant="ghost" size="sm" className="w-full justify-start gap-2"><GraduationCap className="w-3.5 h-3.5" /> Student Sign Up</ButtonColorful>
                 </Link>
                 <Link to="/teacher-login?mode=signup" onClick={() => setMobileOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start gap-2"><BookOpen className="w-3.5 h-3.5" /> Professor Sign Up</Button>
+                  <ButtonColorful variant="ghost" size="sm" className="w-full justify-start gap-2"><BookOpen className="w-3.5 h-3.5" /> Professor Sign Up</ButtonColorful>
                 </Link>
               </>
           }

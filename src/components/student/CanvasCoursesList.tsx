@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Play, Clock, Loader2, Bell, BellOff, CheckCircle2, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -156,9 +156,9 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
     return (
       <div className="glass-card rounded-xl p-6 text-center text-muted-foreground">
         <p className="text-sm">{error}</p>
-        <Button variant="ghost" size="sm" className="mt-2" onClick={fetchCourses}>
+        <ButtonColorful variant="ghost" size="sm" className="mt-2" onClick={fetchCourses}>
           Retry
-        </Button>
+        </ButtonColorful>
       </div>
     );
   }
@@ -206,15 +206,16 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
                     <span className="text-xs font-medium text-focus-active">Live Now</span>
                   </div>
                   <div className="flex gap-2">
-                    <Button
+                    <ButtonColorful
                       size="sm"
+                      gradient="green"
                       className="gap-1.5"
                       onClick={() => handleJoinSession(course)}
                       disabled={isLoading}
                     >
                       {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
                       Join Session
-                    </Button>
+                    </ButtonColorful>
                   </div>
                 </>
               ) : isOnPlatform ? (
@@ -224,7 +225,7 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
                     <span className="text-xs text-muted-foreground">No active session</span>
                   </div>
                   {course.waitlisted ? (
-                    <Button
+                    <ButtonColorful
                       size="sm"
                       variant="secondary"
                       className="gap-1.5"
@@ -233,9 +234,9 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
                     >
                       {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <BellOff className="w-3.5 h-3.5" />}
                       Waitlisted
-                    </Button>
+                    </ButtonColorful>
                   ) : (
-                    <Button
+                    <ButtonColorful
                       size="sm"
                       variant="outline"
                       className="gap-1.5"
@@ -244,7 +245,7 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
                     >
                       {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bell className="w-3.5 h-3.5" />}
                       Join Waitlist
-                    </Button>
+                    </ButtonColorful>
                   )}
                 </>
               ) : (
@@ -256,7 +257,7 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
             </div>
 
             {/* Enter Class button - always available for prototype */}
-            <Button
+            <ButtonColorful
               size="sm"
               variant="ghost"
               className="w-full gap-1.5 mt-1 text-primary"
@@ -265,7 +266,7 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
             >
               {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowRight className="w-3.5 h-3.5" />}
               Enter Class
-            </Button>
+            </ButtonColorful>
           </motion.div>
         );
       })}

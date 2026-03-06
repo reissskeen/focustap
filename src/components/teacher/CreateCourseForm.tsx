@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
@@ -64,10 +64,10 @@ const CreateCourseForm = ({ userId, onCourseCreated }: CreateCourseFormProps) =>
           />
         </div>
       </div>
-      <Button type="submit" disabled={loading} className="gap-2">
+      <ButtonColorful type="submit" disabled={loading} className="gap-2">
         <Plus className="w-4 h-4" />
         {loading ? "Creating…" : "Create Course"}
-      </Button>
+      </ButtonColorful>
     </form>
   );
 };

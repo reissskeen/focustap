@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
 import focustapLogo from "@/assets/focustap-logo.png";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import {
   BarChart, Bar, ComposedChart,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from
@@ -410,9 +410,9 @@ export default function PitchDeck() {
               <span className="text-xs text-muted-foreground">
                 {slide + 1} / {TOTAL_SLIDES}
               </span>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleFullscreen}>
+              <ButtonColorful variant="ghost" size="icon" className="h-8 w-8" onClick={toggleFullscreen}>
                 <Maximize2 className="w-4 h-4" />
-              </Button>
+              </ButtonColorful>
             </div>
           </div>
         </div>
@@ -433,18 +433,18 @@ export default function PitchDeck() {
         </AnimatePresence>
 
         <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3">
-          <Button variant="outline" size="icon" onClick={prev} disabled={slide === 0} className="h-10 w-10 rounded-full">
+          <ButtonColorful variant="outline" size="icon" onClick={prev} disabled={slide === 0} className="h-10 w-10 rounded-full">
             <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" size="icon" onClick={next} disabled={slide === TOTAL_SLIDES - 1} className="h-10 w-10 rounded-full">
+          </ButtonColorful>
+          <ButtonColorful variant="outline" size="icon" onClick={next} disabled={slide === TOTAL_SLIDES - 1} className="h-10 w-10 rounded-full">
             <ArrowRight className="w-4 h-4" />
-          </Button>
+          </ButtonColorful>
         </div>
 
         {fullscreen &&
-        <Button variant="ghost" size="icon" className="absolute top-4 right-4 h-8 w-8" onClick={toggleFullscreen}>
+        <ButtonColorful variant="ghost" size="icon" className="absolute top-4 right-4 h-8 w-8" onClick={toggleFullscreen}>
             <Minimize2 className="w-4 h-4" />
-          </Button>
+          </ButtonColorful>
         }
       </div>
 
