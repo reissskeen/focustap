@@ -13,7 +13,7 @@ import {
 "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
-import { ContainerScroll } from "@/components/ui/container-scroll-animation";
+import { HeroSection } from "@/components/ui/hero-section-dark";
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -67,61 +67,53 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero with ContainerScroll */}
-      <ContainerScroll
-        titleComponent={
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              Focus tracking for modern classrooms
-            </div>
-            <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
-              Measure focus,
-              <br />
-              <span className="gradient-text">not compliance.</span>
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-              FocusTap tracks time-on-task while students take notes — no blocking,
-              no monitoring, no hardware. Just engagement data that matters.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/login?mode=login">
-                <Button size="lg" className="text-base px-8 gap-2">
-                  Student Login <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-              <Link to="/teacher-login?mode=login">
-                <Button size="lg" variant="outline" className="text-base px-8">
-                  Professor Login
-                </Button>
-              </Link>
-            </div>
-            <div className="flex items-center justify-center gap-3 mt-6">
-              <Link to="/pitch-deck">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
-                  <Presentation className="w-3.5 h-3.5" />
-                  Pitch Deck
-                </span>
-              </Link>
-              <Link to="/financials">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  Financial Model
-                </span>
-              </Link>
-            </div>
-          </motion.div>
-        }
+      {/* Hero with RetroGrid */}
+      <HeroSection
+        title="Focus tracking for modern classrooms"
+        subtitle={{
+          regular: "Measure focus, ",
+          gradient: "not compliance.",
+        }}
+        description="FocusTap tracks time-on-task while students take notes — no blocking, no monitoring, no hardware. Just engagement data that matters."
+        bottomImage={{
+          light: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1400&q=80",
+          dark: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1400&q=80",
+        }}
+        gridOptions={{
+          angle: 65,
+          opacity: 0.3,
+          cellSize: 50,
+          lightLineColor: "hsl(207 70% 45% / 0.3)",
+          darkLineColor: "hsl(207 65% 50% / 0.3)",
+        }}
       >
-        <img
-          src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1400&q=80"
-          alt="FocusTap classroom dashboard"
-          className="mx-auto rounded-2xl object-cover h-full w-full object-left-top"
-          draggable={false}
-        />
-      </ContainerScroll>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+          <Link to="/login?mode=login">
+            <Button size="lg" className="text-base px-8 gap-2">
+              Student Login <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+          <Link to="/teacher-login?mode=login">
+            <Button size="lg" variant="outline" className="text-base px-8">
+              Professor Login
+            </Button>
+          </Link>
+        </div>
+        <div className="flex items-center justify-center gap-3 mt-4">
+          <Link to="/pitch-deck">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
+              <Presentation className="w-3.5 h-3.5" />
+              Pitch Deck
+            </span>
+          </Link>
+          <Link to="/financials">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
+              <TrendingUp className="w-3.5 h-3.5" />
+              Financial Model
+            </span>
+          </Link>
+        </div>
+      </HeroSection>
 
       {/* Features */}
       <section id="features" className="py-20 px-4 overflow-hidden">
