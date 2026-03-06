@@ -12,6 +12,7 @@ import {
   Presentation } from
 "lucide-react";
 import { ButtonColorful } from "@/components/ui/button-colorful";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
 import Navbar from "@/components/Navbar";
 import { HeroSection } from "@/components/ui/hero-section-dark";
 
@@ -89,14 +90,14 @@ const Index = () => {
       >
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
           <Link to="/login?mode=login">
-            <ButtonColorful size="lg" className="text-base px-8 gap-2">
+            <LiquidButton size="xl" className="text-base px-8 gap-2">
               Student Login <ArrowRight className="w-4 h-4" />
-            </ButtonColorful>
+            </LiquidButton>
           </Link>
           <Link to="/teacher-login?mode=login">
-            <ButtonColorful size="lg" variant="outline" gradient="blue" className="text-base px-8">
+            <LiquidButton size="xl" variant="outline" className="text-base px-8">
               Professor Login
-            </ButtonColorful>
+            </LiquidButton>
           </Link>
         </div>
         <div className="flex items-center justify-center gap-3 mt-4">
