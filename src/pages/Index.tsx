@@ -13,6 +13,7 @@ import {
 "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
+import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
