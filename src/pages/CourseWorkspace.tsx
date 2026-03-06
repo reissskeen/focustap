@@ -264,9 +264,9 @@ const CourseWorkspace = () => {
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
             <div className="flex items-center gap-3 mb-1">
-              <Button variant="ghost" size="icon" onClick={() => navigate("/student")}>
+              <ButtonColorful variant="ghost" size="icon" onClick={() => navigate("/student")}>
                 <ArrowLeft className="w-5 h-5" />
-              </Button>
+              </ButtonColorful>
               <BookOpen className="w-5 h-5 text-primary" />
               <h1 className="font-display text-2xl font-bold">{courseName}</h1>
               <div className="ml-auto flex items-center gap-3">
@@ -306,8 +306,9 @@ const CourseWorkspace = () => {
                   <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
                     Connect to start your focus tracking, log attendance, and let your professor know you're here.
                   </p>
-                  <Button
+                  <ButtonColorful
                     size="lg"
+                    gradient="green"
                     className="gap-2 px-8"
                     onClick={handleConnect}
                     disabled={connecting}
@@ -317,7 +318,7 @@ const CourseWorkspace = () => {
                     ) : (
                       <><PlugZap className="w-5 h-5" /> Connect</>
                     )}
-                  </Button>
+                  </ButtonColorful>
                 </motion.div>
               </div>
             </motion.div>
@@ -330,9 +331,9 @@ const CourseWorkspace = () => {
               <div className="glass-card rounded-xl p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-display text-sm font-semibold">Notes</h3>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setNewTitle(""); setShowNewDialog(true); }}>
+                  <ButtonColorful size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setNewTitle(""); setShowNewDialog(true); }}>
                     <Plus className="w-4 h-4" />
-                  </Button>
+                  </ButtonColorful>
                 </div>
                 <div className="space-y-1 max-h-[400px] overflow-auto">
                   {notes.map((note) => (
@@ -362,15 +363,15 @@ const CourseWorkspace = () => {
               {/* Actions */}
               {activeNoteId && (
                 <div className="glass-card rounded-xl p-4 space-y-2">
-                  <Button variant="outline" size="sm" className="w-full gap-2" onClick={saveToFiles}>
+                  <ButtonColorful variant="outline" size="sm" className="w-full gap-2" onClick={saveToFiles}>
                     <FolderOpen className="w-3.5 h-3.5" /> Save to Files
-                  </Button>
+                  </ButtonColorful>
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full gap-2">
+                      <ButtonColorful variant="outline" size="sm" className="w-full gap-2">
                         <Download className="w-3.5 h-3.5" /> Export
-                      </Button>
+                      </ButtonColorful>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem onClick={handleExportDocx}>
@@ -402,9 +403,9 @@ const CourseWorkspace = () => {
                   <div className="text-center space-y-3">
                     <FileText className="w-10 h-10 text-muted-foreground mx-auto" />
                     <p className="text-muted-foreground">Create a note to get started</p>
-                    <Button size="sm" onClick={() => { setNewTitle(""); setShowNewDialog(true); }}>
+                    <ButtonColorful size="sm" onClick={() => { setNewTitle(""); setShowNewDialog(true); }}>
                       <Plus className="w-4 h-4 mr-1" /> New Note
-                    </Button>
+                    </ButtonColorful>
                   </div>
                 </div>
               )}
@@ -433,14 +434,15 @@ const CourseWorkspace = () => {
                     <p className="text-xs text-muted-foreground mb-4">
                       Your attendance is being logged and your professor can see you're active.
                     </p>
-                    <Button
+                    <ButtonColorful
                       variant="outline"
                       size="sm"
+                      gradient="destructive"
                       className="w-full gap-2 text-destructive hover:text-destructive"
                       onClick={handleDisconnect}
                     >
                       <WifiOff className="w-3.5 h-3.5" /> Disconnect
-                    </Button>
+                    </ButtonColorful>
                   </div>
                 </>
               )}
@@ -451,15 +453,16 @@ const CourseWorkspace = () => {
                   <p className="text-sm text-muted-foreground">
                     Connect to start focus tracking and log attendance
                   </p>
-                  <Button
+                  <ButtonColorful
                     size="sm"
+                    gradient="green"
                     className="mt-3 gap-1.5"
                     onClick={handleConnect}
                     disabled={connecting}
                   >
                     {connecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <PlugZap className="w-3.5 h-3.5" />}
                     Connect
-                  </Button>
+                  </ButtonColorful>
                 </div>
               )}
             </motion.div>
@@ -481,7 +484,7 @@ const CourseWorkspace = () => {
             autoFocus
           />
           <DialogFooter>
-            <Button onClick={createNote} disabled={!newTitle.trim()}>Create</Button>
+            <ButtonColorful onClick={createNote} disabled={!newTitle.trim()}>Create</ButtonColorful>
           </DialogFooter>
         </DialogContent>
       </Dialog>
