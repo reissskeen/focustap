@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
 import focustapLogo from "@/assets/focustap-logo.png";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import {
   BarChart, Bar, ComposedChart,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from

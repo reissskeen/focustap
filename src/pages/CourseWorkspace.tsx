@@ -6,7 +6,7 @@ import {
   Presentation, Download, Loader2, FolderOpen, Wifi, WifiOff,
   Plug, PlugZap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,

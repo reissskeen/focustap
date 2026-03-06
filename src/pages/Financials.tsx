@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers, Target, Wallet, Lock, Unlock, Save, Download } from "lucide-react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
