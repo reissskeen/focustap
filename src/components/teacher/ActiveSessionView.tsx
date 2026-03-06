@@ -5,7 +5,7 @@ import {
   Users, Clock, BarChart3, Download, Eye, Pause, UserCheck, LayoutGrid, List, ExternalLink, Smartphone, Copy,
   AlertTriangle, WifiOff, UserX,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -282,14 +282,14 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => setShowNFC(!showNFC)}>
+          <ButtonColorful variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => setShowNFC(!showNFC)}>
             <Smartphone className="w-3.5 h-3.5" />
             Share Link
-          </Button>
-          <Button size="sm" variant="destructive" className="gap-1.5 text-xs h-8" onClick={handleEndSession} disabled={ending}>
+          </ButtonColorful>
+          <ButtonColorful size="sm" variant="destructive" gradient="destructive" className="gap-1.5 text-xs h-8" onClick={handleEndSession} disabled={ending}>
             <Pause className="w-3.5 h-3.5" />
             {ending ? "Ending…" : "End"}
-          </Button>
+          </ButtonColorful>
         </div>
       </motion.div>
 
@@ -301,7 +301,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
               <div className="flex-1 bg-background rounded px-3 py-2 font-mono text-xs break-all select-all border border-border/50">
                 {demoUrl}
               </div>
-              <Button
+              <ButtonColorful
                 variant="outline"
                 size="sm"
                 className="gap-1.5 shrink-0 text-xs h-8"
@@ -311,11 +311,11 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                 }}
               >
                 <Copy className="w-3.5 h-3.5" /> Copy
-              </Button>
+              </ButtonColorful>
               <a href={demoUrl} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+                <ButtonColorful variant="outline" size="sm" className="gap-1.5 text-xs h-8">
                   <ExternalLink className="w-3.5 h-3.5" /> Open
-                </Button>
+                </ButtonColorful>
               </a>
             </div>
           </motion.div>
@@ -358,7 +358,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                   {a.student_name && <span className="text-destructive/80">{a.student_name}</span>}
                   <span className="text-muted-foreground">· {a.secondsAgo}s ago</span>
                 </div>
-                <Button
+                <ButtonColorful
                   variant="ghost"
                   size="sm"
                   className="gap-1 text-[10px] text-destructive hover:text-destructive hover:bg-destructive/10 h-6 px-2"

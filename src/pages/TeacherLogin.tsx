@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, Eye, EyeOff, UserPlus, LogIn, KeyRound } from "lucide-react";
 import focustapLogo from "@/assets/focustap-logo.png";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
@@ -264,7 +264,7 @@ const TeacherLogin = () => {
                 </>
               )}
 
-              <Button type="submit" className="w-full gap-2" disabled={loading}>
+              <ButtonColorful type="submit" gradient="blue" className="w-full gap-2" disabled={loading}>
                 {loading ? (
                   "Please wait…"
                 ) : mode === "login" ? (
@@ -272,7 +272,7 @@ const TeacherLogin = () => {
                 ) : (
                   <>Create Professor Account <ArrowRight className="w-4 h-4" /></>
                 )}
-              </Button>
+              </ButtonColorful>
             </form>
           </motion.div>
         </div>

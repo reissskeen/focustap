@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Play, Plus, BookOpen, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import {
   Select,
   SelectContent,
@@ -131,9 +131,9 @@ const TeacherDashboard = () => {
                   <p className="text-muted-foreground max-w-md mx-auto">
                     Create a course to start running class sessions with live attendance and focus tracking.
                   </p>
-                  <Button onClick={() => setShowCreateCourse(true)} className="gap-2">
+                  <ButtonColorful onClick={() => setShowCreateCourse(true)} className="gap-2">
                     <Plus className="w-4 h-4" /> Create Course
-                  </Button>
+                  </ButtonColorful>
                 </div>
               ) : showCreateCourse || courses.length === 0 ? (
                 <CreateCourseForm userId={user!.id} onCourseCreated={handleCourseCreated} />
@@ -148,12 +148,12 @@ const TeacherDashboard = () => {
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowCreateCourse(true)}>
+                      <ButtonColorful variant="outline" size="sm" className="gap-2" onClick={() => setShowCreateCourse(true)}>
                         <Plus className="w-4 h-4" /> Add Course
-                      </Button>
-                      <Button size="sm" className="gap-2" onClick={() => setDialogOpen(true)}>
+                      </ButtonColorful>
+                      <ButtonColorful size="sm" gradient="green" className="gap-2" onClick={() => setDialogOpen(true)}>
                         <Play className="w-4 h-4" /> Start Session
-                      </Button>
+                      </ButtonColorful>
                     </div>
                   </div>
 
@@ -179,10 +179,10 @@ const TeacherDashboard = () => {
                         <p className="font-medium text-sm text-foreground">Demo Session — Reiss, Jesse, Phil</p>
                         <p className="text-xs text-muted-foreground">Example session report with sample data</p>
                       </div>
-                      <Button variant="outline" size="sm" className="gap-1.5"
+                      <ButtonColorful variant="outline" size="sm" className="gap-1.5"
                         onClick={() => navigate("/teacher/session/e93a2ded-d912-4de0-92bd-ffe55e62368d/report")}>
                         <BarChart3 className="h-3.5 w-3.5" /> View Report
-                      </Button>
+                      </ButtonColorful>
                     </div>
                   </div>
 
@@ -199,10 +199,10 @@ const TeacherDashboard = () => {
                                 {new Date(s.start_time).toLocaleDateString()} · {new Date(s.start_time).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
                               </p>
                             </div>
-                            <Button variant="outline" size="sm" className="gap-1.5"
+                            <ButtonColorful variant="outline" size="sm" className="gap-1.5"
                               onClick={() => navigate(`/teacher/session/${s.id}/report`)}>
                               <BarChart3 className="h-3.5 w-3.5" /> Report
-                            </Button>
+                            </ButtonColorful>
                           </div>
                         ))}
                       </div>

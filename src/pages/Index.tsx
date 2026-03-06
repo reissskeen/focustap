@@ -11,7 +11,7 @@ import {
   TrendingUp,
   Presentation } from
 "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import Navbar from "@/components/Navbar";
 import { HeroSection } from "@/components/ui/hero-section-dark";
 
@@ -89,14 +89,14 @@ const Index = () => {
       >
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
           <Link to="/login?mode=login">
-            <Button size="lg" className="text-base px-8 gap-2">
+            <ButtonColorful size="lg" className="text-base px-8 gap-2">
               Student Login <ArrowRight className="w-4 h-4" />
-            </Button>
+            </ButtonColorful>
           </Link>
           <Link to="/teacher-login?mode=login">
-            <Button size="lg" variant="outline" className="text-base px-8">
+            <ButtonColorful size="lg" variant="outline" gradient="blue" className="text-base px-8">
               Professor Login
-            </Button>
+            </ButtonColorful>
           </Link>
         </div>
         <div className="flex items-center justify-center gap-3 mt-4">
@@ -215,9 +215,9 @@ const Index = () => {
               Start a free pilot with your class. No hardware, no installs, no setup friction.
             </p>
             <Link to="/login">
-              <Button size="lg" className="text-base px-10 gap-2">
+              <ButtonColorful size="lg" gradient="green" className="text-base px-10 gap-2">
                 Get Started Free <ArrowRight className="w-4 h-4" />
-              </Button>
+              </ButtonColorful>
             </Link>
           </motion.div>
         </div>

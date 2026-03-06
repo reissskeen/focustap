@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Loader2, AlertCircle, RefreshCw, Home } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -85,12 +85,12 @@ const Launch = () => {
         </Alert>
 
         <div className="flex gap-3">
-          <Button onClick={resolve} variant="outline" className="flex-1 gap-2">
+          <ButtonColorful onClick={resolve} variant="outline" className="flex-1 gap-2">
             <RefreshCw className="w-4 h-4" /> Retry
-          </Button>
-          <Button asChild className="flex-1 gap-2">
+          </ButtonColorful>
+          <ButtonColorful asChild className="flex-1 gap-2">
             <Link to="/"><Home className="w-4 h-4" /> Home</Link>
-          </Button>
+          </ButtonColorful>
         </div>
       </motion.div>
     </div>

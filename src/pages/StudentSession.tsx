@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { BookOpen, Send, Download, Copy, Check, Loader2, Wifi, WifiOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import FocusTimer from "@/components/FocusTimer";
@@ -236,9 +236,10 @@ const StudentSession = () => {
               <FocusTimer sessionActive={!submitted} onFocusUpdate={handleFocusUpdate} />
 
               <div className="glass-card rounded-xl p-5 space-y-3">
-                <Button
+                <ButtonColorful
                   onClick={handleSubmit}
                   disabled={submitted}
+                  gradient="green"
                   className="w-full gap-2"
                 >
                   {submitted ? (
@@ -246,16 +247,16 @@ const StudentSession = () => {
                   ) : (
                     <><Send className="w-4 h-4" /> Submit Notes</>
                   )}
-                </Button>
+                </ButtonColorful>
 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={handleCopy}>
+                  <ButtonColorful variant="outline" size="sm" className="flex-1 gap-1.5" onClick={handleCopy}>
                     {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     Copy
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex-1 gap-1.5">
+                  </ButtonColorful>
+                  <ButtonColorful variant="outline" size="sm" className="flex-1 gap-1.5">
                     <Download className="w-3.5 h-3.5" /> PDF
-                  </Button>
+                  </ButtonColorful>
                 </div>
               </div>
             </motion.div>
