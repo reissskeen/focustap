@@ -13,6 +13,7 @@ import {
 "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
+import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -66,17 +67,14 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero */}
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 gradient-hero opacity-[0.04]" />
-        <div className="container mx-auto max-w-5xl text-center relative">
+      {/* Hero with ContainerScroll */}
+      <ContainerScroll
+        titleComponent={
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}>
-
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              
               Focus tracking for modern classrooms
             </div>
             <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
@@ -100,8 +98,6 @@ const Index = () => {
                 </Button>
               </Link>
             </div>
-
-            {/* Pitch & Financials Tags */}
             <div className="flex items-center justify-center gap-3 mt-6">
               <Link to="/pitch-deck">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
@@ -117,8 +113,15 @@ const Index = () => {
               </Link>
             </div>
           </motion.div>
-        </div>
-      </section>
+        }
+      >
+        <img
+          src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1400&q=80"
+          alt="FocusTap classroom dashboard"
+          className="mx-auto rounded-2xl object-cover h-full w-full object-left-top"
+          draggable={false}
+        />
+      </ContainerScroll>
 
       {/* Features */}
       <section id="features" className="py-20 px-4">
