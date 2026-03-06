@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Play, Clock, Loader2, Bell, BellOff, CheckCircle2, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { ButtonColorful } from "@/components/ui/button-colorful";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -156,9 +156,9 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
     return (
       <div className="glass-card rounded-xl p-6 text-center text-muted-foreground">
         <p className="text-sm">{error}</p>
-        <Button variant="ghost" size="sm" className="mt-2" onClick={fetchCourses}>
+        <ButtonColorful variant="ghost" size="sm" className="mt-2" onClick={fetchCourses}>
           Retry
-        </Button>
+        </ButtonColorful>
       </div>
     );
   }
@@ -206,8 +206,9 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
                     <span className="text-xs font-medium text-focus-active">Live Now</span>
                   </div>
                   <div className="flex gap-2">
-                    <Button
+                    <ButtonColorful
                       size="sm"
+                      gradient="green"
                       className="gap-1.5"
                       onClick={() => handleJoinSession(course)}
                       disabled={isLoading}
