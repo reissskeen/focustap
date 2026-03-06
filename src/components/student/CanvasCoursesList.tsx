@@ -215,7 +215,7 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
                     >
                       {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
                       Join Session
-                    </Button>
+                    </ButtonColorful>
                   </div>
                 </>
               ) : isOnPlatform ? (
@@ -225,7 +225,7 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
                     <span className="text-xs text-muted-foreground">No active session</span>
                   </div>
                   {course.waitlisted ? (
-                    <Button
+                    <ButtonColorful
                       size="sm"
                       variant="secondary"
                       className="gap-1.5"
@@ -234,9 +234,9 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
                     >
                       {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <BellOff className="w-3.5 h-3.5" />}
                       Waitlisted
-                    </Button>
+                    </ButtonColorful>
                   ) : (
-                    <Button
+                    <ButtonColorful
                       size="sm"
                       variant="outline"
                       className="gap-1.5"
@@ -245,7 +245,7 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
                     >
                       {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bell className="w-3.5 h-3.5" />}
                       Join Waitlist
-                    </Button>
+                    </ButtonColorful>
                   )}
                 </>
               ) : (
@@ -257,7 +257,7 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
             </div>
 
             {/* Enter Class button - always available for prototype */}
-            <Button
+            <ButtonColorful
               size="sm"
               variant="ghost"
               className="w-full gap-1.5 mt-1 text-primary"
@@ -266,7 +266,7 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
             >
               {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowRight className="w-3.5 h-3.5" />}
               Enter Class
-            </Button>
+            </ButtonColorful>
           </motion.div>
         );
       })}
