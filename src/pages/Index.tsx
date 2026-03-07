@@ -91,7 +91,7 @@ const Index = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
           <Link to="/login?mode=login">
             <LiquidButton size="xl" className="text-base px-8 gap-2">
-              Student Login <ArrowRight className="w-4 h-4" />
+              Student Login
             </LiquidButton>
           </Link>
           <Link to="/teacher-login?mode=login">
