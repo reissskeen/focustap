@@ -5,7 +5,7 @@ import {
   Users, Clock, BarChart3, Download, Eye, Pause, UserCheck, LayoutGrid, List, ExternalLink, Smartphone, Copy,
   AlertTriangle, WifiOff, UserX,
 } from "lucide-react";
-import { ButtonColorful } from "@/components/ui/button-colorful";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -282,14 +282,14 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <ButtonColorful variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => setShowNFC(!showNFC)}>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => setShowNFC(!showNFC)}>
             <Smartphone className="w-3.5 h-3.5" />
             Share Link
-          </ButtonColorful>
-          <ButtonColorful size="sm" variant="destructive" gradient="destructive" className="gap-1.5 text-xs h-8" onClick={handleEndSession} disabled={ending}>
+          </Button>
+          <Button size="sm" variant="destructive" className="gap-1.5 text-xs h-8" onClick={handleEndSession} disabled={ending}>
             <Pause className="w-3.5 h-3.5" />
             {ending ? "Ending…" : "End"}
-          </ButtonColorful>
+          </Button>
         </div>
       </motion.div>
 
@@ -301,7 +301,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
               <div className="flex-1 bg-background rounded px-3 py-2 font-mono text-xs break-all select-all border border-border/50">
                 {demoUrl}
               </div>
-              <ButtonColorful
+              <Button
                 variant="outline"
                 size="sm"
                 className="gap-1.5 shrink-0 text-xs h-8"
@@ -311,11 +311,11 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                 }}
               >
                 <Copy className="w-3.5 h-3.5" /> Copy
-              </ButtonColorful>
+              </Button>
               <a href={demoUrl} target="_blank" rel="noopener noreferrer">
-                <ButtonColorful variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8">
                   <ExternalLink className="w-3.5 h-3.5" /> Open
-                </ButtonColorful>
+                </Button>
               </a>
             </div>
           </motion.div>
@@ -358,14 +358,14 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                   {a.student_name && <span className="text-destructive/80">{a.student_name}</span>}
                   <span className="text-muted-foreground">· {a.secondsAgo}s ago</span>
                 </div>
-                <ButtonColorful
+                <Button
                   variant="ghost"
                   size="sm"
                   className="gap-1 text-[10px] text-destructive hover:text-destructive hover:bg-destructive/10 h-6 px-2"
                   onClick={() => handleRemoveSeat(a.seat_label)}
                 >
                   <UserX className="w-3 h-3" /> Remove
-                </ButtonColorful>
+                </Button>
               </div>
             ))}
           </div>
@@ -398,33 +398,33 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
           {/* Toggle header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/20 gap-3 flex-wrap">
             <div className="flex items-center gap-1 bg-background rounded-lg p-0.5 border border-border/50">
-              <ButtonColorful
+              <Button
                 variant={viewMode === "seats" ? "default" : "ghost"}
                 size="sm"
                 className="gap-1.5 text-xs h-7 px-3"
                 onClick={() => setViewMode("seats")}
               >
                 <LayoutGrid className="w-3.5 h-3.5" /> Grid
-              </ButtonColorful>
-              <ButtonColorful
+              </Button>
+              <Button
                 variant={viewMode === "roster" ? "default" : "ghost"}
                 size="sm"
                 className="gap-1.5 text-xs h-7 px-3"
                 onClick={() => setViewMode("roster")}
               >
                 <List className="w-3.5 h-3.5" /> Roster
-              </ButtonColorful>
+              </Button>
             </div>
 
             {viewMode === "roster" && (
-              <ButtonColorful
+              <Button
                 variant="ghost"
                 size="sm"
                 className="gap-1.5 text-xs"
                 onClick={() => exportRosterCSV(roster, session.start_time, session.late_join_cutoff, course.name)}
               >
                 <Download className="w-3.5 h-3.5" /> Export CSV
-              </ButtonColorful>
+              </Button>
             )}
           </div>
 

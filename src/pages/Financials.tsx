@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers, Target, Wallet, Lock, Unlock, Save, Download } from "lucide-react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { ButtonColorful } from "@/components/ui/button-colorful";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -253,9 +253,9 @@ export default function Financials() {
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
           <div className="flex items-center gap-3">
             <Link to="/">
-              <ButtonColorful variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-8 w-8">
                 <ArrowLeft className="w-4 h-4" />
-              </ButtonColorful>
+              </Button>
             </Link>
             <h1 className="font-bold text-lg">FocusTap Financial Model</h1>
             <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
@@ -263,13 +263,13 @@ export default function Financials() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <ButtonColorful size="sm" variant="outline" className="gap-1.5" onClick={() => exportToExcel(forecast, assumptions, ninvTotal, annualOpexTotal, annualSummary)}>
+            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => exportToExcel(forecast, assumptions, ninvTotal, annualOpexTotal, annualSummary)}>
               <Download className="w-4 h-4" /> Export Excel
-            </ButtonColorful>
+            </Button>
             <Link to="/pitch-deck">
-              <ButtonColorful size="sm" className="gap-1.5">
+              <Button size="sm" className="gap-1.5">
                 <Presentation className="w-4 h-4" /> Present
-              </ButtonColorful>
+              </Button>
             </Link>
           </div>
         </div>
@@ -355,9 +355,9 @@ export default function Financials() {
                 onKeyDown={(e) => e.key === "Enter" && handleUnlock()}
                 className={`h-8 w-40 font-mono text-sm ${codeError ? "border-destructive" : ""}`}
               />
-              <ButtonColorful size="sm" variant="outline" className="h-8 gap-1" onClick={handleUnlock}>
+              <Button size="sm" variant="outline" className="h-8 gap-1" onClick={handleUnlock}>
                 <Unlock className="w-3 h-3" /> Unlock
-              </ButtonColorful>
+              </Button>
               {codeError && <span className="text-xs text-destructive">Invalid code</span>}
             </div>
           )}
@@ -606,15 +606,15 @@ export default function Financials() {
                   )}
                 </div>
                 <div className="flex gap-2">
-                  <ButtonColorful size="sm" className="gap-1.5" disabled={!hasUnsavedChanges} onClick={saveAssumptions}>
+                  <Button size="sm" className="gap-1.5" disabled={!hasUnsavedChanges} onClick={saveAssumptions}>
                     <Save className="w-3.5 h-3.5" /> Save Changes
-                  </ButtonColorful>
-                  <ButtonColorful size="sm" variant="outline" onClick={() => updateAssumptions(() => defaultAssumptions)}>
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => updateAssumptions(() => defaultAssumptions)}>
                     Reset to Defaults
-                  </ButtonColorful>
-                  <ButtonColorful size="sm" variant="ghost" className="gap-1" onClick={() => { setShowAssumptions(false); setAccessCode(""); }}>
+                  </Button>
+                  <Button size="sm" variant="ghost" className="gap-1" onClick={() => { setShowAssumptions(false); setAccessCode(""); }}>
                     <Lock className="w-3 h-3" /> Lock
-                  </ButtonColorful>
+                  </Button>
                 </div>
               </div>
               <Card>

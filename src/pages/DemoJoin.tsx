@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { ButtonColorful } from "@/components/ui/button-colorful";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Clock } from "lucide-react";
@@ -420,9 +420,9 @@ export default function DemoJoin() {
                 </div>
               </div>
 
-              <ButtonColorful type="submit" size="lg" gradient="green" disabled={submitting || !studentName.trim()} className="h-14 text-base">
+              <Button type="submit" size="lg" disabled={submitting || !studentName.trim()} className="h-14 text-base">
                 {submitting ? "Joining…" : `Join as ${studentName.trim() || "…"} · Seat ${selectedRow}${selectedCol}`}
-              </ButtonColorful>
+              </Button>
             </form>
           </motion.div>
         )}
@@ -497,16 +497,15 @@ export default function DemoJoin() {
               </div>
             </div>
 
-            <ButtonColorful
+            <Button
               variant="outline"
               size="lg"
-              gradient="destructive"
               disabled={submitting}
               onClick={handleLeave}
               className="mt-4 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
             >
               {submitting ? "Leaving…" : "Leave Session"}
-            </ButtonColorful>
+            </Button>
           </motion.div>
         )}
 

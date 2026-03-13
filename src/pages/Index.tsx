@@ -11,10 +11,8 @@ import {
   TrendingUp,
   Presentation } from
 "lucide-react";
-import { ButtonColorful } from "@/components/ui/button-colorful";
-import { LiquidButton } from "@/components/ui/liquid-glass-button";
+import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
-import { HeroSection } from "@/components/ui/hero-section-dark";
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -68,64 +66,64 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero with RetroGrid */}
-      <HeroSection
-        title="Focus tracking for modern classrooms"
-        subtitle={{
-          regular: "Measure focus, ",
-          gradient: "not compliance.",
-        }}
-        description="FocusTap tracks time-on-task while students take notes — no blocking, no monitoring, no hardware. Just engagement data that matters."
-        bottomImage={{
-          light: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1400&q=80",
-          dark: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1400&q=80",
-        }}
-        gridOptions={{
-          angle: 65,
-          opacity: 0.3,
-          cellSize: 50,
-          lightLineColor: "hsl(207 70% 45% / 0.3)",
-          darkLineColor: "hsl(207 65% 50% / 0.3)",
-        }}
-      >
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-          <Link to="/login?mode=login">
-            <LiquidButton size="xl" className="text-base px-8 gap-2">
-              Student Login
-            </LiquidButton>
-          </Link>
-          <Link to="/teacher-login?mode=login">
-            <LiquidButton size="xl" variant="outline" className="text-base px-8">
-              Professor Login
-            </LiquidButton>
-          </Link>
+      {/* Hero */}
+      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 gradient-hero opacity-[0.04]" />
+        <div className="container mx-auto max-w-5xl text-center relative">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}>
+
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+              
+              Focus tracking for modern classrooms
+            </div>
+            <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
+              Measure focus,
+              <br />
+              <span className="gradient-text">not compliance.</span>
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+              FocusTap tracks time-on-task while students take notes — no blocking,
+              no monitoring, no hardware. Just engagement data that matters.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link to="/login?mode=login">
+                <Button size="lg" className="text-base px-8 gap-2">
+                  Student Login <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+              <Link to="/teacher-login?mode=login">
+                <Button size="lg" variant="outline" className="text-base px-8">
+                  Professor Login
+                </Button>
+              </Link>
+            </div>
+
+            {/* Pitch & Financials Tags */}
+            <div className="flex items-center justify-center gap-3 mt-6">
+              <Link to="/pitch-deck">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
+                  <Presentation className="w-3.5 h-3.5" />
+                  Pitch Deck
+                </span>
+              </Link>
+              <Link to="/financials">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  Financial Model
+                </span>
+              </Link>
+            </div>
+          </motion.div>
         </div>
-        <div className="flex items-center justify-center gap-3 mt-4">
-          <Link to="/pitch-deck">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
-              <Presentation className="w-3.5 h-3.5" />
-              Pitch Deck
-            </span>
-          </Link>
-          <Link to="/financials">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
-              <TrendingUp className="w-3.5 h-3.5" />
-              Financial Model
-            </span>
-          </Link>
-        </div>
-      </HeroSection>
+      </section>
 
       {/* Features */}
-      <section id="features" className="py-20 px-4 overflow-hidden">
+      <section id="features" className="py-20 px-4">
         <div className="container mx-auto max-w-6xl">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-            className="text-center mb-16"
-          >
+          <motion.div {...fadeUp} className="text-center mb-16">
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
               Everything you need for engaged classrooms
             </h2>
@@ -138,22 +136,15 @@ const Index = () => {
             {features.map((feature, i) =>
             <motion.div
               key={feature.title}
-              initial={{ opacity: 0, y: 40, scale: 0.9 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: i * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
-              whileHover={{ y: -6, transition: { duration: 0.2 } }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
               className="glass-card rounded-xl p-6 hover:shadow-xl transition-shadow">
 
-                <motion.div
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.08 + 0.2, type: "spring", stiffness: 200 }}
-                  className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4"
-                >
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                   <feature.icon className="w-5 h-5 text-primary" />
-                </motion.div>
+                </div>
                 <h3 className="font-display text-lg font-semibold mb-2">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               </motion.div>
@@ -163,15 +154,9 @@ const Index = () => {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-20 px-4 bg-muted/30 overflow-hidden">
+      <section id="how-it-works" className="py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
+          <motion.div {...fadeUp} className="text-center mb-16">
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">How it works</h2>
             <p className="text-muted-foreground text-lg">Four simple steps to focused classrooms.</p>
           </motion.div>
@@ -180,21 +165,15 @@ const Index = () => {
             {steps.map((step, i) =>
             <motion.div
               key={step.number}
-              initial={{ opacity: 0, x: i % 2 === 0 ? -60 : 60, rotateY: i % 2 === 0 ? -5 : 5 }}
-              whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+              initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.15 }}
               className="flex items-start gap-6">
 
-                <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
-                  whileInView={{ scale: 1, rotate: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 + 0.15, type: "spring", stiffness: 150 }}
-                  className="flex-shrink-0 w-14 h-14 rounded-xl bg-primary flex items-center justify-center"
-                >
+                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-primary flex items-center justify-center">
                   <span className="font-display text-lg font-bold text-primary-foreground">{step.number}</span>
-                </motion.div>
+                </div>
                 <div>
                   <h3 className="font-display text-xl font-semibold mb-1">{step.title}</h3>
                   <p className="text-muted-foreground">{step.description}</p>
@@ -216,9 +195,9 @@ const Index = () => {
               Start a free pilot with your class. No hardware, no installs, no setup friction.
             </p>
             <Link to="/login">
-              <ButtonColorful size="lg" gradient="green" className="text-base px-10 gap-2">
+              <Button size="lg" className="text-base px-10 gap-2">
                 Get Started Free <ArrowRight className="w-4 h-4" />
-              </ButtonColorful>
+              </Button>
             </Link>
           </motion.div>
         </div>

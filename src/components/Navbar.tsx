@@ -1,9 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, X, LogOut, ChevronDown, GraduationCap, BookOpen, Sun, Moon } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown, GraduationCap, BookOpen } from "lucide-react";
 import focustapLogo from "@/assets/focustap-logo.png";
-import { useState, useEffect } from "react";
-import { ButtonColorful } from "@/components/ui/button-colorful";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -18,13 +18,6 @@ const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains("dark")
-  );
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
 
   const isLanding = location.pathname === "/";
 
@@ -71,25 +64,16 @@ const Navbar = () => {
             </div>
 
             <div className="hidden md:flex items-center gap-3">
-              <ButtonColorful
-                variant="ghost"
-                size="icon"
-                onClick={() => setDark(!dark)}
-                className="h-9 w-9"
-                aria-label="Toggle dark mode"
-              >
-                {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </ButtonColorful>
               {user ?
-            <ButtonColorful variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
+            <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
                   <LogOut className="w-3.5 h-3.5" /> Sign out
-                </ButtonColorful> :
+                </Button> :
 
             <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <ButtonColorful size="sm" gradient="blue" className="gap-1.5">
+                    <Button size="sm" className="gap-1.5">
                       Get Started <ChevronDown className="w-3.5 h-3.5" />
-                    </ButtonColorful>
+                    </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem asChild>
@@ -119,15 +103,15 @@ const Navbar = () => {
         {!isLanding &&
         <div className="flex items-center gap-3">
             <Link to="/teacher">
-              <ButtonColorful variant="ghost" size="sm">Dashboard</ButtonColorful>
+              <Button variant="ghost" size="sm">Dashboard</Button>
             </Link>
             {user ?
-          <ButtonColorful variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
+          <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
                 <LogOut className="w-3.5 h-3.5" /> Sign out
-              </ButtonColorful> :
+              </Button> :
 
           <Link to="/login">
-                <ButtonColorful variant="ghost" size="sm">Log in</ButtonColorful>
+                <Button variant="ghost" size="sm">Log in</Button>
               </Link>
           }
           </div>
@@ -163,16 +147,16 @@ const Navbar = () => {
         )}
           <div className="flex flex-col gap-2 mt-3">
             {user ?
-          <ButtonColorful variant="ghost" size="sm" className="w-full gap-1.5" onClick={() => {signOut();setMobileOpen(false);}}>
+          <Button variant="ghost" size="sm" className="w-full gap-1.5" onClick={() => {signOut();setMobileOpen(false);}}>
                 <LogOut className="w-3.5 h-3.5" /> Sign out
-              </ButtonColorful> :
+              </Button> :
 
           <>
                 <Link to="/login?mode=signup" onClick={() => setMobileOpen(false)}>
-                  <ButtonColorful variant="ghost" size="sm" className="w-full justify-start gap-2"><GraduationCap className="w-3.5 h-3.5" /> Student Sign Up</ButtonColorful>
+                  <Button variant="ghost" size="sm" className="w-full justify-start gap-2"><GraduationCap className="w-3.5 h-3.5" /> Student Sign Up</Button>
                 </Link>
                 <Link to="/teacher-login?mode=signup" onClick={() => setMobileOpen(false)}>
-                  <ButtonColorful variant="ghost" size="sm" className="w-full justify-start gap-2"><BookOpen className="w-3.5 h-3.5" /> Professor Sign Up</ButtonColorful>
+                  <Button variant="ghost" size="sm" className="w-full justify-start gap-2"><BookOpen className="w-3.5 h-3.5" /> Professor Sign Up</Button>
                 </Link>
               </>
           }

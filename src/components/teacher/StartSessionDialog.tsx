@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ButtonColorful } from "@/components/ui/button-colorful";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -212,12 +212,12 @@ const StartSessionDialog = ({
         </div>
 
         <DialogFooter>
-          <ButtonColorful variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
-          </ButtonColorful>
-          <ButtonColorful gradient="green" onClick={handleStart} disabled={loading}>
+          </Button>
+          <Button onClick={handleStart} disabled={loading}>
             {loading ? "Starting…" : "Start Session"}
-          </ButtonColorful>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

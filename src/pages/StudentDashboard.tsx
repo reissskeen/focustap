@@ -4,7 +4,7 @@ import { BookOpen, Zap, Clock, Wifi, WifiOff, Play, Loader2, Plus } from "lucide
 import { Link, useNavigate } from "react-router-dom";
 import ImportCanvasCourses from "@/components/student/ImportCanvasCourses";
 import CanvasCoursesList from "@/components/student/CanvasCoursesList";
-import { ButtonColorful } from "@/components/ui/button-colorful";
+import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -146,9 +146,9 @@ const StudentDashboard = () => {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <ButtonColorful size="sm" gradient="green" className="gap-1.5" onClick={() => navigate("/join")}>
+              <Button size="sm" className="gap-1.5" onClick={() => navigate("/join")}>
                 <Plus className="w-4 h-4" /> Join Class
-              </ButtonColorful>
+              </Button>
               <ImportCanvasCourses onCoursesImported={() => window.location.reload()} />
               <ConnectionIndicator status={activeSession ? heartbeatStatus : "idle"} />
             </div>
@@ -216,9 +216,9 @@ const StudentDashboard = () => {
                       <p className="text-sm text-muted-foreground">{activeSession.section}</p>
                     )}
                   </div>
-                  <ButtonColorful className="gap-2" onClick={() => navigate(`/session/${activeSession.session_id}`)}>
+                  <Button className="gap-2" onClick={() => navigate(`/session/${activeSession.session_id}`)}>
                     <Play className="w-4 h-4" /> Go to Session
-                  </ButtonColorful>
+                  </Button>
                 </div>
               </div>
             </motion.div>
@@ -244,9 +244,9 @@ const StudentDashboard = () => {
                       {course.section && (
                         <p className="text-sm text-muted-foreground">{course.section}</p>
                       )}
-                      <ButtonColorful variant="ghost" size="sm" className="gap-1.5 mt-2 text-primary" onClick={() => navigate(`/course/${course.id}`)}>
+                      <Button variant="ghost" size="sm" className="gap-1.5 mt-2 text-primary" onClick={() => navigate(`/course/${course.id}`)}>
                         Enter Class →
-                      </ButtonColorful>
+                      </Button>
                     </div>
                   ))}
                 </div>

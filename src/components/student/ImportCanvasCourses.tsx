@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Loader2, BookOpen, Check, ExternalLink } from "lucide-react";
-import { ButtonColorful } from "@/components/ui/button-colorful";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -76,9 +76,9 @@ const ImportCanvasCourses = ({ onCoursesImported }: ImportCanvasCoursesProps) =>
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
-        <ButtonColorful variant="outline" size="sm" className="gap-1.5">
+        <Button variant="outline" size="sm" className="gap-1.5">
           <Download className="w-4 h-4" /> Import from Canvas
-        </ButtonColorful>
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
@@ -96,9 +96,9 @@ const ImportCanvasCourses = ({ onCoursesImported }: ImportCanvasCoursesProps) =>
         ) : error && courses.length === 0 ? (
           <div className="text-center py-8 space-y-3">
             <p className="text-sm text-destructive">{error}</p>
-            <ButtonColorful variant="outline" size="sm" onClick={fetchCanvasCourses}>
+            <Button variant="outline" size="sm" onClick={fetchCanvasCourses}>
               Retry
-            </ButtonColorful>
+            </Button>
           </div>
         ) : courses.length === 0 ? (
           <div className="text-center py-8">

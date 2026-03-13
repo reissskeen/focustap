@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ButtonColorful } from "@/components/ui/button-colorful";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -197,9 +197,9 @@ export default function SessionReport() {
           <p className="text-muted-foreground mb-6">
             This session has no student data to report on.
           </p>
-          <ButtonColorful variant="outline" onClick={() => navigate("/teacher")}>
+          <Button variant="outline" onClick={() => navigate("/teacher")}>
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
-          </ButtonColorful>
+          </Button>
         </div>
       </div>
     );
@@ -245,9 +245,9 @@ export default function SessionReport() {
         <div className="flex items-center justify-between mb-6 print:mb-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <ButtonColorful variant="ghost" size="sm" onClick={() => navigate("/teacher")} className="print:hidden">
+              <Button variant="ghost" size="sm" onClick={() => navigate("/teacher")} className="print:hidden">
                 <ArrowLeft className="h-4 w-4" />
-              </ButtonColorful>
+              </Button>
               <h1 className="text-2xl font-bold text-foreground font-[Space_Grotesk]">
                 Session Report
               </h1>
@@ -256,9 +256,9 @@ export default function SessionReport() {
               {session.course_name}{session.section ? ` — ${session.section}` : ""} · {sessionDate} at {sessionTime}
             </p>
           </div>
-          <ButtonColorful variant="outline" size="sm" onClick={() => window.print()} className="print:hidden">
+          <Button variant="outline" size="sm" onClick={() => window.print()} className="print:hidden">
             <Printer className="h-4 w-4 mr-2" /> Print Report
-          </ButtonColorful>
+          </Button>
         </div>
 
         {/* Summary Cards */}
