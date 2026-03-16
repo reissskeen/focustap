@@ -12,6 +12,7 @@ import {
   Presentation } from
 "lucide-react";
 import { Button } from "@/components/ui/button";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 import Navbar from "@/components/Navbar";
 
 const fadeUp = {
