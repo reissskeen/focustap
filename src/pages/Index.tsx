@@ -223,4 +223,46 @@ const Index = () => {
 
 };
 
+interface FeatureGridItemProps {
+  area: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  index: number;
+}
+
+const FeatureGridItem = ({ area, icon, title, description, index }: FeatureGridItemProps) => {
+  return (
+    <motion.li
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className={`min-h-[14rem] list-none ${area}`}
+    >
+      <div className="group/container relative h-full rounded-2xl border border-border bg-card p-2 md:rounded-3xl md:p-3">
+        <GlowingEffect
+          spread={40}
+          glow
+          disabled={false}
+          proximity={64}
+          inactiveZone={0.01}
+          borderWidth={2}
+        />
+        <div className="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-0.75 border-border bg-background p-6 shadow-sm md:p-6">
+          <div className="relative flex flex-1 flex-col justify-between gap-3">
+            <div className="w-fit rounded-lg border border-border bg-muted p-2">
+              {icon}
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-display text-lg font-semibold text-foreground">{title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.li>
+  );
+};
+
 export default Index;
