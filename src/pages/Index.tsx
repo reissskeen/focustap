@@ -262,6 +262,6 @@ const Index = () => {
         </div>
       </footer>
     </div>);
-
+};
 
 export default Index;
