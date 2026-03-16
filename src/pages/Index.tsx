@@ -12,6 +12,7 @@ import {
   Presentation } from
 "lucide-react";
 import { Button } from "@/components/ui/button";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 import Navbar from "@/components/Navbar";
 
 const fadeUp = {
@@ -132,24 +133,28 @@ const Index = () => {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, i) =>
-            <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="glass-card rounded-xl p-6 hover:shadow-xl transition-shadow">
-
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <feature.icon className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="font-display text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-              </motion.div>
-            )}
-          </div>
+          <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2">
+            {features.map((feature, i) => {
+              const areas = [
+                "md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]",
+                "md:[grid-area:1/7/2/13] xl:[grid-area:1/5/2/9]",
+                "md:[grid-area:2/1/3/7] xl:[grid-area:1/9/2/13]",
+                "md:[grid-area:2/7/3/13] xl:[grid-area:2/1/3/5]",
+                "md:[grid-area:3/1/4/7] xl:[grid-area:2/5/3/9]",
+                "md:[grid-area:3/7/4/13] xl:[grid-area:2/9/3/13]",
+              ];
+              return (
+                <FeatureGridItem
+                  key={feature.title}
+                  area={areas[i]}
+                  icon={<feature.icon className="h-4 w-4 text-foreground" />}
+                  title={feature.title}
+                  description={feature.description}
+                  index={i}
+                />
+              );
+            })}
+          </ul>
         </div>
       </section>
 
@@ -216,6 +221,48 @@ const Index = () => {
       </footer>
     </div>);
 
+};
+
+interface FeatureGridItemProps {
+  area: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  index: number;
+}
+
+const FeatureGridItem = ({ area, icon, title, description, index }: FeatureGridItemProps) => {
+  return (
+    <motion.li
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className={`min-h-[14rem] list-none ${area}`}
+    >
+      <div className="group/container relative h-full rounded-2xl border border-border bg-card p-2 md:rounded-3xl md:p-3">
+        <GlowingEffect
+          spread={40}
+          glow
+          disabled={false}
+          proximity={64}
+          inactiveZone={0.01}
+          borderWidth={2}
+        />
+        <div className="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-0.75 border-border bg-background p-6 shadow-sm md:p-6">
+          <div className="relative flex flex-1 flex-col justify-between gap-3">
+            <div className="w-fit rounded-lg border border-border bg-muted p-2">
+              {icon}
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-display text-lg font-semibold text-foreground">{title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.li>
+  );
 };
 
 export default Index;
