@@ -132,24 +132,28 @@ const Index = () => {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, i) =>
-            <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="glass-card rounded-xl p-6 hover:shadow-xl transition-shadow">
-
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <feature.icon className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="font-display text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-              </motion.div>
-            )}
-          </div>
+          <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2">
+            {features.map((feature, i) => {
+              const areas = [
+                "md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]",
+                "md:[grid-area:1/7/2/13] xl:[grid-area:1/5/2/9]",
+                "md:[grid-area:2/1/3/7] xl:[grid-area:1/9/2/13]",
+                "md:[grid-area:2/7/3/13] xl:[grid-area:2/1/3/5]",
+                "md:[grid-area:3/1/4/7] xl:[grid-area:2/5/3/9]",
+                "md:[grid-area:3/7/4/13] xl:[grid-area:2/9/3/13]",
+              ];
+              return (
+                <FeatureGridItem
+                  key={feature.title}
+                  area={areas[i]}
+                  icon={<feature.icon className="h-4 w-4 text-foreground" />}
+                  title={feature.title}
+                  description={feature.description}
+                  index={i}
+                />
+              );
+            })}
+          </ul>
         </div>
       </section>
 
