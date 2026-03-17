@@ -195,7 +195,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
       supabase.removeChannel(rosterChannel);
       supabase.removeChannel(seatChannel);
     };
-  }, [session.id]);
+  }, [session.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleEndSession = async () => {
     setEnding(true);

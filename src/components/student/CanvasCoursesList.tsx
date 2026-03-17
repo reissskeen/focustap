@@ -42,8 +42,8 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
 
       if (fnError) throw fnError;
       setCourses(data.courses || []);
-    } catch (err: any) {
-      setError(err.message || "Failed to load Canvas courses");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load Canvas courses");
     } finally {
       setLoading(false);
     }
@@ -67,8 +67,8 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
       setCourses(prev => prev.map(c =>
         c.canvas_course_id === course.canvas_course_id ? { ...c, waitlisted: true } : c
       ));
-    } catch (err: any) {
-      toast.error(err.message || "Failed to join waitlist");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to join waitlist");
     } finally {
       setActionLoading(null);
     }
@@ -89,8 +89,8 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
       setCourses(prev => prev.map(c =>
         c.canvas_course_id === course.canvas_course_id ? { ...c, waitlisted: false } : c
       ));
-    } catch (err: any) {
-      toast.error(err.message || "Failed to leave waitlist");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to leave waitlist");
     } finally {
       setActionLoading(null);
     }
@@ -108,8 +108,8 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
         );
       if (error) throw error;
       navigate(`/session/${course.active_session_id}`);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to join session");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to join session");
     } finally {
       setActionLoading(null);
     }
@@ -136,8 +136,8 @@ const CanvasCoursesList = ({ userId }: CanvasCoursesListProps) => {
         courseId = data.id;
       }
       navigate(`/course/${courseId}`);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to enter class");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to enter class");
     } finally {
       setActionLoading(null);
     }

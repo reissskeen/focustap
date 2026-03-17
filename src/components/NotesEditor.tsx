@@ -96,7 +96,7 @@ const NotesEditor = ({ initialContent, onContentChange, readOnly = false, cacheK
   const cacheContent = useCallback(
     (json: object) => {
       if (!cacheKey) return;
-      try { localStorage.setItem(cacheKey, JSON.stringify(json)); } catch {}
+      try { localStorage.setItem(cacheKey, JSON.stringify(json)); } catch { /* storage unavailable */ }
     },
     [cacheKey]
   );
@@ -165,7 +165,7 @@ const NotesEditor = ({ initialContent, onContentChange, readOnly = false, cacheK
     const content = serverContent ?? cached;
     if (content) {
       initialContentLoaded.current = true;
-      editor.commands.setContent(content as any);
+      editor.commands.setContent(content as Record<string, unknown>);
       if (!serverContent && cached) pendingSyncRef.current = true;
     } else {
       initialContentLoaded.current = true;
