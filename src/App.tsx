@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,47 +26,53 @@ import SessionReport from "./pages/SessionReport";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/student" element={
-              <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><StudentDashboard /></RoleProtectedRoute>
-            } />
-            <Route path="/session/:sessionId" element={
-              <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><StudentSession /></RoleProtectedRoute>
-            } />
-            <Route path="/course/:courseId" element={
-              <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><CourseWorkspace /></RoleProtectedRoute>
-            } />
-            <Route path="/teacher" element={
-              <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><TeacherDashboard /></RoleProtectedRoute>
-            } />
-            <Route path="/launch" element={
-              <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><Launch /></RoleProtectedRoute>
-            } />
-            <Route path="/join" element={
-              <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><JoinClass /></RoleProtectedRoute>
-            } />
-            <Route path="/login" element={<Login />} />
-            <Route path="/teacher-login" element={<TeacherLogin />} />
-            <Route path="/financials" element={<Financials />} />
-            <Route path="/pitch-deck" element={<PitchDeck />} />
-            <Route path="/demo" element={<DemoJoin />} />
-            <Route path="/poster" element={<PosterBoard />} />
-            <Route path="/teacher/session/:sessionId/report" element={
-              <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><SessionReport /></RoleProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <Sentry.ErrorBoundary fallback={<div className="flex min-h-screen items-center justify-center"><p className="text-muted-foreground">Something went wrong. Please refresh the page.</p></div>}>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/student" element={
+                <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><StudentDashboard /></RoleProtectedRoute>
+              } />
+              <Route path="/session/:sessionId" element={
+                <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><StudentSession /></RoleProtectedRoute>
+              } />
+              <Route path="/course/:courseId" element={
+                <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><CourseWorkspace /></RoleProtectedRoute>
+              } />
+              <Route path="/teacher" element={
+                <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><TeacherDashboard /></RoleProtectedRoute>
+              } />
+              <Route path="/launch" element={
+                <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><Launch /></RoleProtectedRoute>
+              } />
+              <Route path="/join" element={
+                <RoleProtectedRoute allowedRoles={["student"]} redirectTo="/login"><JoinClass /></RoleProtectedRoute>
+              } />
+              <Route path="/login" element={<Login />} />
+              <Route path="/teacher-login" element={<TeacherLogin />} />
+              <Route path="/financials" element={
+                <RoleProtectedRoute allowedRoles={["admin"]} redirectTo="/"><Financials /></RoleProtectedRoute>
+              } />
+              <Route path="/pitch-deck" element={
+                <RoleProtectedRoute allowedRoles={["admin"]} redirectTo="/"><PitchDeck /></RoleProtectedRoute>
+              } />
+              <Route path="/demo" element={<DemoJoin />} />
+              <Route path="/poster" element={<PosterBoard />} />
+              <Route path="/teacher/session/:sessionId/report" element={
+                <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><SessionReport /></RoleProtectedRoute>
+              } />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </Sentry.ErrorBoundary>
 );
 
 export default App;
