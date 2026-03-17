@@ -49,7 +49,7 @@ const StudentSession = () => {
         .maybeSingle();
 
       if (data) {
-        const course = data.courses as any;
+        const course = data.courses as { teacher_user_id?: string; name?: string } | null;
         let teacherName = "Unknown Teacher";
         if (course?.teacher_user_id) {
           const { data: profile } = await supabase
@@ -121,7 +121,7 @@ const StudentSession = () => {
       setSaveStatus("saving");
       const { error } = await supabase
         .from("note_docs")
-        .update({ content_json: json as any, updated_at: new Date().toISOString() })
+        .update({ content_json: json as Record<string, unknown>, updated_at: new Date().toISOString() })
         .eq("user_id", user.id)
         .eq("session_id", sessionId);
       setSaveStatus(error ? "error" : "saved");

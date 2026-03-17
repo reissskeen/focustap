@@ -87,8 +87,8 @@ const StudentDashboard = () => {
         let todayTotal = 0;
 
         for (const ss of studentSessions) {
-          const session = ss.sessions as any;
-          const course = session?.courses as any;
+          const session = ss.sessions as Record<string, unknown> | null;
+          const course = (session?.courses as Record<string, unknown>) ?? null;
           if (course && !courseMap.has(course.id)) {
             courseMap.set(course.id, { id: course.id, name: course.name, section: course.section });
           }
