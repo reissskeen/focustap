@@ -8,7 +8,6 @@ import {
   BarChart3,
   Shield,
   ArrowRight,
-  TrendingUp,
   Presentation } from
 "lucide-react";
 import { Button } from "@/components/ui/button";
