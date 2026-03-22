@@ -129,6 +129,18 @@ const StudentSession = () => {
     [sessionId, user, submitted]
   );
 
+  // Track note saves for FEI scoring
+  const noteSaveCountRef = useRef(0);
+  const handleNoteSave = useCallback(async () => {
+    if (!sessionId || !user || submitted) return;
+    noteSaveCountRef.current += 1;
+    await supabase
+      .from("student_sessions")
+      .update({ note_save_count: noteSaveCountRef.current })
+      .eq("user_id", user.id)
+      .eq("session_id", sessionId);
+  }, [sessionId, user, submitted]);
+
   // Focus update is now handled by useHeartbeat hook
   // FocusTimer is kept for visual display only
   const handleFocusUpdate = useCallback(() => {}, []);
@@ -221,6 +233,7 @@ const StudentSession = () => {
               <NotesEditor
                 initialContent={initialContent}
                 onContentChange={handleContentChange}
+                onNoteSave={handleNoteSave}
                 readOnly={submitted}
                 cacheKey={user ? `notes-${user.id}-${sessionId}` : undefined}
               />

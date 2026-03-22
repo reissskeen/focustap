@@ -48,6 +48,7 @@ import {
 interface NotesEditorProps {
   initialContent?: object | null;
   onContentChange?: (json: object) => void;
+  onNoteSave?: () => void;
   readOnly?: boolean;
   cacheKey?: string;
 }
@@ -88,7 +89,7 @@ const ToolbarButton = ({
 
 const Divider = () => <div className="w-px h-5 bg-border mx-1" />;
 
-const NotesEditor = ({ initialContent, onContentChange, readOnly = false, cacheKey }: NotesEditorProps) => {
+const NotesEditor = ({ initialContent, onContentChange, onNoteSave, readOnly = false, cacheKey }: NotesEditorProps) => {
   const autosaveRef = useRef<ReturnType<typeof setTimeout>>();
   const initialContentLoaded = useRef(false);
   const pendingSyncRef = useRef(false);
@@ -138,6 +139,7 @@ const NotesEditor = ({ initialContent, onContentChange, readOnly = false, cacheK
       autosaveRef.current = setTimeout(() => {
         if (navigator.onLine) {
           onContentChange?.(json);
+          onNoteSave?.();
           clearCache();
         } else {
           pendingSyncRef.current = true;

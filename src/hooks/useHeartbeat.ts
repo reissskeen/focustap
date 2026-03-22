@@ -14,15 +14,22 @@ export function useHeartbeat({
   sessionId,
   userId,
   enabled,
-  intervalMs = 1000,
+  intervalMs = 5000,
 }: UseHeartbeatOptions) {
   const [status, setStatus] = useState<ConnectionStatus>("idle");
   const [focusSeconds, setFocusSeconds] = useState(0);
+  const [pauseCount, setPauseCount] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const focusRef = useRef(0);
+  const pauseCountRef = useRef(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const heartbeatInFlightRef = useRef(false);
-  const heartbeatFailuresRef = useRef(0);
+  const heartbeatFailuresRef = useRef(false);
+
+  const writeFocusEvent = useCallback(async (eventType: "start" | "pause" | "resume") => {
+    if (!sessionId || !userId) return;
+    await supabase.from("focus_events").insert({ user_id: userId, session_id: sessionId, event_type: eventType });
+  }, [sessionId, userId]);
 
   const sendHeartbeat = useCallback(async () => {
     if (!sessionId || !userId) return;
@@ -41,19 +48,15 @@ export function useHeartbeat({
         .eq("session_id", sessionId);
 
       if (error) {
-        heartbeatFailuresRef.current += 1;
-        if (heartbeatFailuresRef.current >= 2) {
-          setStatus((prev) => (prev === "disconnected" ? prev : "disconnected"));
-        }
+        heartbeatFailuresRef.current = true;
+        setStatus((prev) => (prev === "disconnected" ? prev : "disconnected"));
       } else {
-        heartbeatFailuresRef.current = 0;
+        heartbeatFailuresRef.current = false;
         setStatus((prev) => (prev === "connected" ? prev : "connected"));
       }
     } catch {
-      heartbeatFailuresRef.current += 1;
-      if (heartbeatFailuresRef.current >= 2) {
-        setStatus((prev) => (prev === "disconnected" ? prev : "disconnected"));
-      }
+      heartbeatFailuresRef.current = true;
+      setStatus((prev) => (prev === "disconnected" ? prev : "disconnected"));
     } finally {
       heartbeatInFlightRef.current = false;
     }
@@ -90,7 +93,7 @@ export function useHeartbeat({
       return;
     }
 
-    heartbeatFailuresRef.current = 0;
+    heartbeatFailuresRef.current = false;
     heartbeatInFlightRef.current = false;
 
     // Focus counter (1s tick, only when visible)
@@ -123,10 +126,14 @@ export function useHeartbeat({
 
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
+        writeFocusEvent("resume");
         startFocusTick();
         startHeartbeat();
         sendHeartbeat(); // immediate resume heartbeat
       } else {
+        writeFocusEvent("pause");
+        pauseCountRef.current += 1;
+        setPauseCount(pauseCountRef.current);
         stopFocusTick();
         stopHeartbeat();
         sendFinalHeartbeat(); // one last ping with keepalive
@@ -139,6 +146,7 @@ export function useHeartbeat({
 
     // Start
     if (document.visibilityState === "visible") startFocusTick();
+    writeFocusEvent("start");
     sendHeartbeat(); // immediate first heartbeat
     startHeartbeat();
 
@@ -151,7 +159,7 @@ export function useHeartbeat({
       document.removeEventListener("visibilitychange", handleVisibility);
       window.removeEventListener("pagehide", handlePageHide);
     };
-  }, [enabled, sessionId, userId, sendHeartbeat, sendFinalHeartbeat, intervalMs]);
+  }, [enabled, sessionId, userId, sendHeartbeat, sendFinalHeartbeat, writeFocusEvent, intervalMs]);
 
-  return { status, focusSeconds };
+  return { status, focusSeconds, pauseCount };
 }

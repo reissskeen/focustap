@@ -126,8 +126,20 @@ export default function SessionReport() {
     // Fetch authenticated student_sessions too
     const { data: studentSessions } = await supabase
       .from("student_sessions")
-      .select("user_id, joined_at, last_heartbeat, focus_seconds")
+      .select("user_id, joined_at, last_heartbeat, focus_seconds, note_save_count")
       .eq("session_id", sessionId!);
+
+    // Fetch pause counts from focus_events for distraction resistance scoring
+    const { data: pauseEvents } = await supabase
+      .from("focus_events")
+      .select("user_id")
+      .eq("session_id", sessionId!)
+      .eq("event_type", "pause");
+
+    const pauseCountMap: Record<string, number> = {};
+    (pauseEvents || []).forEach((e) => {
+      pauseCountMap[e.user_id] = (pauseCountMap[e.user_id] ?? 0) + 1;
+    });
 
     // Get profiles for student_sessions
     const userIds = (studentSessions || []).map((s) => s.user_id);
@@ -170,6 +182,8 @@ export default function SessionReport() {
           lastPing: ss.last_heartbeat,
           sessionStartTime: sessionData.start_time,
           sessionEndTime: sessionData.end_time!,
+          pauseCount: pauseCountMap[ss.user_id] ?? 0,
+          noteSaveCount: ss.note_save_count ?? 0,
         })
       );
     });
