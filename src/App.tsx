@@ -19,6 +19,7 @@ import JoinClass from "./pages/JoinClass";
 import NotFound from "./pages/NotFound";
 import Financials from "./pages/Financials";
 import PitchDeck from "./pages/PitchDeck";
+import Institutions from "./pages/Institutions";
 import DemoJoin from "./pages/DemoJoin";
 import PosterBoard from "./pages/PosterBoard";
 import SessionReport from "./pages/SessionReport";
@@ -57,6 +58,9 @@ const App = () => (
               <Route path="/teacher-login" element={<TeacherLogin />} />
               <Route path="/financials" element={
                 <RoleProtectedRoute allowedRoles={["admin"]} redirectTo="/"><Financials /></RoleProtectedRoute>
+              } />
+              <Route path="/institutions" element={
+                <RoleProtectedRoute allowedRoles={["admin"]} redirectTo="/"><Institutions /></RoleProtectedRoute>
               } />
               <Route path="/pitch-deck" element={
                 <RoleProtectedRoute allowedRoles={["admin"]} redirectTo="/"><PitchDeck /></RoleProtectedRoute>

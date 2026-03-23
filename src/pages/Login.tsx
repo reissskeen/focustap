@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, Eye, EyeOff, UserPlus, LogIn } from "lucide-react";
+import { Mail, Lock, ArrowRight, Eye, EyeOff, KeyRound } from "lucide-react";
 import focustapLogo from "@/assets/focustap-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [accessCode, setAccessCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
@@ -57,7 +58,7 @@ const Login = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!email || !password || !accessCode) return;
 
     if (password.length < 6) {
       toast.error("Password must be at least 6 characters");
@@ -69,32 +70,49 @@ const Login = () => {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: {
-          display_name: displayName || email.split("@")[0],
-        },
+        data: { display_name: displayName || email.split("@")[0] },
       },
     });
-    setLoading(false);
 
     if (error) {
+      setLoading(false);
       toast.error(error.message);
       return;
     }
+
+    // Link student to institution via access code
+    const session = signUpData.session;
+    if (session) {
+      const { data: fnData, error: fnError } = await supabase.functions.invoke(
+        "link-student-institution",
+        { body: { student_code: accessCode } }
+      );
+      if (fnError || fnData?.error) {
+        await supabase.auth.signOut();
+        setLoading(false);
+        toast.error(fnData?.error || "Invalid school access code.");
+        return;
+      }
+    }
+
+    setLoading(false);
     toast.success("Account created! Check your email to verify, then log in.");
     setMode("login");
     setPassword("");
     setConfirmPassword("");
+    setAccessCode("");
   };
 
   const switchMode = () => {
     setMode(mode === "login" ? "signup" : "login");
     setPassword("");
     setConfirmPassword("");
+    setAccessCode("");
   };
 
   return (
@@ -181,22 +199,39 @@ const Login = () => {
               </div>
 
               {mode === "signup" && (
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="confirmPassword"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="pl-10"
-                      required
-                      minLength={6}
-                    />
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="confirmPassword"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="pl-10"
+                        required
+                        minLength={6}
+                      />
+                    </div>
                   </div>
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="accessCode">School Access Code</Label>
+                    <div className="relative">
+                      <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="accessCode"
+                        type="text"
+                        placeholder="Enter your school's code"
+                        value={accessCode}
+                        onChange={(e) => setAccessCode(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+                </>
               )}
 
               <Button type="submit" className="w-full gap-2" disabled={loading}>

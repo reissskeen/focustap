@@ -33,14 +33,14 @@ Deno.serve(async (req) => {
       });
     }
 
-    const supabase = createClient(
+    const anonClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
       { global: { headers: { Authorization: authHeader } } }
     );
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
     if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -49,61 +49,47 @@ Deno.serve(async (req) => {
     }
 
     const userId = claimsData.claims.sub;
-    const { access_code } = await req.json();
+    const { student_code } = await req.json();
 
     const adminClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Look up institution by teacher_code
+    // Look up institution by student_code
     const { data: institution, error: instError } = await adminClient
       .from("institutions")
       .select("id, name")
-      .eq("teacher_code", access_code)
+      .eq("student_code", student_code)
       .eq("active", true)
       .maybeSingle();
 
     if (instError || !institution) {
-      return new Response(JSON.stringify({ error: "Invalid access code" }), {
+      return new Response(JSON.stringify({ error: "Invalid school access code" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Check if already a teacher
-    const { data: existing } = await adminClient
-      .from("user_roles")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("role", "teacher")
-      .maybeSingle();
-
-    if (!existing) {
-      const { error: insertError } = await adminClient
-        .from("user_roles")
-        .insert({ user_id: userId, role: "teacher" });
-
-      if (insertError) {
-        return new Response(JSON.stringify({ error: "Unable to assign teacher role. Please try again." }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-    }
-
-    // Link professor to institution
-    await adminClient
+    // Link student to institution
+    const { error: updateError } = await adminClient
       .from("profiles")
-      .update({ institution_id: institution.id, institution_role: "teacher" })
+      .update({ institution_id: institution.id, institution_role: "student" })
       .eq("user_id", userId);
+
+    if (updateError) {
+      return new Response(JSON.stringify({ error: "Failed to link institution" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     return new Response(JSON.stringify({ ok: true, institution_name: institution.name }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    console.error("Unexpected error in assign-teacher-role:", e);
-    return new Response(JSON.stringify({ error: "An unexpected error occurred. Please try again." }), {
+    console.error("Unexpected error in link-student-institution:", e);
+    return new Response(JSON.stringify({ error: "An unexpected error occurred." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
