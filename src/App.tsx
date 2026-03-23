@@ -19,7 +19,9 @@ import JoinClass from "./pages/JoinClass";
 import NotFound from "./pages/NotFound";
 import Financials from "./pages/Financials";
 import PitchDeck from "./pages/PitchDeck";
+import AdminHub from "./pages/AdminHub";
 import Institutions from "./pages/Institutions";
+import PinProtectedRoute from "./components/PinProtectedRoute";
 import DemoJoin from "./pages/DemoJoin";
 import PosterBoard from "./pages/PosterBoard";
 import SessionReport from "./pages/SessionReport";
@@ -57,14 +59,11 @@ const App = () => (
               } />
               <Route path="/login" element={<Login />} />
               <Route path="/teacher-login" element={<TeacherLogin />} />
-              <Route path="/financials" element={
-                <RoleProtectedRoute allowedRoles={["admin"]} redirectTo="/"><Financials /></RoleProtectedRoute>
-              } />
+              <Route path="/admin" element={<PinProtectedRoute><AdminHub /></PinProtectedRoute>} />
+              <Route path="/financials" element={<PinProtectedRoute><Financials /></PinProtectedRoute>} />
+              <Route path="/pitch-deck" element={<PinProtectedRoute><PitchDeck /></PinProtectedRoute>} />
               <Route path="/institutions" element={
                 <RoleProtectedRoute allowedRoles={["admin"]} redirectTo="/"><Institutions /></RoleProtectedRoute>
-              } />
-              <Route path="/pitch-deck" element={
-                <RoleProtectedRoute allowedRoles={["admin"]} redirectTo="/"><PitchDeck /></RoleProtectedRoute>
               } />
               <Route path="/demo" element={<DemoJoin />} />
               <Route path="/poster" element={<PosterBoard />} />

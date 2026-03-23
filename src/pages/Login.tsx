@@ -123,7 +123,7 @@ const Login = () => {
         className="w-full max-w-sm"
       >
         <Link to="/" className="flex items-center justify-center mb-10">
-          <img src={focustapLogo} alt="FocusTap" className="h-40 w-auto" />
+          <img src={focustapLogo} alt="FocusTap" className="h-16 w-auto" />
         </Link>
 
         {/* Login Only */}

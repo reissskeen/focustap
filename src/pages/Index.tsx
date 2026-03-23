@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import focustapLogo from "@/assets/focustap-logo.png";
 import {
   Eye,
@@ -11,8 +12,16 @@ import {
   Presentation } from
 "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 import Navbar from "@/components/Navbar";
+import { ADMIN_PIN, PIN_KEY } from "@/components/PinProtectedRoute";
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -104,6 +113,24 @@ const FeatureGridItem = ({ area, icon, title, description, index }: FeatureGridI
 };
 
 const Index = () => {
+  const navigate = useNavigate();
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [pin, setPin] = useState("");
+  const [pinError, setPinError] = useState(false);
+
+  const handleAdminSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pin === ADMIN_PIN) {
+      sessionStorage.setItem(PIN_KEY, "true");
+      setAdminOpen(false);
+      setPin("");
+      navigate("/admin");
+    } else {
+      setPinError(true);
+      setPin("");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -131,27 +158,22 @@ const Index = () => {
               no monitoring, no hardware. Just engagement data that matters.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/login?mode=login">
+              <Link to="/login?mode=signup">
                 <Button size="lg" className="text-base px-8 gap-2">
-                  Student Login <ArrowRight className="w-4 h-4" />
+                  Student Sign Up <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
-              <Link to="/teacher-login?mode=login">
+              <Link to="/teacher-login?mode=signup">
                 <Button size="lg" variant="outline" className="text-base px-8">
-                  Professor Login
+                  Professor Sign Up
                 </Button>
               </Link>
             </div>
+            <p className="text-sm text-muted-foreground mt-3">
+              Already have an account?{" "}
+              <Link to="/login?mode=login" className="text-primary hover:underline font-medium">Log in</Link>
+            </p>
 
-            {/* Pitch Deck Tag */}
-            <div className="flex items-center justify-center gap-3 mt-6">
-              <Link to="/pitch-deck">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer">
-                  <Presentation className="w-3.5 h-3.5" />
-                  Pitch Deck
-                </span>
-              </Link>
-            </div>
           </motion.div>
         </div>
       </section>
@@ -234,9 +256,9 @@ const Index = () => {
             <p className="text-muted-foreground text-lg mb-8">
               Start a free pilot with your class. No hardware, no installs, no setup friction.
             </p>
-            <Link to="/login">
+            <Link to="/login?mode=signup">
               <Button size="lg" className="text-base px-10 gap-2">
-                Get Started Free <ArrowRight className="w-4 h-4" />
+                Sign Up Free <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
           </motion.div>
@@ -247,13 +269,43 @@ const Index = () => {
       <footer className="border-t py-8 px-4">
         <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 font-display font-bold">
-            <img src={focustapLogo} alt="FocusTap" className="h-10 w-aut0" />
+            <img src={focustapLogo} alt="FocusTap" className="h-10 w-auto" />
           </div>
           <p className="text-sm text-muted-foreground">
             © 2026 FocusTap. Privacy-first classroom engagement.
           </p>
+          <button
+            onClick={() => { setAdminOpen(true); setPinError(false); }}
+            className="text-xs text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors select-none"
+          >
+            Admin
+          </button>
         </div>
       </footer>
+
+      {/* Admin PIN dialog */}
+      <Dialog open={adminOpen} onOpenChange={setAdminOpen}>
+        <DialogContent className="max-w-xs">
+          <DialogHeader>
+            <DialogTitle className="text-base">Admin Access</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleAdminSubmit} className="space-y-3 mt-1">
+            <Input
+              type="password"
+              placeholder="Enter access code"
+              value={pin}
+              onChange={(e) => { setPin(e.target.value); setPinError(false); }}
+              autoFocus
+            />
+            {pinError && (
+              <p className="text-xs text-destructive">Incorrect code.</p>
+            )}
+            <Button type="submit" className="w-full" size="sm">
+              Continue
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>);
 };
 

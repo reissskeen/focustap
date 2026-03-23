@@ -23,9 +23,7 @@ const Navbar = () => {
 
   const navLinks = [
   { label: "Features", href: "/#features" },
-  { label: "How It Works", href: "/#how-it-works" },
-  { label: "Financials", href: "/financials" },
-  { label: "Pitch Deck", href: "/pitch-deck" }];
+  { label: "How It Works", href: "/#how-it-works" }];
 
 
   return (
@@ -36,7 +34,7 @@ const Navbar = () => {
 
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <Link to="/" className="flex items-center gap-2 font-display font-bold text-xl">
-          <img src={focustapLogo} alt="FocusTap" className="h-10 row-auto rounded-sm" />
+          <img src={focustapLogo} alt="FocusTap" className="h-10 w-auto rounded-sm" />
         </Link>
 
         {isLanding &&
@@ -72,7 +70,7 @@ const Navbar = () => {
             <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button size="sm" className="gap-1.5">
-                      Get Started <ChevronDown className="w-3.5 h-3.5" />
+                      Sign Up <ChevronDown className="w-3.5 h-3.5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
