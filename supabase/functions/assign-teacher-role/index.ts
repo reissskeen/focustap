@@ -1,8 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = [
-  "https://focustap.com",
-  "https://www.focustap.com",
+  "https://focustap.org",
+  "https://www.focustap.org",
   "http://localhost:8080",
 ];
 

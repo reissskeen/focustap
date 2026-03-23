@@ -23,6 +23,7 @@ import Institutions from "./pages/Institutions";
 import DemoJoin from "./pages/DemoJoin";
 import PosterBoard from "./pages/PosterBoard";
 import SessionReport from "./pages/SessionReport";
+import ProfessorAnalytics from "./pages/ProfessorAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,9 @@ const App = () => (
               } />
               <Route path="/demo" element={<DemoJoin />} />
               <Route path="/poster" element={<PosterBoard />} />
+              <Route path="/analytics" element={
+                <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><ProfessorAnalytics /></RoleProtectedRoute>
+              } />
               <Route path="/teacher/session/:sessionId/report" element={
                 <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><SessionReport /></RoleProtectedRoute>
               } />

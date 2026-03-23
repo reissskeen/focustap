@@ -148,6 +148,9 @@ const TeacherDashboard = () => {
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
+                      <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/analytics")}>
+                        <BarChart3 className="w-4 h-4" /> Analytics
+                      </Button>
                       <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowCreateCourse(true)}>
                         <Plus className="w-4 h-4" /> Add Course
                       </Button>
