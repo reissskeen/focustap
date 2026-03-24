@@ -15,6 +15,7 @@ const RoleProtectedRoute = ({ children, allowedRoles, redirectTo = "/login" }: R
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
+    setChecking(true);
     if (!user) {
       setChecking(false);
       return;
