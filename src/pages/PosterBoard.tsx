@@ -36,7 +36,7 @@ export default function PosterBoard() {
 
         {/* Header / Logo */}
         <div className="text-center space-y-2">
-          <img src={focustapLogo} alt="FocusTap" className="h-24 w-auto mx-auto rounded-lg" />
+          <img src={focustapLogo} alt="FocusTap" className="h-16 w-auto mx-auto" />
           <p className="text-sm text-muted-foreground font-medium">
             Web & Mobile App · NFC-Powered Focus Tracking, Attendance & Canvas Gradebook Integration
           </p>

@@ -107,7 +107,7 @@ export default function PitchDeck() {
   // Slide 0 — Title
   <SlideWrapper key={0}>
       <div className="text-center space-y-6 max-w-3xl">
-        <img src={focustapLogo} alt="FocusTap" className="h-40 w-auto mx-auto rounded-lg " />
+        <img src={focustapLogo} alt="FocusTap" className="h-20 w-auto mx-auto" />
         <p className="text-xl md:text-2xl text-muted-foreground font-medium">
           Browser-Based Classroom Engagement & Attendance
         </p>
