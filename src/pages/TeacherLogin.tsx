@@ -71,6 +71,27 @@ const TeacherLogin = () => {
 
     const userRoles = (roles || []).map((r) => r.role);
     if (!userRoles.includes("teacher") && !userRoles.includes("admin")) {
+      // Check if there's a pending access code from signup (email-confirmation flow)
+      const pending = localStorage.getItem("ft_pending_teacher_code");
+      if (pending) {
+        try {
+          const { email: pendingEmail, accessCode: pendingCode } = JSON.parse(pending);
+          if (pendingEmail === email) {
+            const { data: fnData, error: fnError } = await supabase.functions.invoke(
+              "assign-teacher-role",
+              { body: { access_code: pendingCode } }
+            );
+            if (!fnError && !fnData?.error) {
+              localStorage.removeItem("ft_pending_teacher_code");
+              setLoading(false);
+              toast.success("Professor account activated! Welcome.");
+              return; // useEffect will redirect to /teacher
+            }
+          }
+        } catch {
+          localStorage.removeItem("ft_pending_teacher_code");
+        }
+      }
       await supabase.auth.signOut();
       setLoading(false);
       toast.error("This account does not have professor access. Use the student login instead.");
@@ -115,8 +136,11 @@ const TeacherLogin = () => {
     // Now assign teacher role via edge function
     const session = signUpData.session;
     if (!session) {
+      // Email confirmation required — store the access code so we can
+      // call assign-teacher-role automatically on first login
+      localStorage.setItem("ft_pending_teacher_code", JSON.stringify({ email, accessCode }));
       setLoading(false);
-      toast.error("Account created but session not available. Please log in.");
+      toast.success("Check your email to confirm your account, then log in here.");
       setMode("login");
       return;
     }
