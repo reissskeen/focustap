@@ -43,7 +43,8 @@ const RoleProtectedRoute = ({ children, allowedRoles, redirectTo = "/login" }: R
     return <Navigate to="/login" replace />;
   }
 
-  if (roles && !roles.some((r) => allowedRoles.includes(r))) {
+  // Admin can access any protected route
+  if (roles && !roles.includes("admin") && !roles.some((r) => allowedRoles.includes(r))) {
     return <Navigate to={redirectTo} replace />;
   }
 
