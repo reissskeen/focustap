@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, Eye, EyeOff, UserPlus, LogIn, KeyRound } from "lucide-react";
-import focustapLogo from "@/assets/focustap-logo.png";
+import { Mail, Lock, ArrowRight, Eye, EyeOff, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -13,7 +12,10 @@ import { toast } from "sonner";
 type AuthMode = "login" | "signup";
 
 const TeacherLogin = () => {
-  const [mode, setMode] = useState<AuthMode>("login");
+  const [searchParams] = useSearchParams();
+  const [mode, setMode] = useState<AuthMode>(
+    searchParams.get("mode") === "signup" ? "signup" : "login"
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -144,53 +146,184 @@ const TeacherLogin = () => {
     setAccessCode("");
   };
 
+  const inputStyle = {
+    background: "rgba(255,255,255,0.04)",
+    border: "1px solid rgba(255,255,255,0.09)",
+    color: "#e8e8f0",
+    borderRadius: 8,
+  };
+
+  const labelStyle = {
+    color: "#8585a0",
+    fontSize: "0.82rem",
+    fontWeight: 500,
+  };
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#09090f",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "16px",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Background orb */}
+      <div
+        style={{
+          position: "absolute",
+          top: "30%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 600,
+          height: 400,
+          background: "radial-gradient(ellipse at center, rgba(34,211,238,0.07) 0%, transparent 70%)",
+          filter: "blur(40px)",
+          pointerEvents: "none",
+        }}
+      />
+      {/* Grid pattern */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage:
+            "linear-gradient(rgba(139,108,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(139,108,255,0.02) 1px, transparent 1px)",
+          backgroundSize: "72px 72px",
+          maskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 100%)",
+          WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 100%)",
+          pointerEvents: "none",
+        }}
+      />
+
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm"
+        transition={{ duration: 0.6 }}
+        style={{ width: "100%", maxWidth: 380, position: "relative", zIndex: 10 }}
       >
-        <Link to="/" className="flex items-center justify-center mb-10">
-          <img src={focustapLogo} alt="FocusTap" className="h-16 w-auto" />
+        {/* Logo */}
+        <Link to="/" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 32, textDecoration: "none" }}>
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 9,
+              background: "linear-gradient(135deg, #8b6cff, #22d3ee)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <span style={{ color: "white", fontSize: "0.7rem", fontWeight: 800 }}>FT</span>
+          </div>
+          <span style={{ color: "#e8e8f0", fontWeight: 700, fontSize: "1.15rem", letterSpacing: "-0.02em" }}>FocusTap</span>
         </Link>
 
-        {/* Signup tabs hidden */}
+        {/* Tab switcher */}
+        <div
+          style={{
+            display: "flex",
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            borderRadius: 10,
+            padding: 4,
+            marginBottom: 20,
+          }}
+        >
+          <Link
+            to="/login"
+            style={{
+              flex: 1,
+              textAlign: "center",
+              padding: "7px 0",
+              borderRadius: 7,
+              color: "#55556a",
+              fontWeight: 500,
+              fontSize: "0.84rem",
+              textDecoration: "none",
+              display: "block",
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#8585a0")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#55556a")}
+          >
+            Student
+          </Link>
+          <div
+            style={{
+              flex: 1,
+              textAlign: "center",
+              padding: "7px 0",
+              borderRadius: 7,
+              background: "rgba(34,211,238,0.1)",
+              border: "1px solid rgba(34,211,238,0.18)",
+              color: "#22d3ee",
+              fontWeight: 600,
+              fontSize: "0.84rem",
+            }}
+          >
+            Professor
+          </div>
+        </div>
 
-        <div className="glass-card rounded-xl p-6">
+        {/* Card */}
+        <div
+          style={{
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            borderRadius: 16,
+            padding: "28px 24px",
+            boxShadow: "0 0 0 1px rgba(34,211,238,0.05), 0 24px 60px rgba(0,0,0,0.4)",
+          }}
+        >
           <motion.div
             key={mode}
             initial={{ opacity: 0, x: mode === "login" ? -10 : 10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <h1 className="font-display text-xl font-bold mb-1 text-center">
+            <h1
+              style={{
+                fontWeight: 500,
+                fontSize: "1.2rem",
+                letterSpacing: "-0.02em",
+                color: "#e8e8f0",
+                textAlign: "center",
+                marginBottom: 4,
+              }}
+            >
               {mode === "login" ? "Professor Login" : "Professor Registration"}
             </h1>
-            <p className="text-sm text-muted-foreground text-center mb-6">
+            <p style={{ color: "#55556a", fontSize: "0.82rem", textAlign: "center", marginBottom: 24 }}>
               {mode === "login"
                 ? "Sign in to your professor account"
                 : "Create a professor account with your access code"}
             </p>
 
-            <form onSubmit={mode === "login" ? handleLogin : handleSignup} className="space-y-4">
+            <form onSubmit={mode === "login" ? handleLogin : handleSignup} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {mode === "signup" && (
-                <div className="space-y-2">
-                  <Label htmlFor="displayName">Display Name</Label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <Label htmlFor="displayName" style={labelStyle}>Display Name</Label>
                   <Input
                     id="displayName"
                     type="text"
                     placeholder="Prof. Smith"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
+                    style={inputStyle}
                   />
                 </div>
               )}
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <Label htmlFor="email" style={labelStyle}>Email</Label>
+                <div style={{ position: "relative" }}>
+                  <Mail style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", width: 15, height: 15, color: "#55556a" }} />
                   <Input
                     id="email"
                     type="email"
@@ -199,14 +332,15 @@ const TeacherLogin = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
                     required
+                    style={inputStyle}
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <Label htmlFor="password" style={labelStyle}>Password</Label>
+                <div style={{ position: "relative" }}>
+                  <Lock style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", width: 15, height: 15, color: "#55556a" }} />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
@@ -216,23 +350,24 @@ const TeacherLogin = () => {
                     className="pl-10 pr-10"
                     required
                     minLength={6}
+                    style={inputStyle}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#55556a", background: "none", border: "none", cursor: "pointer", padding: 0 }}
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? <EyeOff style={{ width: 15, height: 15 }} /> : <Eye style={{ width: 15, height: 15 }} />}
                   </button>
                 </div>
               </div>
 
               {mode === "signup" && (
                 <>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <Label htmlFor="confirmPassword" style={labelStyle}>Confirm Password</Label>
+                    <div style={{ position: "relative" }}>
+                      <Lock style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", width: 15, height: 15, color: "#55556a" }} />
                       <Input
                         id="confirmPassword"
                         type={showPassword ? "text" : "password"}
@@ -242,14 +377,15 @@ const TeacherLogin = () => {
                         className="pl-10"
                         required
                         minLength={6}
+                        style={inputStyle}
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="accessCode">Access Code</Label>
-                    <div className="relative">
-                      <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <Label htmlFor="accessCode" style={labelStyle}>Access Code</Label>
+                    <div style={{ position: "relative" }}>
+                      <KeyRound style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", width: 15, height: 15, color: "#55556a" }} />
                       <Input
                         id="accessCode"
                         type="password"
@@ -258,30 +394,67 @@ const TeacherLogin = () => {
                         onChange={(e) => setAccessCode(e.target.value)}
                         className="pl-10"
                         required
+                        style={inputStyle}
                       />
                     </div>
                   </div>
                 </>
               )}
 
-              <Button type="submit" className="w-full gap-2" disabled={loading}>
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  background: loading ? "rgba(34,211,238,0.3)" : "rgba(34,211,238,0.15)",
+                  border: `1px solid ${loading ? "rgba(34,211,238,0.2)" : "rgba(34,211,238,0.3)"}`,
+                  boxShadow: loading ? "none" : "0 0 16px rgba(34,211,238,0.1)",
+                  color: loading ? "rgba(34,211,238,0.5)" : "#22d3ee",
+                  fontWeight: 600,
+                  fontSize: "0.9rem",
+                  padding: "11px 0",
+                  borderRadius: 8,
+                  cursor: loading ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  width: "100%",
+                  transition: "box-shadow 0.2s, background 0.2s",
+                  fontFamily: "inherit",
+                  marginTop: 4,
+                }}
+              >
                 {loading ? (
                   "Please wait…"
                 ) : mode === "login" ? (
-                  <>Log In <ArrowRight className="w-4 h-4" /></>
+                  <>Log In <ArrowRight style={{ width: 15, height: 15 }} /></>
                 ) : (
-                  <>Create Professor Account <ArrowRight className="w-4 h-4" /></>
+                  <>Create Professor Account <ArrowRight style={{ width: 15, height: 15 }} /></>
                 )}
-              </Button>
+              </button>
+
+              <p style={{ color: "#55556a", fontSize: "0.78rem", textAlign: "center" }}>
+                {mode === "login" ? (
+                  <>No account?{" "}
+                    <button type="button" onClick={switchMode} style={{ color: "#22d3ee", background: "none", border: "none", cursor: "pointer", fontWeight: 500, fontSize: "0.78rem", fontFamily: "inherit" }}>
+                      Sign up
+                    </button>
+                  </>
+                ) : (
+                  <>Already have an account?{" "}
+                    <button type="button" onClick={switchMode} style={{ color: "#22d3ee", background: "none", border: "none", cursor: "pointer", fontWeight: 500, fontSize: "0.78rem", fontFamily: "inherit" }}>
+                      Log in
+                    </button>
+                  </>
+                )}
+              </p>
             </form>
           </motion.div>
         </div>
 
-        
-
-        <p className="text-xs text-muted-foreground text-center mt-3">
+        <p style={{ color: "#55556a", fontSize: "0.78rem", textAlign: "center", marginTop: 16 }}>
           Student?{" "}
-          <Link to="/login" className="text-primary hover:underline font-medium">
+          <Link to="/login" style={{ color: "#8b6cff", textDecoration: "none", fontWeight: 500 }}>
             Go to student login
           </Link>
         </p>

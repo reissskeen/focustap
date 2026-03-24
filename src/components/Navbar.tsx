@@ -1,168 +1,244 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, X, LogOut, ChevronDown, GraduationCap, BookOpen } from "lucide-react";
-import focustapLogo from "@/assets/focustap-logo.png";
+import { Menu, X, ChevronDown, GraduationCap, BookOpen, LogOut } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger } from
-"@/components/ui/dropdown-menu";
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, signOut } = useAuth();
-
   const isLanding = location.pathname === "/";
 
   const navLinks = [
-  { label: "Features", href: "/#features" },
-  { label: "How It Works", href: "/#how-it-works" }];
-
+    { label: "Features", href: "/#features" },
+    { label: "How It Works", href: "/#how-it-works" },
+  ];
 
   return (
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="fixed top-0 left-0 right-0 z-50 glass-card border-b">
-
-      <div className="container mx-auto flex items-center justify-between h-16 px-4">
-        <Link to="/" className="flex items-center gap-2 font-display font-bold text-xl">
-          <img src={focustapLogo} alt="FocusTap" className="h-10 w-auto rounded-sm" />
+      style={{
+        background: "rgba(9, 9, 15, 0.8)",
+        backdropFilter: "blur(24px)",
+        borderBottom: "1px solid rgba(255,255,255,0.07)",
+      }}
+      className="fixed top-0 left-0 right-0 z-50 h-16"
+    >
+      <div className="container mx-auto flex items-center justify-between h-full px-4 max-w-6xl">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2.5 shrink-0">
+          <div
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              background: "linear-gradient(135deg, #8b6cff, #22d3ee)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <span style={{ color: "white", fontSize: "0.65rem", fontWeight: 800 }}>FT</span>
+          </div>
+          <span style={{ color: "#e8e8f0", fontWeight: 700, fontSize: "1.1rem", letterSpacing: "-0.02em" }}>
+            FocusTap
+          </span>
         </Link>
 
-        {isLanding &&
-        <>
-            <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) =>
-            link.href.startsWith("/#") ?
-            <a
-              key={link.label}
-              href={link.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-
-                    {link.label}
-                  </a> :
-
-            <Link
-              key={link.label}
-              to={link.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-
-                    {link.label}
-                  </Link>
-
+        {/* Center links - landing only desktop */}
+        {isLanding && (
+          <div className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) =>
+              link.href.startsWith("/#") ? (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  style={{ color: "#8585a0", fontWeight: 500, fontSize: "0.84rem", transition: "color 0.2s" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "#8585a0")}
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  style={{ color: "#8585a0", fontWeight: 500, fontSize: "0.84rem" }}
+                >
+                  {link.label}
+                </Link>
+              )
             )}
-            </div>
+          </div>
+        )}
 
-            <div className="hidden md:flex items-center gap-3">
-              {user ?
-            <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
-                  <LogOut className="w-3.5 h-3.5" /> Sign out
-                </Button> :
-
-            <DropdownMenu>
+        {/* Right side */}
+        <div className="hidden md:flex items-center gap-3">
+          {isLanding ? (
+            user ? (
+              <button
+                onClick={signOut}
+                style={{ color: "#8585a0", fontWeight: 500, fontSize: "0.84rem", display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer" }}
+              >
+                <LogOut style={{ width: 14, height: 14 }} /> Sign out
+              </button>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  style={{ color: "#8585a0", fontWeight: 500, fontSize: "0.84rem", transition: "color 0.2s" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "#8585a0")}
+                >
+                  Log in
+                </Link>
+                <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button size="sm" className="gap-1.5">
-                      Sign Up <ChevronDown className="w-3.5 h-3.5" />
-                    </Button>
+                    <button
+                      style={{
+                        background: "#8b6cff",
+                        boxShadow: "0 0 20px rgba(139,108,255,0.25)",
+                        color: "white",
+                        fontWeight: 600,
+                        fontSize: "0.84rem",
+                        padding: "8px 18px",
+                        borderRadius: 8,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        border: "none",
+                        cursor: "pointer",
+                        transition: "box-shadow 0.2s",
+                        fontFamily: "inherit",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 0 28px rgba(139,108,255,0.45)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "0 0 20px rgba(139,108,255,0.25)")}
+                    >
+                      Sign Up <ChevronDown style={{ width: 14, height: 14 }} />
+                    </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent
+                    align="end"
+                    style={{
+                      background: "rgba(14,14,26,0.98)",
+                      border: "1px solid rgba(255,255,255,0.09)",
+                      borderRadius: 10,
+                      minWidth: 180,
+                    }}
+                  >
                     <DropdownMenuItem asChild>
-                      <Link to="/login?mode=signup" className="w-full cursor-pointer flex items-center gap-2">
-                        <GraduationCap className="w-4 h-4" /> Student Sign Up
+                      <Link to="/login?mode=signup" className="flex items-center gap-2 cursor-pointer" style={{ color: "#e8e8f0", fontWeight: 500 }}>
+                        <GraduationCap style={{ width: 15, height: 15, color: "#8b6cff" }} /> Student Sign Up
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/teacher-login?mode=signup" className="w-full cursor-pointer flex items-center gap-2">
-                        <BookOpen className="w-4 h-4" /> Professor Sign Up
+                      <Link to="/teacher-login?mode=signup" className="flex items-center gap-2 cursor-pointer" style={{ color: "#e8e8f0", fontWeight: 500 }}>
+                        <BookOpen style={{ width: 15, height: 15, color: "#22d3ee" }} /> Professor Sign Up
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-            }
-            </div>
-
-            <button
-            className="md:hidden text-foreground"
-            onClick={() => setMobileOpen(!mobileOpen)}>
-
-              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </>
-        }
-
-        {!isLanding &&
-        <div className="flex items-center gap-3">
-            <Link to="/teacher">
-              <Button variant="ghost" size="sm">Dashboard</Button>
-            </Link>
-            {user ?
-          <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5">
-                <LogOut className="w-3.5 h-3.5" /> Sign out
-              </Button> :
-
-          <Link to="/login">
-                <Button variant="ghost" size="sm">Log in</Button>
+              </>
+            )
+          ) : (
+            <>
+              <Link to="/teacher">
+                <button style={{ color: "#8585a0", fontWeight: 500, fontSize: "0.84rem", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}>
+                  Dashboard
+                </button>
               </Link>
-          }
-          </div>
-        }
+              {user ? (
+                <button
+                  onClick={signOut}
+                  style={{ color: "#8585a0", fontWeight: 500, fontSize: "0.84rem", display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}
+                >
+                  <LogOut style={{ width: 14, height: 14 }} /> Sign out
+                </button>
+              ) : (
+                <Link to="/login" style={{ color: "#8585a0", fontWeight: 500, fontSize: "0.84rem" }}>
+                  Log in
+                </Link>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Mobile toggle */}
+        {isLanding && (
+          <button
+            className="md:hidden"
+            style={{ color: "#e8e8f0", background: "none", border: "none", cursor: "pointer" }}
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <X style={{ width: 22, height: 22 }} /> : <Menu style={{ width: 22, height: 22 }} />}
+          </button>
+        )}
       </div>
 
-      {mobileOpen && isLanding &&
-      <motion.div
-        initial={{ opacity: 0, height: 0 }}
-        animate={{ opacity: 1, height: "auto" }}
-        className="md:hidden border-t bg-card px-4 pb-4">
-
+      {/* Mobile menu */}
+      {mobileOpen && isLanding && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          style={{
+            borderTop: "1px solid rgba(255,255,255,0.07)",
+            background: "rgba(9,9,15,0.97)",
+            padding: "16px",
+          }}
+        >
           {navLinks.map((link) =>
-        link.href.startsWith("/#") ?
-        <a
-          key={link.label}
-          href={link.href}
-          className="block py-2 text-sm font-medium text-muted-foreground"
-          onClick={() => setMobileOpen(false)}>
-
+            link.href.startsWith("/#") ? (
+              <a
+                key={link.label}
+                href={link.href}
+                style={{ display: "block", color: "#8585a0", fontWeight: 500, padding: "10px 0", fontSize: "0.9rem" }}
+                onClick={() => setMobileOpen(false)}
+              >
                 {link.label}
-              </a> :
-
-        <Link
-          key={link.label}
-          to={link.href}
-          className="block py-2 text-sm font-medium text-muted-foreground"
-          onClick={() => setMobileOpen(false)}>
-
+              </a>
+            ) : (
+              <Link
+                key={link.label}
+                to={link.href}
+                style={{ display: "block", color: "#8585a0", fontWeight: 500, padding: "10px 0", fontSize: "0.9rem" }}
+                onClick={() => setMobileOpen(false)}
+              >
                 {link.label}
               </Link>
-
-        )}
-          <div className="flex flex-col gap-2 mt-3">
-            {user ?
-          <Button variant="ghost" size="sm" className="w-full gap-1.5" onClick={() => {signOut();setMobileOpen(false);}}>
-                <LogOut className="w-3.5 h-3.5" /> Sign out
-              </Button> :
-
-          <>
-                <Link to="/login?mode=signup" onClick={() => setMobileOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start gap-2"><GraduationCap className="w-3.5 h-3.5" /> Student Sign Up</Button>
+            )
+          )}
+          <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+            {user ? (
+              <button onClick={() => { signOut(); setMobileOpen(false); }} style={{ color: "#8585a0", fontWeight: 500, fontSize: "0.9rem", textAlign: "left", background: "none", border: "none", cursor: "pointer", padding: "6px 0", fontFamily: "inherit" }}>
+                Sign out
+              </button>
+            ) : (
+              <>
+                <Link to="/login?mode=signup" onClick={() => setMobileOpen(false)} style={{ color: "#e8e8f0", fontWeight: 500, fontSize: "0.9rem", display: "flex", alignItems: "center", gap: 8, padding: "8px 0" }}>
+                  <GraduationCap style={{ width: 16, height: 16, color: "#8b6cff" }} /> Student Sign Up
                 </Link>
-                <Link to="/teacher-login?mode=signup" onClick={() => setMobileOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start gap-2"><BookOpen className="w-3.5 h-3.5" /> Professor Sign Up</Button>
+                <Link to="/teacher-login?mode=signup" onClick={() => setMobileOpen(false)} style={{ color: "#e8e8f0", fontWeight: 500, fontSize: "0.9rem", display: "flex", alignItems: "center", gap: 8, padding: "8px 0" }}>
+                  <BookOpen style={{ width: 16, height: 16, color: "#22d3ee" }} /> Professor Sign Up
+                </Link>
+                <Link to="/login" onClick={() => setMobileOpen(false)} style={{ color: "#8585a0", fontWeight: 500, fontSize: "0.9rem", padding: "8px 0" }}>
+                  Log in
                 </Link>
               </>
-          }
+            )}
           </div>
         </motion.div>
-      }
-    </motion.nav>);
-
+      )}
+    </motion.nav>
+  );
 };
 
 export default Navbar;
