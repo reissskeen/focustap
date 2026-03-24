@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Menu, X, ChevronDown, GraduationCap, BookOpen, LogOut } from "lucide-react";
 import { useState } from "react";
+import focustapLogo from "@/assets/focustap-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -34,24 +35,8 @@ const Navbar = () => {
     >
       <div className="container mx-auto flex items-center justify-between h-full px-4 max-w-6xl">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 shrink-0">
-          <div
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: 8,
-              background: "linear-gradient(135deg, #8b6cff, #22d3ee)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ color: "white", fontSize: "0.65rem", fontWeight: 800 }}>FT</span>
-          </div>
-          <span style={{ color: "#e8e8f0", fontWeight: 700, fontSize: "1.1rem", letterSpacing: "-0.02em" }}>
-            FocusTap
-          </span>
+        <Link to="/" className="flex items-center shrink-0">
+          <img src={focustapLogo} alt="FocusTap" style={{ height: 36, width: "auto" }} />
         </Link>
 
         {/* Center links - landing only desktop */}

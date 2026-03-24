@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, Eye, EyeOff, KeyRound } from "lucide-react";
+import focustapLogo from "@/assets/focustap-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -207,21 +208,8 @@ const TeacherLogin = () => {
         style={{ width: "100%", maxWidth: 380, position: "relative", zIndex: 10 }}
       >
         {/* Logo */}
-        <Link to="/" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 32, textDecoration: "none" }}>
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: 9,
-              background: "linear-gradient(135deg, #8b6cff, #22d3ee)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <span style={{ color: "white", fontSize: "0.7rem", fontWeight: 800 }}>FT</span>
-          </div>
-          <span style={{ color: "#e8e8f0", fontWeight: 700, fontSize: "1.15rem", letterSpacing: "-0.02em" }}>FocusTap</span>
+        <Link to="/" style={{ display: "flex", justifyContent: "center", marginBottom: 32, textDecoration: "none" }}>
+          <img src={focustapLogo} alt="FocusTap" style={{ height: 48, width: "auto" }} />
         </Link>
 
         {/* Tab switcher */}

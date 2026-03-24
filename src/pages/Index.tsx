@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { ADMIN_PIN, PIN_KEY } from "@/components/PinProtectedRoute";
+import focustapLogo from "@/assets/focustap-logo.png";
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -681,16 +682,8 @@ const Index = () => {
       {/* ── FOOTER ── */}
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "32px 16px" }}>
         <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 max-w-6xl">
-          <div className="flex items-center gap-2.5">
-            <div
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: 7,
-                background: "linear-gradient(135deg, #8b6cff, #22d3ee)",
-              }}
-            />
-            <span style={{ color: "#e8e8f0", fontWeight: 700, fontSize: "0.95rem", letterSpacing: "-0.02em" }}>FocusTap</span>
+          <div className="flex items-center">
+            <img src={focustapLogo} alt="FocusTap" style={{ height: 32, width: "auto" }} />
           </div>
           <p style={{ color: "#55556a", fontSize: "0.8rem" }}>© 2026 FocusTap. Privacy-first classroom engagement.</p>
           <button
