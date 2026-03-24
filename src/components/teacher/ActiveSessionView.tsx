@@ -266,8 +266,8 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
         className="flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <BarChart3 className="w-5 h-5 text-primary" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(34,211,238,0.1)", border: "1px solid rgba(34,211,238,0.2)" }}>
+            <BarChart3 className="w-5 h-5" style={{ color: "#22d3ee" }} />
           </div>
           <div>
             <h1 className="font-display text-xl font-bold leading-tight">{course.name}</h1>

@@ -1,11 +1,38 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, BookOpen } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+
+const CYAN = "#22d3ee";
+const CYAN_DIM = "rgba(34,211,238,0.1)";
+const CYAN_BORDER = "rgba(34,211,238,0.22)";
+const CARD_BG = "rgba(255,255,255,0.03)";
+const CARD_BORDER = "rgba(255,255,255,0.07)";
+const MUTED = "#8585a0";
+const LIGHT = "#e8e8f0";
+
+const inputStyle = {
+  background: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.09)",
+  color: LIGHT,
+  borderRadius: 8,
+  padding: "9px 12px",
+  fontSize: 14,
+  width: "100%",
+  outline: "none",
+  fontFamily: "inherit",
+  transition: "border-color 0.15s",
+};
+
+const labelStyle = {
+  color: MUTED,
+  fontSize: "0.82rem",
+  fontWeight: 500,
+  display: "block",
+  marginBottom: 6,
+};
 
 interface CreateCourseFormProps {
   userId: string;
@@ -40,35 +67,106 @@ const CreateCourseForm = ({ userId, onCourseCreated }: CreateCourseFormProps) =>
   };
 
   return (
-    <form onSubmit={handleSubmit} className="glass-card rounded-xl p-6 space-y-4">
-      <h2 className="font-display font-semibold text-lg">Create Your First Course</h2>
-      <p className="text-sm text-muted-foreground">Add a course to get started with sessions.</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="course-name">Course Name</Label>
-          <Input
+    <motion.form
+      onSubmit={handleSubmit}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      style={{
+        background: CARD_BG,
+        border: `1px solid ${CARD_BORDER}`,
+        borderRadius: 16,
+        padding: "32px 28px",
+        backdropFilter: "blur(12px)",
+        display: "flex",
+        flexDirection: "column",
+        gap: 20,
+        maxWidth: 520,
+      }}
+    >
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{
+          width: 40,
+          height: 40,
+          borderRadius: 10,
+          background: CYAN_DIM,
+          border: `1px solid ${CYAN_BORDER}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}>
+          <BookOpen style={{ width: 18, height: 18, color: CYAN }} />
+        </div>
+        <div>
+          <h2 style={{ fontWeight: 700, fontSize: 17, color: LIGHT, margin: 0 }}>
+            Create a Course
+          </h2>
+          <p style={{ color: MUTED, fontSize: 13, margin: "3px 0 0" }}>
+            Add a course to start running sessions
+          </p>
+        </div>
+      </div>
+
+      {/* Fields */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="grid-cols-1 sm:grid-cols-2">
+        <div>
+          <label htmlFor="course-name" style={labelStyle}>Course Name</label>
+          <input
             id="course-name"
+            type="text"
             placeholder="e.g. AP Computer Science"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            style={inputStyle}
+            onFocus={(e) => (e.currentTarget.style.borderColor = CYAN_BORDER)}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)")}
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="course-section">Section (optional)</Label>
-          <Input
+        <div>
+          <label htmlFor="course-section" style={labelStyle}>Section <span style={{ color: "rgba(133,133,160,0.6)" }}>(optional)</span></label>
+          <input
             id="course-section"
+            type="text"
             placeholder="e.g. Section A"
             value={section}
             onChange={(e) => setSection(e.target.value)}
+            style={inputStyle}
+            onFocus={(e) => (e.currentTarget.style.borderColor = CYAN_BORDER)}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)")}
           />
         </div>
       </div>
-      <Button type="submit" disabled={loading} className="gap-2">
-        <Plus className="w-4 h-4" />
+
+      {/* Submit */}
+      <button
+        type="submit"
+        disabled={loading}
+        style={{
+          alignSelf: "flex-start",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "10px 22px",
+          borderRadius: 9,
+          background: loading ? "rgba(34,211,238,0.06)" : CYAN_DIM,
+          border: `1px solid ${loading ? "rgba(34,211,238,0.12)" : CYAN_BORDER}`,
+          color: loading ? "rgba(34,211,238,0.4)" : CYAN,
+          fontSize: 14,
+          fontWeight: 600,
+          fontFamily: "inherit",
+          cursor: loading ? "not-allowed" : "pointer",
+          transition: "background 0.15s",
+        }}
+        onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "rgba(34,211,238,0.18)"; }}
+        onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = CYAN_DIM; }}
+      >
+        <Plus style={{ width: 15, height: 15 }} />
         {loading ? "Creating…" : "Create Course"}
-      </Button>
-    </form>
+      </button>
+    </motion.form>
   );
 };
 
