@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { PIN_KEY } from "@/components/PinProtectedRoute";
 
 interface RoleProtectedRouteProps {
   children: React.ReactNode;
@@ -10,6 +11,9 @@ interface RoleProtectedRouteProps {
 }
 
 const RoleProtectedRoute = ({ children, allowedRoles, redirectTo = "/login" }: RoleProtectedRouteProps) => {
+  // Admin PIN bypass — anyone who has unlocked the admin PIN can view any page
+  if (sessionStorage.getItem(PIN_KEY) === "true") return <>{children}</>;
+
   const { user, loading } = useAuth();
   const [roles, setRoles] = useState<string[] | null>(null);
   const [checking, setChecking] = useState(true);
