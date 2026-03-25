@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import {
   BookOpen, ArrowLeft, Plus, Trash2, FileText, FileSpreadsheet,
   Presentation, Download, Loader2, FolderOpen, Wifi, WifiOff,
-  Plug, PlugZap,
+  Plug, PlugZap, ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -264,9 +264,29 @@ const CourseWorkspace = () => {
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
             <div className="flex items-center gap-3 mb-1">
-              <Button variant="ghost" size="icon" onClick={() => navigate("/student")}>
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
+              <button
+                onClick={() => navigate("/student")}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  background: "none",
+                  border: "none",
+                  color: "#8585a0",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  padding: "0 0 0 0",
+                  marginBottom: 20,
+                  transition: "color 0.15s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#8585a0")}
+              >
+                <ChevronLeft style={{ width: 15, height: 15 }} />
+                Back
+              </button>
               <BookOpen className="w-5 h-5 text-primary" />
               <h1 className="font-display text-2xl font-bold">{courseName}</h1>
               <div className="ml-auto flex items-center gap-3">

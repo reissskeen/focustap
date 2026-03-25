@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BookOpen, Send, Download, Copy, Check, Loader2, Wifi, WifiOff } from "lucide-react";
+import { BookOpen, Send, Download, Copy, Check, Loader2, Wifi, WifiOff, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
@@ -17,6 +17,7 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 const StudentSession = () => {
   const { sessionId } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [copied, setCopied] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
@@ -202,6 +203,29 @@ const StudentSession = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
+            <button
+              onClick={() => navigate("/student")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                background: "none",
+                border: "none",
+                color: "#8585a0",
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                padding: "0 0 0 0",
+                marginBottom: 20,
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#8585a0")}
+            >
+              <ChevronLeft style={{ width: 15, height: 15 }} />
+              Back
+            </button>
             <div className="flex items-center gap-3 mb-1">
               <BookOpen className="w-5 h-5 text-primary" />
               <h1 className="font-display text-2xl font-bold">{sessionInfo.course}</h1>

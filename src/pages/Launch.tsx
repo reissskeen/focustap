@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Loader2, AlertCircle, RefreshCw, Home } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCw, Home, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,6 +83,30 @@ const Launch = () => {
           <AlertTitle>No active class session</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
+
+        <button
+          onClick={() => navigate("/teacher")}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            background: "none",
+            border: "none",
+            color: "#8585a0",
+            fontSize: 13,
+            fontWeight: 500,
+            cursor: "pointer",
+            fontFamily: "inherit",
+            padding: "0 0 0 0",
+            marginBottom: 20,
+            transition: "color 0.15s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#8585a0")}
+        >
+          <ChevronLeft style={{ width: 15, height: 15 }} />
+          Back
+        </button>
 
         <div className="flex gap-3">
           <Button onClick={resolve} variant="outline" className="flex-1 gap-2">

@@ -15,7 +15,7 @@ import {
 } from "recharts";
 import {
   ArrowLeft, Printer, Clock, Users, TrendingUp, Award,
-  CheckCircle2, AlertTriangle, XCircle,
+  CheckCircle2, AlertTriangle, XCircle, ChevronLeft,
 } from "lucide-react";
 import {
   computeStudentReport, getScoreColor, getScoreLabel,
@@ -253,9 +253,30 @@ export default function SessionReport() {
         <div className="flex items-center justify-between mb-6 print:mb-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <Button variant="ghost" size="sm" onClick={() => navigate("/teacher")} className="print:hidden">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
+              <button
+                onClick={() => navigate("/teacher")}
+                className="print:hidden"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  background: "none",
+                  border: "none",
+                  color: "#8585a0",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  padding: "0 0 0 0",
+                  marginBottom: 20,
+                  transition: "color 0.15s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#8585a0")}
+              >
+                <ChevronLeft style={{ width: 15, height: 15 }} />
+                Back
+              </button>
               <h1 className="text-2xl font-bold text-foreground font-[Space_Grotesk]">Session Report</h1>
             </div>
             <p className="text-muted-foreground text-sm ml-11 print:ml-0">

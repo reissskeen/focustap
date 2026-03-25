@@ -14,7 +14,7 @@ import {
   ResponsiveContainer, BarChart, Bar,
 } from "recharts";
 import {
-  ArrowLeft, BarChart3, Users, TrendingUp, BookOpen, ChevronRight, GraduationCap,
+  BarChart3, Users, TrendingUp, BookOpen, ChevronRight, GraduationCap, ChevronLeft,
 } from "lucide-react";
 import { computeStudentReport, getScoreColor, getScoreLabel } from "@/lib/engagementScore";
 
@@ -351,9 +351,29 @@ export default function ProfessorAnalytics() {
                   : "Engagement and attendance trends across your courses"}
               </p>
             </div>
-            <Button variant="outline" size="sm" onClick={() => navigate("/teacher")}>
-              <ArrowLeft className="h-4 w-4 mr-1" /> Dashboard
-            </Button>
+            <button
+              onClick={() => navigate("/teacher")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                background: "none",
+                border: "none",
+                color: "#8585a0",
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                padding: "0 0 0 0",
+                marginBottom: 20,
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#8585a0")}
+            >
+              <ChevronLeft style={{ width: 15, height: 15 }} />
+              Back
+            </button>
           </div>
 
           {/* Summary cards */}
@@ -463,9 +483,29 @@ export default function ProfessorAnalytics() {
 
         {/* Back + header */}
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => setView("overview")}>
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back
-          </Button>
+          <button
+            onClick={() => setView("overview")}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              background: "none",
+              border: "none",
+              color: "#8585a0",
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              padding: "0 0 0 0",
+              marginBottom: 20,
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#8585a0")}
+          >
+            <ChevronLeft style={{ width: 15, height: 15 }} />
+            Back
+          </button>
           <div>
             <h1 className="text-xl font-bold text-foreground">{selectedCourse?.name}</h1>
             {selectedCourse?.section && (

@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
 import focustapLogo from "@/assets/focustap-logo.png";
@@ -22,6 +22,7 @@ function SlideWrapper({ children }: {children: React.ReactNode;}) {
 }
 
 export default function PitchDeck() {
+  const navigate = useNavigate();
   const [slide, setSlide] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
   const [loadedAssumptions, setLoadedAssumptions] = useState<Assumptions>(defaultAssumptions);
@@ -403,9 +404,28 @@ export default function PitchDeck() {
       {!fullscreen &&
       <div className="border-b bg-card/80 backdrop-blur-sm">
           <div className="container mx-auto flex items-center justify-between h-12 px-4">
-            <Link to="/financials" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-              <ChevronLeft className="w-4 h-4" /> Back to Model
-            </Link>
+            <button
+              onClick={() => navigate("/admin")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                background: "none",
+                border: "none",
+                color: "#8585a0",
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                padding: "0 0 0 0",
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#8585a0")}
+            >
+              <ChevronLeft style={{ width: 15, height: 15 }} />
+              Back
+            </button>
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">
                 {slide + 1} / {TOTAL_SLIDES}

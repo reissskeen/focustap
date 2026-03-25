@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers, Target, Wallet, Lock, Unlock, Save, Download } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Presentation, TrendingUp, DollarSign, Building2, BarChart3, HardDrive, Layers, Target, Wallet, Lock, Unlock, Save, Download, ChevronLeft } from "lucide-react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { Button } from "@/components/ui/button";
@@ -147,6 +147,7 @@ function exportToExcel(
 }
 
 export default function Financials() {
+  const navigate = useNavigate();
   const {
     assumptions, setAssumptions,
     hasUnsavedChanges, save: saveAssumptions, saving,
@@ -252,11 +253,28 @@ export default function Financials() {
       <div className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
           <div className="flex items-center gap-3">
-            <Link to="/">
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-            </Link>
+            <button
+              onClick={() => navigate("/admin")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                background: "none",
+                border: "none",
+                color: "#8585a0",
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                padding: "0 0 0 0",
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#8585a0")}
+            >
+              <ChevronLeft style={{ width: 15, height: 15 }} />
+              Back
+            </button>
             <h1 className="font-bold text-lg">FocusTap Financial Model</h1>
             <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
               Enterprise B2B SaaS · March 2026

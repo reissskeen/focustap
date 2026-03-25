@@ -1,8 +1,10 @@
 import focustapLogo from "@/assets/focustap-logo.png";
 import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
+import { ChevronLeft } from "lucide-react";
 import { defaultAssumptions, generateForecast, formatCurrency } from "@/lib/financialData";
 import { loadAssumptionsFromDB } from "@/hooks/useFinancialAssumptions";
 
@@ -18,6 +20,7 @@ function Section({ title, children, className = "" }: { title: string; children:
 }
 
 export default function PosterBoard() {
+  const navigate = useNavigate();
   const [assumptions, setAssumptions] = useState(defaultAssumptions);
   useEffect(() => { loadAssumptionsFromDB().then(setAssumptions); }, []);
   const forecast = useMemo(() => generateForecast(assumptions), [assumptions]);
@@ -33,6 +36,33 @@ export default function PosterBoard() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-[1400px] mx-auto space-y-6">
+
+        {/* Back button */}
+        <div>
+          <button
+            onClick={() => navigate("/admin")}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              background: "none",
+              border: "none",
+              color: "#8585a0",
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              padding: "0 0 0 0",
+              marginBottom: 20,
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#8585a0")}
+          >
+            <ChevronLeft style={{ width: 15, height: 15 }} />
+            Back
+          </button>
+        </div>
 
         {/* Header / Logo */}
         <div className="text-center space-y-2">
