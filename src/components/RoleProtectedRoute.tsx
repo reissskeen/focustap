@@ -11,14 +11,13 @@ interface RoleProtectedRouteProps {
 }
 
 const RoleProtectedRoute = ({ children, allowedRoles, redirectTo = "/login" }: RoleProtectedRouteProps) => {
-  // Admin PIN bypass — anyone who has unlocked the admin PIN can view any page
-  if (sessionStorage.getItem(PIN_KEY) === "true") return <>{children}</>;
-
+  const isAdminPin = sessionStorage.getItem(PIN_KEY) === "true";
   const { user, loading } = useAuth();
   const [roles, setRoles] = useState<string[] | null>(null);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
+    if (isAdminPin) { setChecking(false); return; }
     setChecking(true);
     if (!user) {
       setChecking(false);
@@ -33,7 +32,10 @@ const RoleProtectedRoute = ({ children, allowedRoles, redirectTo = "/login" }: R
       setChecking(false);
     };
     fetchRoles();
-  }, [user]);
+  }, [user, isAdminPin]);
+
+  // Admin PIN bypass — all hooks have already run above
+  if (isAdminPin) return <>{children}</>;
 
   if (loading || checking) {
     return (
@@ -47,7 +49,7 @@ const RoleProtectedRoute = ({ children, allowedRoles, redirectTo = "/login" }: R
     return <Navigate to="/login" replace />;
   }
 
-  // Admin can access any protected route
+  // Admin role can access any protected route
   if (roles && !roles.includes("admin") && !roles.some((r) => allowedRoles.includes(r))) {
     return <Navigate to={redirectTo} replace />;
   }
