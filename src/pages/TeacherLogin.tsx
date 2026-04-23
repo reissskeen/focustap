@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { PageTransition } from "@/components/animations";
 import { Mail, Lock, ArrowRight, Eye, EyeOff, KeyRound } from "lucide-react";
 import focustapLogo from "@/assets/focustap-logo.png";
 import { Input } from "@/components/ui/input";
@@ -186,6 +187,7 @@ const TeacherLogin = () => {
   };
 
   return (
+    <PageTransition variant="fade">
     <div
       style={{
         minHeight: "100vh",
@@ -473,6 +475,7 @@ const TeacherLogin = () => {
         </p>
       </motion.div>
     </div>
+    </PageTransition>
   );
 };
 
