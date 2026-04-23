@@ -22,10 +22,12 @@ import PitchDeck from "./pages/PitchDeck";
 import AdminHub from "./pages/AdminHub";
 import Institutions from "./pages/Institutions";
 import PinProtectedRoute from "./components/PinProtectedRoute";
+import ConsentGuard from "./components/ConsentGuard";
 import DemoJoin from "./pages/DemoJoin";
 import PosterBoard from "./pages/PosterBoard";
 import SessionReport from "./pages/SessionReport";
 import ProfessorAnalytics from "./pages/ProfessorAnalytics";
+import Consent from "./pages/Consent";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +39,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <ConsentGuard>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/student" element={
@@ -73,8 +76,10 @@ const App = () => (
               <Route path="/teacher/session/:sessionId/report" element={
                 <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><SessionReport /></RoleProtectedRoute>
               } />
+              <Route path="/consent" element={<Consent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </ConsentGuard>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
