@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Play, Plus, BookOpen, BarChart3, GraduationCap, Clock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Play, Plus, BookOpen, BarChart3, GraduationCap, Clock, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +9,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import StartSessionDialog from "@/components/teacher/StartSessionDialog";
 import CreateCourseForm from "@/components/teacher/CreateCourseForm";
 import ActiveSessionView from "@/components/teacher/ActiveSessionView";
+import SeatLayoutEditor, { type SeatLayout } from "@/components/teacher/SeatLayoutEditor";
 
 // Design tokens
 const CYAN = "#22d3ee";
@@ -30,6 +31,7 @@ const TeacherDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateCourse, setShowCreateCourse] = useState(false);
   const [pastSessions, setPastSessions] = useState<Array<Tables<"sessions"> & { course_name: string }>>([]);
+  const [layoutEditing, setLayoutEditing] = useState<Tables<"courses"> | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -98,6 +100,15 @@ const TeacherDashboard = () => {
   const handleCourseCreated = (course: Tables<"courses">) => {
     setCourses((prev) => [...prev, course]);
     setShowCreateCourse(false);
+  };
+
+  const handleLayoutSaved = (layout: SeatLayout) => {
+    if (!layoutEditing) return;
+    setCourses((prev) =>
+      prev.map((c) =>
+        c.id === layoutEditing.id ? { ...c, seat_layout: layout as unknown as Tables<"courses">["seat_layout"] } : c
+      )
+    );
   };
 
   if (loading) {
@@ -439,7 +450,7 @@ const TeacherDashboard = () => {
                           >
                             <GraduationCap style={{ width: 16, height: 16, color: CYAN }} />
                           </div>
-                          <div style={{ minWidth: 0 }}>
+                          <div style={{ minWidth: 0, flex: 1 }}>
                             <p
                               style={{
                                 fontFamily: "Plus Jakarta Sans, sans-serif",
@@ -465,6 +476,38 @@ const TeacherDashboard = () => {
                                 {course.section}
                               </p>
                             )}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setLayoutEditing(course); }}
+                              style={{
+                                marginTop: 10,
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 5,
+                                padding: "4px 10px",
+                                borderRadius: 6,
+                                background: "rgba(34,211,238,0.06)",
+                                border: `1px solid rgba(34,211,238,0.14)`,
+                                color: MUTED,
+                                fontSize: 11,
+                                fontWeight: 500,
+                                fontFamily: "inherit",
+                                cursor: "pointer",
+                                transition: "border-color 0.13s, color 0.13s, background 0.13s",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.borderColor = CYAN_BORDER;
+                                e.currentTarget.style.color = CYAN;
+                                e.currentTarget.style.background = CYAN_DIM;
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.borderColor = "rgba(34,211,238,0.14)";
+                                e.currentTarget.style.color = MUTED;
+                                e.currentTarget.style.background = "rgba(34,211,238,0.06)";
+                              }}
+                            >
+                              <LayoutGrid style={{ width: 11, height: 11 }} />
+                              {course.seat_layout ? "Edit Layout" : "Set Layout"}
+                            </button>
                           </div>
                         </motion.div>
                       ))}
@@ -710,6 +753,18 @@ const TeacherDashboard = () => {
                 userId={user!.id}
                 onSessionStarted={handleSessionStarted}
               />
+
+              <AnimatePresence>
+                {layoutEditing && (
+                  <SeatLayoutEditor
+                    courseId={layoutEditing.id}
+                    courseName={layoutEditing.name}
+                    initialLayout={layoutEditing.seat_layout as SeatLayout | null}
+                    onClose={() => setLayoutEditing(null)}
+                    onSaved={handleLayoutSaved}
+                  />
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </div>

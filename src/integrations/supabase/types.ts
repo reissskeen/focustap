@@ -87,6 +87,7 @@ export type Database = {
           id: string
           lms_course_id: string | null
           name: string
+          seat_layout: Json | null
           section: string | null
           teacher_user_id: string
         }
@@ -95,6 +96,7 @@ export type Database = {
           id?: string
           lms_course_id?: string | null
           name: string
+          seat_layout?: Json | null
           section?: string | null
           teacher_user_id: string
         }
@@ -103,6 +105,7 @@ export type Database = {
           id?: string
           lms_course_id?: string | null
           name?: string
+          seat_layout?: Json | null
           section?: string | null
           teacher_user_id?: string
         }
