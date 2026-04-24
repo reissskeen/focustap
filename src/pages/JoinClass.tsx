@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Play, Loader2, Clock, Users, ChevronRight, QrCode, ChevronLeft, MapPin } from "lucide-react";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { BookOpen, Play, Loader2, Clock, Users, ChevronRight, QrCode, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,9 +21,6 @@ const JoinClass = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [activeSessions, setActiveSessions] = useState<ActiveSession[]>([]);
-  const [pickingSeat, setPickingSeat] = useState<string | null>(null); // sessionId being joined
-  const [seat, setSeat] = useState("");
-  const seatInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -73,16 +69,8 @@ const JoinClass = () => {
     return () => clearInterval(interval);
   }, [user]);
 
-  const handleSelectSession = (sessionId: string) => {
-    setPickingSeat(sessionId);
-    setSeat("");
-    setTimeout(() => seatInputRef.current?.focus(), 50);
-  };
-
-  const handleJoin = () => {
-    if (!pickingSeat) return;
-    const params = seat.trim() ? `?seat=${encodeURIComponent(seat.trim())}` : "";
-    navigate(`/session/${pickingSeat}${params}`);
+  const handleJoin = (sessionId: string) => {
+    navigate(`/session/${sessionId}`);
   };
 
   if (loading) {
@@ -153,7 +141,6 @@ const JoinClass = () => {
           ) : (
             <div className="space-y-3">
               {activeSessions.map((session, i) => {
-                const isPickingThisOne = pickingSeat === session.session_id;
                 return (
                   <motion.div
                     key={session.session_id}
@@ -162,11 +149,9 @@ const JoinClass = () => {
                     transition={{ delay: 0.05 * (i + 1) }}
                   >
                     <div className="glass-card rounded-xl overflow-hidden">
-                      {/* Session row */}
                       <button
-                        onClick={() => handleSelectSession(session.session_id)}
+                        onClick={() => handleJoin(session.session_id)}
                         className="w-full p-5 text-left hover:bg-muted/10 transition-colors group"
-                        disabled={isPickingThisOne}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1 min-w-0">
@@ -195,57 +180,15 @@ const JoinClass = () => {
                               </span>
                             </div>
                           </div>
-                          {!isPickingThisOne && (
-                            <div className="flex items-center gap-2 ml-4">
-                              <Button size="sm" className="gap-1.5 group-hover:gap-2 transition-all" tabIndex={-1}>
-                                <Play className="w-4 h-4" />
-                                Join
-                                <ChevronRight className="w-3.5 h-3.5" />
-                              </Button>
-                            </div>
-                          )}
+                          <div className="flex items-center gap-2 ml-4">
+                            <Button size="sm" className="gap-1.5 group-hover:gap-2 transition-all" tabIndex={-1}>
+                              <Play className="w-4 h-4" />
+                              Join
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
                         </div>
                       </button>
-
-                      {/* Seat picker — slides in when this session is selected */}
-                      <AnimatePresence>
-                        {isPickingThisOne && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            style={{ borderTop: "1px solid rgba(255,255,255,0.07)", overflow: "hidden" }}
-                          >
-                            <div className="p-5 pt-4 space-y-3">
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <MapPin className="w-4 h-4 text-primary" />
-                                <span>What's your seat? <span className="text-xs">(optional)</span></span>
-                              </div>
-                              <div className="flex gap-2">
-                                <Input
-                                  ref={seatInputRef}
-                                  value={seat}
-                                  onChange={(e) => setSeat(e.target.value)}
-                                  placeholder="e.g. A3, Row 2, Front left…"
-                                  className="flex-1"
-                                  onKeyDown={(e) => e.key === "Enter" && handleJoin()}
-                                />
-                                <Button onClick={handleJoin} className="gap-1.5 shrink-0">
-                                  <Play className="w-4 h-4" />
-                                  Enter Class
-                                </Button>
-                              </div>
-                              <button
-                                onClick={() => setPickingSeat(null)}
-                                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
                     </div>
                   </motion.div>
                 );

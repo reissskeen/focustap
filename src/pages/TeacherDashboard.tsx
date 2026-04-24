@@ -852,21 +852,21 @@ const TeacherDashboard = () => {
                 onSessionStarted={handleSessionStarted}
               />
 
-              <AnimatePresence>
-                {layoutEditing && (
-                  <SeatLayoutEditor
-                    courseId={layoutEditing.id}
-                    courseName={layoutEditing.name}
-                    initialLayout={layoutEditing.seat_layout as SeatLayout | null}
-                    onClose={() => setLayoutEditing(null)}
-                    onSaved={handleLayoutSaved}
-                  />
-                )}
-              </AnimatePresence>
             </motion.div>
           )}
         </div>
       </div>
+      <AnimatePresence>
+        {layoutEditing && (
+          <SeatLayoutEditor
+            courseId={layoutEditing.id}
+            courseName={layoutEditing.name}
+            initialLayout={layoutEditing.seat_layout as SeatLayout | null}
+            onClose={() => setLayoutEditing(null)}
+            onSaved={handleLayoutSaved}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
