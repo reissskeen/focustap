@@ -25,6 +25,7 @@ const StudentSession = () => {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [initialContent, setInitialContent] = useState<object | null>(null);
   const [loading, setLoading] = useState(true);
+  const [savedFocusSeconds, setSavedFocusSeconds] = useState(0);
   const [sessionInfo, setSessionInfo] = useState({
     course: "Loading…",
     teacher: "",
@@ -34,11 +35,12 @@ const StudentSession = () => {
 
   const editorRef = useRef<{ getText: () => string } | null>(null);
 
-  // Heartbeat system
+  // Heartbeat system — starts from saved focus seconds so refresh doesn't reset
   const { status: heartbeatStatus } = useHeartbeat({
     sessionId,
     userId: user?.id,
     enabled: !submitted && !loading,
+    initialFocusSeconds: savedFocusSeconds,
   });
 
   // Fetch session info
@@ -79,18 +81,32 @@ const StudentSession = () => {
       if (!sessionId || !user) return;
       const uid = user.id;
 
-      // Upsert student_sessions
-      await supabase
+      // Check if already joined — preserve joined_at and focus_seconds on refresh
+      const { data: existing } = await supabase
         .from("student_sessions")
-        .upsert(
-          {
-            user_id: uid,
-            session_id: sessionId,
-            joined_at: new Date().toISOString(),
-            ...(seatLabel ? { seat_label: seatLabel } : {}),
-          },
-          { onConflict: "user_id,session_id" }
-        );
+        .select("focus_seconds, seat_label")
+        .eq("user_id", uid)
+        .eq("session_id", sessionId)
+        .maybeSingle();
+
+      if (!existing) {
+        await supabase.from("student_sessions").insert({
+          user_id: uid,
+          session_id: sessionId,
+          joined_at: new Date().toISOString(),
+          ...(seatLabel ? { seat_label: seatLabel } : {}),
+        });
+      } else {
+        setSavedFocusSeconds(existing.focus_seconds ?? 0);
+        // Update seat_label if provided and not already set
+        if (seatLabel && !existing.seat_label) {
+          await supabase
+            .from("student_sessions")
+            .update({ seat_label: seatLabel })
+            .eq("user_id", uid)
+            .eq("session_id", sessionId);
+        }
+      }
 
       // Upsert note_docs
       await supabase

@@ -5,6 +5,7 @@ interface UseHeartbeatOptions {
   sessionId: string | undefined;
   userId: string | undefined;
   enabled: boolean;
+  initialFocusSeconds?: number;
   intervalMs?: number;
 }
 
@@ -14,13 +15,14 @@ export function useHeartbeat({
   sessionId,
   userId,
   enabled,
+  initialFocusSeconds = 0,
   intervalMs = 5000,
 }: UseHeartbeatOptions) {
   const [status, setStatus] = useState<ConnectionStatus>("idle");
-  const [focusSeconds, setFocusSeconds] = useState(0);
+  const [focusSeconds, setFocusSeconds] = useState(initialFocusSeconds);
   const [pauseCount, setPauseCount] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const focusRef = useRef(0);
+  const focusRef = useRef(initialFocusSeconds);
   const pauseCountRef = useRef(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const heartbeatInFlightRef = useRef(false);

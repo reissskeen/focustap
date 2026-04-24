@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import {
-  Users, Clock, BarChart3, Download, Eye, Pause, UserCheck, LayoutGrid, List, ExternalLink, Smartphone, Copy,
-  AlertTriangle, WifiOff, UserX,
+  Users, BarChart3, Download, Pause, UserCheck, LayoutGrid, List, ExternalLink, Smartphone, Copy,
+  AlertTriangle, WifiOff, UserX, MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -17,7 +17,6 @@ import {
   type StudentActivityStatus,
   type AttendanceStatus,
 } from "./AttendanceHelpers";
-import DemoSeatGrid, { getSeatStatus } from "./DemoSeatGrid";
 
 // --- Types ---
 
@@ -28,14 +27,7 @@ interface RosterStudent {
   focus_seconds: number;
   joined_at: string;
   last_heartbeat: string | null;
-}
-
-interface DemoSeatRow {
-  id: string;
-  seat_label: string;
-  student_name: string | null;
-  last_ping: string | null;
-  focus_seconds: number;
+  seat_label: string | null;
 }
 
 type StudentSessionRealtimeRow = Omit<RosterStudent, "display_name">;
@@ -81,12 +73,8 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
   const [showNFC, setShowNFC] = useState(false);
   const [viewMode, setViewMode] = useState<"seats" | "roster">("seats");
   const [roster, setRoster] = useState<RosterStudent[]>([]);
-  const [demoSeats, setDemoSeats] = useState<DemoSeatRow[]>([]);
   const [ending, setEnding] = useState(false);
-  const gridRows = 5;
-  const gridCols = 5;
   const [tick, setTick] = useState(0);
-  const [seatRefreshKey, setSeatRefreshKey] = useState(0);
 
   // 1-second tick for live alert updates
   useEffect(() => {
@@ -98,7 +86,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
   const fetchRoster = async () => {
     const { data: studentSessions } = await supabase
       .from("student_sessions")
-      .select("id, user_id, focus_seconds, joined_at, last_heartbeat")
+      .select("id, user_id, focus_seconds, joined_at, last_heartbeat, seat_label")
       .eq("session_id", session.id);
 
     if (!studentSessions || studentSessions.length === 0) {
@@ -119,23 +107,14 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
     setRoster(
       studentSessions.map((ss) => ({
         ...ss,
+        seat_label: ss.seat_label ?? null,
         display_name: profileMap.get(ss.user_id) || "Anonymous",
       }))
     );
   };
 
-  // Fetch demo seats for alert computation
-  const fetchDemoSeats = async () => {
-    const { data } = await supabase
-      .from("demo_seats")
-      .select("id, seat_label, student_name, last_ping, focus_seconds")
-      .eq("session_id", session.id) as { data: DemoSeatRow[] | null };
-    if (data) setDemoSeats(data);
-  };
-
   useEffect(() => {
     fetchRoster();
-    fetchDemoSeats();
 
     const rosterChannel = supabase
       .channel(`roster-${session.id}`)
@@ -154,46 +133,20 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                       joined_at: updated.joined_at,
                       last_heartbeat: updated.last_heartbeat,
                       user_id: updated.user_id,
+                      seat_label: updated.seat_label ?? student.seat_label,
                     }
                   : student
               )
             );
             return;
           }
-
-          // INSERT/DELETE need a full pull to keep names and membership correct.
           fetchRoster();
-        }
-      )
-      .subscribe();
-
-    const seatChannel = supabase
-      .channel(`seat-alerts-${session.id}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "demo_seats", filter: `session_id=eq.${session.id}` },
-        (payload: RealtimePostgresChangesPayload<DemoSeatRow>) => {
-          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
-            const nextSeat = payload.new as DemoSeatRow;
-            setDemoSeats((prev) => {
-              const idx = prev.findIndex((s) => s.id === nextSeat.id);
-              if (idx === -1) return [...prev, nextSeat];
-              const copy = [...prev];
-              copy[idx] = nextSeat;
-              return copy;
-            });
-            return;
-          }
-
-          // DELETE payloads can be partial; hard-refetch for correctness.
-          fetchDemoSeats();
         }
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(rosterChannel);
-      supabase.removeChannel(seatChannel);
     };
   }, [session.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -213,12 +166,14 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
     onSessionEnded();
   };
 
-  // --- Compute alerts from demo seats ---
-  const alerts = demoSeats
+  // --- Compute alerts from authenticated roster ---
+  const alerts = roster
     .map((s) => {
-      const status = getSeatStatus(s.last_ping);
-      const secondsAgo = s.last_ping ? Math.round((Date.now() - new Date(s.last_ping).getTime()) / 1000) : 999;
-      return { seat_label: s.seat_label, student_name: s.student_name, status, secondsAgo };
+      const status = getActivityStatus(s.last_heartbeat);
+      const secondsAgo = s.last_heartbeat
+        ? Math.round((Date.now() - new Date(s.last_heartbeat).getTime()) / 1000)
+        : 999;
+      return { display_name: s.display_name, seat_label: s.seat_label, status, secondsAgo };
     })
     .filter((a) => a.status !== "active")
     .sort((a, b) => {
@@ -229,31 +184,14 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
 
   const disconnectedAlerts = alerts.filter((a) => a.status === "disconnected");
   const pausedAlerts = alerts.filter((a) => a.status === "paused");
-
-  // Stats
-  const demoActiveCount = demoSeats.filter((s) => getSeatStatus(s.last_ping) === "active").length;
+  const activeCount = roster.filter((s) => getActivityStatus(s.last_heartbeat) === "active").length;
 
   const stats = [
-    { icon: Users, label: "Joined", value: `${demoSeats.length}` },
-    { icon: UserCheck, label: "Active", value: `${demoActiveCount}` },
+    { icon: Users, label: "Joined", value: `${roster.length}` },
+    { icon: UserCheck, label: "Active", value: `${activeCount}` },
     { icon: AlertTriangle, label: "Warnings", value: `${alerts.length}`, highlight: alerts.length > 0 },
     { icon: WifiOff, label: "Disconnected", value: `${disconnectedAlerts.length}`, highlight: disconnectedAlerts.length > 0 },
   ];
-
-  const handleRemoveSeat = async (seatLabel: string) => {
-    const { error } = await supabase
-      .from("demo_seats")
-      .delete()
-      .eq("session_id", session.id)
-      .eq("seat_label", seatLabel);
-    if (error) {
-      toast.error(`Failed to remove ${seatLabel}`);
-    } else {
-      toast.success(`${seatLabel} removed`);
-      setDemoSeats((prev) => prev.filter((seat) => seat.seat_label !== seatLabel));
-      setSeatRefreshKey((k) => k + 1);
-    }
-  };
 
   const demoUrl = `${window.location.origin}/demo?session_id=${session.id}`;
 
@@ -352,20 +290,10 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
           </div>
           <div className="space-y-1">
             {disconnectedAlerts.map((a) => (
-              <div key={a.seat_label} className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-destructive">{a.seat_label}</span>
-                  {a.student_name && <span className="text-destructive/80">{a.student_name}</span>}
-                  <span className="text-muted-foreground">· {a.secondsAgo}s ago</span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-1 text-[10px] text-destructive hover:text-destructive hover:bg-destructive/10 h-6 px-2"
-                  onClick={() => handleRemoveSeat(a.seat_label)}
-                >
-                  <UserX className="w-3 h-3" /> Remove
-                </Button>
+              <div key={a.display_name} className="flex items-center gap-2 text-xs">
+                {a.seat_label && <span className="font-mono font-bold text-destructive">{a.seat_label}</span>}
+                <span className="text-destructive/80">{a.display_name}</span>
+                <span className="text-muted-foreground">· {a.secondsAgo}s ago</span>
               </div>
             ))}
           </div>
@@ -382,9 +310,9 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             {pausedAlerts.map((a) => (
-              <span key={a.seat_label} className="text-xs text-muted-foreground">
-                <span className="font-mono font-bold text-focus-paused">{a.seat_label}</span>
-                {a.student_name && ` ${a.student_name}`} · {a.secondsAgo}s
+              <span key={a.display_name} className="text-xs text-muted-foreground">
+                {a.seat_label && <span className="font-mono font-bold text-focus-paused">{a.seat_label} </span>}
+                {a.display_name} · {a.secondsAgo}s
               </span>
             ))}
           </div>
@@ -428,10 +356,53 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
             )}
           </div>
 
-          {/* Grid view */}
+          {/* Grid view — tiles from authenticated roster */}
           {viewMode === "seats" && (
-            <div className="p-3">
-              <DemoSeatGrid sessionId={session.id} rows={gridRows} cols={gridCols} refreshKey={seatRefreshKey} />
+            <div className="p-4">
+              {roster.length === 0 ? (
+                <div className="py-8 text-center text-sm text-muted-foreground">
+                  No students have joined yet.
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                  {[...roster]
+                    .sort((a, b) => {
+                      const sa = getActivityStatus(a.last_heartbeat);
+                      const sb = getActivityStatus(b.last_heartbeat);
+                      const order = { active: 0, paused: 1, disconnected: 2 };
+                      return order[sa] - order[sb];
+                    })
+                    .map((student) => {
+                      const activity = getActivityStatus(student.last_heartbeat);
+                      const dotColor =
+                        activity === "active" ? "bg-focus-active" :
+                        activity === "paused" ? "bg-focus-paused" : "bg-destructive";
+                      const borderColor =
+                        activity === "active" ? "border-focus-active/30" :
+                        activity === "paused" ? "border-focus-paused/30" : "border-destructive/30";
+                      return (
+                        <div
+                          key={student.id}
+                          className={`rounded-lg border ${borderColor} bg-card p-3 flex flex-col gap-1`}
+                        >
+                          {student.seat_label && (
+                            <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-mono">
+                              <MapPin className="w-3 h-3" />
+                              {student.seat_label}
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1.5">
+                            <div className={`w-2 h-2 rounded-full shrink-0 ${dotColor} ${activity === "active" ? "animate-pulse" : ""}`} />
+                            <span className="text-sm font-medium truncate">{student.display_name}</span>
+                          </div>
+                          <span className="text-[11px] font-mono text-muted-foreground">
+                            {formatTime(student.focus_seconds)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
             </div>
           )}
 
@@ -488,45 +459,40 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
               <Users className="w-4 h-4 text-muted-foreground" />
               <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Students</span>
             </div>
-            <span className="text-xs font-mono font-semibold text-muted-foreground">{demoSeats.length}</span>
+            <span className="text-xs font-mono font-semibold text-muted-foreground">{roster.length}</span>
           </div>
 
-          {demoSeats.length === 0 ? (
+          {roster.length === 0 ? (
             <div className="p-6 text-center text-xs text-muted-foreground">
-              Share the link to get students connected.
+              No students have joined yet.
             </div>
           ) : (
             <ScrollArea className="h-[400px]">
               <div className="divide-y divide-border/50">
-                {[...demoSeats]
+                {[...roster]
                   .sort((a, b) => {
-                    const sa = getSeatStatus(a.last_ping);
-                    const sb = getSeatStatus(b.last_ping);
+                    const sa = getActivityStatus(a.last_heartbeat);
+                    const sb = getActivityStatus(b.last_heartbeat);
                     const order = { active: 0, paused: 1, disconnected: 2 };
                     return order[sa] - order[sb];
                   })
-                  .map((seat) => {
-                    const status = getSeatStatus(seat.last_ping);
+                  .map((student) => {
+                    const status = getActivityStatus(student.last_heartbeat);
                     const dotColor = status === "active" ? "bg-focus-active" : status === "paused" ? "bg-focus-paused" : "bg-destructive";
                     return (
-                      <div key={seat.id} className="group flex items-center justify-between px-4 py-2.5 hover:bg-muted/30 transition-colors">
+                      <div key={student.id} className="flex items-center justify-between px-4 py-2.5 hover:bg-muted/30 transition-colors">
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div className={`w-2 h-2 rounded-full shrink-0 ${dotColor} ${status === "active" ? "animate-pulse" : ""}`} />
-                          <span className="font-mono text-[11px] font-bold text-muted-foreground shrink-0">{seat.seat_label}</span>
-                          <span className="text-sm font-medium truncate">{seat.student_name || "Anon"}</span>
+                          <div className="min-w-0">
+                            <span className="text-sm font-medium truncate block">{student.display_name}</span>
+                            {student.seat_label && (
+                              <span className="font-mono text-[10px] text-muted-foreground">{student.seat_label}</span>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-[11px] font-mono text-muted-foreground">
-                            {formatTime(seat.focus_seconds || 0)}
-                          </span>
-                          <button
-                            onClick={() => handleRemoveSeat(seat.seat_label)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive/80 p-0.5"
-                            title="Remove"
-                          >
-                            <UserX className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                        <span className="text-[11px] font-mono text-muted-foreground shrink-0">
+                          {formatTime(student.focus_seconds || 0)}
+                        </span>
                       </div>
                     );
                   })}
