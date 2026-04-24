@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Plus, BookOpen, BarChart3, GraduationCap, Clock, LayoutGrid } from "lucide-react";
+import { Play, Plus, BookOpen, BarChart3, GraduationCap, Clock, LayoutGrid, Trash2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,6 +33,7 @@ const TeacherDashboard = () => {
   const [showCreateCourse, setShowCreateCourse] = useState(false);
   const [pastSessions, setPastSessions] = useState<Array<Tables<"sessions"> & { course_name: string }>>([]);
   const [layoutEditing, setLayoutEditing] = useState<Tables<"courses"> | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -109,6 +111,17 @@ const TeacherDashboard = () => {
         c.id === layoutEditing.id ? { ...c, seat_layout: layout as unknown as Tables<"courses">["seat_layout"] } : c
       )
     );
+  };
+
+  const handleDeleteCourse = async (courseId: string) => {
+    const { error } = await supabase.from("courses").delete().eq("id", courseId);
+    if (error) {
+      toast.error("Failed to delete course: " + error.message);
+      return;
+    }
+    setCourses((prev) => prev.filter((c) => c.id !== courseId));
+    setDeletingId(null);
+    toast.success("Course deleted");
   };
 
   if (loading) {
@@ -427,6 +440,7 @@ const TeacherDashboard = () => {
                             gap: 14,
                             transition: "border-color 0.15s",
                             cursor: "default",
+                            position: "relative",
                           }}
                           onMouseEnter={(e) =>
                             (e.currentTarget.style.borderColor = CYAN_BORDER)
@@ -461,6 +475,7 @@ const TeacherDashboard = () => {
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
+                                paddingRight: 28,
                               }}
                             >
                               {course.name}
@@ -509,6 +524,89 @@ const TeacherDashboard = () => {
                               {course.seat_layout ? "Edit Layout" : "Set Layout"}
                             </button>
                           </div>
+
+                          {/* Delete controls — top-right corner */}
+                          {deletingId === course.id ? (
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: 10,
+                                right: 10,
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 5,
+                              }}
+                            >
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleDeleteCourse(course.id); }}
+                                style={{
+                                  padding: "3px 9px",
+                                  borderRadius: 6,
+                                  background: "rgba(239,68,68,0.12)",
+                                  border: "1px solid rgba(239,68,68,0.35)",
+                                  color: "#ef4444",
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  fontFamily: "inherit",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Delete
+                              </button>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setDeletingId(null); }}
+                                style={{
+                                  width: 20,
+                                  height: 20,
+                                  borderRadius: 5,
+                                  background: "none",
+                                  border: `1px solid ${CARD_BORDER}`,
+                                  color: MUTED,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  cursor: "pointer",
+                                  padding: 0,
+                                }}
+                              >
+                                <X style={{ width: 10, height: 10 }} />
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setDeletingId(course.id); }}
+                              title="Delete course"
+                              style={{
+                                position: "absolute",
+                                top: 10,
+                                right: 10,
+                                width: 24,
+                                height: 24,
+                                borderRadius: 6,
+                                background: "none",
+                                border: `1px solid transparent`,
+                                color: MUTED,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                cursor: "pointer",
+                                padding: 0,
+                                transition: "border-color 0.13s, color 0.13s, background 0.13s",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.borderColor = "rgba(239,68,68,0.35)";
+                                e.currentTarget.style.color = "#ef4444";
+                                e.currentTarget.style.background = "rgba(239,68,68,0.08)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.borderColor = "transparent";
+                                e.currentTarget.style.color = MUTED;
+                                e.currentTarget.style.background = "none";
+                              }}
+                            >
+                              <Trash2 style={{ width: 12, height: 12 }} />
+                            </button>
+                          )}
                         </motion.div>
                       ))}
                     </div>

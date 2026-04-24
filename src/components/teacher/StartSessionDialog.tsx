@@ -30,10 +30,8 @@ interface StartSessionDialogProps {
 }
 
 const DURATION_OPTIONS = [
-  { label: "30 min", value: "30" },
-  { label: "45 min", value: "45" },
-  { label: "60 min", value: "60" },
-  { label: "90 min", value: "90" },
+  { label: "50 min", value: "50" },
+  { label: "1 hr 15 min", value: "75" },
   { label: "Custom", value: "custom" },
   { label: "No limit", value: "none" },
 ];
@@ -54,7 +52,7 @@ const StartSessionDialog = ({
 }: StartSessionDialogProps) => {
   const [courseId, setCourseId] = useState("");
   const [roomId, setRoomId] = useState("none");
-  const [duration, setDuration] = useState("45");
+  const [duration, setDuration] = useState("50");
   const [customDuration, setCustomDuration] = useState("");
   const [cutoff, setCutoff] = useState("none");
   const [rooms, setRooms] = useState<Tables<"rooms">[]>([]);

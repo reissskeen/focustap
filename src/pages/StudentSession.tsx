@@ -7,10 +7,12 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import FocusTimer from "@/components/FocusTimer";
 import NotesEditor from "@/components/NotesEditor";
+import SeatPicker from "@/components/SeatPicker";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHeartbeat } from "@/hooks/useHeartbeat";
 import { format } from "date-fns";
+import type { SeatLayout } from "@/components/teacher/SeatLayoutEditor";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
@@ -26,6 +28,9 @@ const StudentSession = () => {
   const [initialContent, setInitialContent] = useState<object | null>(null);
   const [loading, setLoading] = useState(true);
   const [savedFocusSeconds, setSavedFocusSeconds] = useState(0);
+  const [needsSeatPick, setNeedsSeatPick] = useState(false);
+  const [seatLayout, setSeatLayout] = useState<SeatLayout | null>(null);
+  const [takenLabels, setTakenLabels] = useState<string[]>([]);
   const [sessionInfo, setSessionInfo] = useState({
     course: "Loading…",
     teacher: "",
@@ -81,6 +86,15 @@ const StudentSession = () => {
       if (!sessionId || !user) return;
       const uid = user.id;
 
+      // Fetch seat layout for this session's course
+      const { data: sessionRow } = await supabase
+        .from("sessions")
+        .select("courses(seat_layout)")
+        .eq("id", sessionId)
+        .maybeSingle();
+      const rawLayout = (sessionRow?.courses as { seat_layout?: unknown } | null)?.seat_layout;
+      const layout: SeatLayout | null = rawLayout ? (rawLayout as SeatLayout) : null;
+
       // Check if already joined — preserve joined_at and focus_seconds on refresh
       const { data: existing } = await supabase
         .from("student_sessions")
@@ -106,6 +120,20 @@ const StudentSession = () => {
             .eq("user_id", uid)
             .eq("session_id", sessionId);
         }
+      }
+
+      // Show seat picker if course has a layout and this student hasn't picked yet
+      const studentHasSeat = existing?.seat_label != null || seatLabel != null;
+      if (!studentHasSeat && layout) {
+        const { data: takenRows } = await supabase
+          .from("student_sessions")
+          .select("seat_label")
+          .eq("session_id", sessionId)
+          .not("seat_label", "is", null);
+        const taken = (takenRows ?? []).map((r) => r.seat_label as string).filter(Boolean);
+        setSeatLayout(layout);
+        setTakenLabels(taken);
+        setNeedsSeatPick(true);
       }
 
       // Upsert note_docs
@@ -165,6 +193,19 @@ const StudentSession = () => {
       .eq("session_id", sessionId);
   }, [sessionId, user, submitted]);
 
+  const handleSeatSelect = useCallback(
+    async (label: string) => {
+      if (!sessionId || !user) return;
+      await supabase
+        .from("student_sessions")
+        .update({ seat_label: label })
+        .eq("user_id", user.id)
+        .eq("session_id", sessionId);
+      setNeedsSeatPick(false);
+    },
+    [sessionId, user]
+  );
+
   // Focus update is now handled by useHeartbeat hook
   // FocusTimer is kept for visual display only
   const handleFocusUpdate = useCallback(() => {}, []);
@@ -217,6 +258,14 @@ const StudentSession = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {needsSeatPick && seatLayout && (
+        <SeatPicker
+          layout={seatLayout}
+          takenLabels={takenLabels}
+          courseName={sessionInfo.course}
+          onSelect={handleSeatSelect}
+        />
+      )}
       <Navbar />
       <div className="pt-20 pb-8 px-4">
         <div className="container mx-auto max-w-7xl">
