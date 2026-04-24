@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { BookOpen, Send, Download, Copy, Check, Loader2, Wifi, WifiOff, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,8 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 const StudentSession = () => {
   const { sessionId } = useParams();
+  const [searchParams] = useSearchParams();
+  const seatLabel = searchParams.get("seat") || null;
   const { user } = useAuth();
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
@@ -81,7 +83,12 @@ const StudentSession = () => {
       await supabase
         .from("student_sessions")
         .upsert(
-          { user_id: uid, session_id: sessionId, joined_at: new Date().toISOString() },
+          {
+            user_id: uid,
+            session_id: sessionId,
+            joined_at: new Date().toISOString(),
+            ...(seatLabel ? { seat_label: seatLabel } : {}),
+          },
           { onConflict: "user_id,session_id" }
         );
 
