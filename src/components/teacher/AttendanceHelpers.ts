@@ -21,9 +21,9 @@ export function getAttendanceStatus(
 export function getActivityStatus(lastHeartbeat: string | null): StudentActivityStatus {
   if (!lastHeartbeat) return "disconnected";
   const elapsed = Date.now() - new Date(lastHeartbeat).getTime();
-  if (elapsed < 12000) return "active";       // within 12s (2.5× the 5s interval)
-  if (elapsed < 25000) return "paused";       // 12-25s (tab hidden / switching)
-  return "disconnected";                       // > 25s (actually gone)
+  if (elapsed < 8000) return "active";        // within 8s (2.5× the 3s interval)
+  if (elapsed < 18000) return "paused";       // 8-18s (tab hidden / switching apps)
+  return "disconnected";                       // > 18s (actually gone)
 }
 
 export function exportRosterCSV(

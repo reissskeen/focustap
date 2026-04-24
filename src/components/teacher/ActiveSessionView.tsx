@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import {
@@ -76,7 +76,31 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
   const [ending, setEnding] = useState(false);
   const [tick, setTick] = useState(0);
 
-  // 1-second tick for live alert updates
+  // Batch buffer: accumulate realtime heartbeat updates and flush every 2s
+  // This prevents one re-render per student per 3s (jank at scale)
+  const pendingUpdatesRef = useRef<Map<string, StudentSessionRealtimeRow>>(new Map());
+  const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flushPendingUpdates = useCallback(() => {
+    flushTimerRef.current = null;
+    if (pendingUpdatesRef.current.size === 0) return;
+    const batch = new Map(pendingUpdatesRef.current);
+    pendingUpdatesRef.current.clear();
+    setRoster((prev) =>
+      prev.map((student) => {
+        const u = batch.get(student.id);
+        if (!u) return student;
+        return {
+          ...student,
+          focus_seconds: u.focus_seconds,
+          last_heartbeat: u.last_heartbeat,
+          seat_label: u.seat_label ?? student.seat_label,
+        };
+      })
+    );
+  }, []);
+
+  // 1-second tick so getActivityStatus() re-evaluates with fresh Date.now()
   useEffect(() => {
     const interval = setInterval(() => setTick((t) => t + 1), 1000);
     return () => clearInterval(interval);
@@ -124,20 +148,12 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
         (payload: RealtimePostgresChangesPayload<StudentSessionRealtimeRow>) => {
           if (payload.eventType === "UPDATE") {
             const updated = payload.new as StudentSessionRealtimeRow;
-            setRoster((prev) =>
-              prev.map((student) =>
-                student.id === updated.id
-                  ? {
-                      ...student,
-                      focus_seconds: updated.focus_seconds,
-                      joined_at: updated.joined_at,
-                      last_heartbeat: updated.last_heartbeat,
-                      user_id: updated.user_id,
-                      seat_label: updated.seat_label ?? student.seat_label,
-                    }
-                  : student
-              )
-            );
+            // Buffer the update — flush at most once every 2s to avoid
+            // per-heartbeat re-renders (3s interval × N students = jank)
+            pendingUpdatesRef.current.set(updated.id, updated);
+            if (!flushTimerRef.current) {
+              flushTimerRef.current = setTimeout(flushPendingUpdates, 2000);
+            }
             return;
           }
           fetchRoster();
@@ -147,8 +163,9 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
 
     return () => {
       supabase.removeChannel(rosterChannel);
+      if (flushTimerRef.current) clearTimeout(flushTimerRef.current);
     };
-  }, [session.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [session.id, flushPendingUpdates]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleEndSession = async () => {
     setEnding(true);
