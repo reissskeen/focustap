@@ -23,10 +23,14 @@ export function useHeartbeat({
   const [pauseCount, setPauseCount] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const focusRef = useRef(initialFocusSeconds);
+  const initialFocusSecondsRef = useRef(initialFocusSeconds);
   const pauseCountRef = useRef(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const heartbeatInFlightRef = useRef(false);
   const heartbeatFailuresRef = useRef(false);
+
+  // Keep the ref in sync so the effect always reads the latest prop value
+  initialFocusSecondsRef.current = initialFocusSeconds;
 
   const writeFocusEvent = useCallback(async (eventType: "start" | "pause" | "resume") => {
     if (!sessionId || !userId) return;
@@ -94,6 +98,10 @@ export function useHeartbeat({
       setStatus("idle");
       return;
     }
+
+    // Restore focus counter from DB-saved value (handles page refresh)
+    focusRef.current = initialFocusSecondsRef.current;
+    setFocusSeconds(initialFocusSecondsRef.current);
 
     heartbeatFailuresRef.current = false;
     heartbeatInFlightRef.current = false;

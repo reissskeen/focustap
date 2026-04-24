@@ -4,15 +4,26 @@ import { Eye, EyeOff, Clock } from "lucide-react";
 
 interface FocusTimerProps {
   sessionActive: boolean;
+  initialSeconds?: number;
   onFocusUpdate?: (seconds: number) => void;
 }
 
-const FocusTimer = ({ sessionActive, onFocusUpdate }: FocusTimerProps) => {
-  const [focusSeconds, setFocusSeconds] = useState(0);
+const FocusTimer = ({ sessionActive, initialSeconds = 0, onFocusUpdate }: FocusTimerProps) => {
+  const [focusSeconds, setFocusSeconds] = useState(initialSeconds);
   const [isVisible, setIsVisible] = useState(true);
-  const accumulatedRef = useRef(0);
+  const accumulatedRef = useRef(initialSeconds * 1000);
   const visibleSinceRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Sync accumulated base when the DB-saved value arrives (after loading)
+  const seedAppliedRef = useRef(false);
+  useEffect(() => {
+    if (initialSeconds > 0 && !seedAppliedRef.current) {
+      seedAppliedRef.current = true;
+      accumulatedRef.current = initialSeconds * 1000;
+      setFocusSeconds(initialSeconds);
+    }
+  }, [initialSeconds]);
 
   const getElapsed = useCallback(() => {
     let total = accumulatedRef.current;

@@ -293,7 +293,7 @@ const StudentSession = () => {
               transition={{ delay: 0.2 }}
               className="space-y-4"
             >
-              <FocusTimer sessionActive={!submitted} onFocusUpdate={handleFocusUpdate} />
+              <FocusTimer sessionActive={!submitted} initialSeconds={savedFocusSeconds} onFocusUpdate={handleFocusUpdate} />
 
               <div className="glass-card rounded-xl p-5 space-y-3">
                 <Button
