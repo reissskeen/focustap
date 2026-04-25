@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Plus, BookOpen, BarChart3, GraduationCap, Clock, LayoutGrid, Trash2, X } from "lucide-react";
+import { Play, Plus, BookOpen, BarChart3, GraduationCap, LayoutGrid, Trash2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
@@ -31,7 +31,6 @@ const TeacherDashboard = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showCreateCourse, setShowCreateCourse] = useState(false);
-  const [pastSessions, setPastSessions] = useState<Array<Tables<"sessions"> & { course_name: string }>>([]);
   const [layoutEditing, setLayoutEditing] = useState<Tables<"courses"> | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -65,21 +64,6 @@ const TeacherDashboard = () => {
           setActiveCourse(course);
         }
 
-        // Fetch past ended sessions (last 10)
-        const { data: ended } = await supabase
-          .from("sessions")
-          .select("*")
-          .eq("created_by", user.id)
-          .eq("status", "ended")
-          .order("end_time", { ascending: false })
-          .limit(10);
-
-        if (ended) {
-          const courseMap = Object.fromEntries(teacherCourses.map((c) => [c.id, c.name]));
-          setPastSessions(
-            ended.map((s) => ({ ...s, course_name: courseMap[s.course_id] || "Unknown" }))
-          );
-        }
       }
 
       setLoading(false);
@@ -438,16 +422,19 @@ const TeacherDashboard = () => {
                             display: "flex",
                             alignItems: "flex-start",
                             gap: 14,
-                            transition: "border-color 0.15s",
-                            cursor: "default",
+                            transition: "border-color 0.15s, background 0.15s",
+                            cursor: "pointer",
                             position: "relative",
                           }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.borderColor = CYAN_BORDER)
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.borderColor = CARD_BORDER)
-                          }
+                          onClick={() => navigate(`/teacher/course/${course.id}`)}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = CYAN_BORDER;
+                            e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = CARD_BORDER;
+                            e.currentTarget.style.background = CARD_BG;
+                          }}
                         >
                           <div
                             style={{
@@ -612,235 +599,6 @@ const TeacherDashboard = () => {
                     </div>
                   </div>
 
-                  {/* ── Demo Analytics ── */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.18 }}
-                    style={{ display: "flex", flexDirection: "column", gap: 12 }}
-                  >
-                    <p
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        letterSpacing: "0.1em",
-                        textTransform: "uppercase",
-                        color: MUTED,
-                        margin: 0,
-                      }}
-                    >
-                      Demo Analytics
-                    </p>
-                    <div
-                      style={{
-                        background: CARD_BG,
-                        border: `1px solid ${CARD_BORDER}`,
-                        borderRadius: 16,
-                        padding: "16px 20px",
-                        backdropFilter: "blur(12px)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        gap: 16,
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                        <div
-                          style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: 10,
-                            background: CYAN_DIM,
-                            border: `1px solid ${CYAN_BORDER}`,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            flexShrink: 0,
-                          }}
-                        >
-                          <BarChart3 style={{ width: 16, height: 16, color: CYAN }} />
-                        </div>
-                        <div>
-                          <p
-                            style={{
-                              fontWeight: 600,
-                              fontSize: 14,
-                              color: LIGHT,
-                              margin: 0,
-                            }}
-                          >
-                            Demo Session — Reiss, Jesse, Phil
-                          </p>
-                          <p style={{ color: MUTED, fontSize: 12, margin: "3px 0 0" }}>
-                            Example session report with sample data
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() =>
-                          navigate(
-                            "/teacher/session/e93a2ded-d912-4de0-92bd-ffe55e62368d/report"
-                          )
-                        }
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 7,
-                          padding: "7px 14px",
-                          borderRadius: 9,
-                          background: CYAN_DIM,
-                          border: `1px solid ${CYAN_BORDER}`,
-                          color: CYAN,
-                          fontSize: 13,
-                          fontWeight: 600,
-                          fontFamily: "inherit",
-                          cursor: "pointer",
-                          whiteSpace: "nowrap",
-                          flexShrink: 0,
-                          transition: "background 0.15s",
-                        }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.background = "rgba(34,211,238,0.2)")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.background = CYAN_DIM)
-                        }
-                      >
-                        <BarChart3 style={{ width: 13, height: 13 }} />
-                        View Report
-                      </button>
-                    </div>
-                  </motion.div>
-
-                  {/* ── Past Sessions ── */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.22 }}
-                    style={{ display: "flex", flexDirection: "column", gap: 12 }}
-                  >
-                    <p
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        letterSpacing: "0.1em",
-                        textTransform: "uppercase",
-                        color: MUTED,
-                        margin: 0,
-                      }}
-                    >
-                      Past Sessions
-                    </p>
-
-                    {pastSessions.length === 0 ? (
-                      <div
-                        style={{
-                          background: CARD_BG,
-                          border: `1px solid ${CARD_BORDER}`,
-                          borderRadius: 16,
-                          padding: "28px 24px",
-                          backdropFilter: "blur(12px)",
-                          textAlign: "center",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: 8,
-                        }}
-                      >
-                        <Clock style={{ width: 20, height: 20, color: MUTED }} />
-                        <p style={{ color: MUTED, fontSize: 14, margin: 0 }}>
-                          No completed sessions yet. Start a session to see history here.
-                        </p>
-                      </div>
-                    ) : (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        {pastSessions.map((s, i) => (
-                          <motion.div
-                            key={s.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.24 + i * 0.04 }}
-                            style={{
-                              background:
-                                i % 2 === 0
-                                  ? CARD_BG
-                                  : "rgba(255,255,255,0.03)",
-                              border: `1px solid ${CARD_BORDER}`,
-                              borderRadius: 14,
-                              padding: "14px 20px",
-                              backdropFilter: "blur(12px)",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              gap: 16,
-                            }}
-                          >
-                            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                              <div
-                                style={{
-                                  width: 8,
-                                  height: 8,
-                                  borderRadius: "50%",
-                                  background: MUTED,
-                                  flexShrink: 0,
-                                }}
-                              />
-                              <div>
-                                <p
-                                  style={{
-                                    fontWeight: 600,
-                                    fontSize: 14,
-                                    color: LIGHT,
-                                    margin: 0,
-                                  }}
-                                >
-                                  {s.course_name}
-                                </p>
-                                <p style={{ color: MUTED, fontSize: 12, margin: "3px 0 0" }}>
-                                  {new Date(s.start_time).toLocaleDateString()} ·{" "}
-                                  {new Date(s.start_time).toLocaleTimeString([], {
-                                    hour: "numeric",
-                                    minute: "2-digit",
-                                  })}
-                                </p>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => navigate(`/teacher/session/${s.id}/report`)}
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 6,
-                                padding: "6px 13px",
-                                borderRadius: 8,
-                                background: CARD_BG,
-                                border: `1px solid ${CARD_BORDER}`,
-                                color: MUTED,
-                                fontSize: 12,
-                                fontWeight: 500,
-                                fontFamily: "inherit",
-                                cursor: "pointer",
-                                whiteSpace: "nowrap",
-                                flexShrink: 0,
-                                transition: "border-color 0.15s, color 0.15s",
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.borderColor = CYAN_BORDER;
-                                e.currentTarget.style.color = CYAN;
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.borderColor = CARD_BORDER;
-                                e.currentTarget.style.color = MUTED;
-                              }}
-                            >
-                              <BarChart3 style={{ width: 12, height: 12 }} />
-                              Report
-                            </button>
-                          </motion.div>
-                        ))}
-                      </div>
-                    )}
-                  </motion.div>
                 </div>
               )}
 
