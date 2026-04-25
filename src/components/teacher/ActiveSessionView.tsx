@@ -17,6 +17,7 @@ import {
   type StudentActivityStatus,
   type AttendanceStatus,
 } from "./AttendanceHelpers";
+import type { SeatLayout } from "./SeatLayoutEditor";
 
 // --- Types ---
 
@@ -373,55 +374,138 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
             )}
           </div>
 
-          {/* Grid view — tiles from authenticated roster */}
-          {viewMode === "seats" && (
-            <div className="p-4">
-              {roster.length === 0 ? (
-                <div className="py-8 text-center text-sm text-muted-foreground">
-                  No students have joined yet.
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                  {[...roster]
-                    .sort((a, b) => {
-                      const sa = getActivityStatus(a.last_heartbeat);
-                      const sb = getActivityStatus(b.last_heartbeat);
-                      const order = { active: 0, paused: 1, disconnected: 2 };
-                      return order[sa] - order[sb];
-                    })
-                    .map((student) => {
-                      const activity = getActivityStatus(student.last_heartbeat);
-                      const dotColor =
-                        activity === "active" ? "bg-focus-active" :
-                        activity === "paused" ? "bg-focus-paused" : "bg-destructive";
-                      const borderColor =
-                        activity === "active" ? "border-focus-active/30" :
-                        activity === "paused" ? "border-focus-paused/30" : "border-destructive/30";
-                      return (
-                        <div
-                          key={student.id}
-                          className={`rounded-lg border ${borderColor} bg-card p-3 flex flex-col gap-1`}
-                        >
-                          {student.seat_label && (
-                            <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-mono">
-                              <MapPin className="w-3 h-3" />
-                              {student.seat_label}
+          {/* Grid view — seat layout with live student status */}
+          {viewMode === "seats" && (() => {
+            const layout = course.seat_layout as SeatLayout | null;
+
+            // No layout saved — fall back to simple student tiles
+            if (!layout) {
+              return (
+                <div className="p-4">
+                  {roster.length === 0 ? (
+                    <div className="py-8 text-center text-sm text-muted-foreground">
+                      No students have joined yet.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                      {[...roster]
+                        .sort((a, b) => {
+                          const sa = getActivityStatus(a.last_heartbeat);
+                          const sb = getActivityStatus(b.last_heartbeat);
+                          const order = { active: 0, paused: 1, disconnected: 2 };
+                          return order[sa] - order[sb];
+                        })
+                        .map((student) => {
+                          const activity = getActivityStatus(student.last_heartbeat);
+                          const dotColor =
+                            activity === "active" ? "bg-focus-active" :
+                            activity === "paused" ? "bg-focus-paused" : "bg-destructive";
+                          const borderColor =
+                            activity === "active" ? "border-focus-active/30" :
+                            activity === "paused" ? "border-focus-paused/30" : "border-destructive/30";
+                          return (
+                            <div key={student.id} className={`rounded-lg border ${borderColor} bg-card p-3 flex flex-col gap-1`}>
+                              {student.seat_label && (
+                                <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-mono">
+                                  <MapPin className="w-3 h-3" />
+                                  {student.seat_label}
+                                </div>
+                              )}
+                              <div className="flex items-center gap-1.5">
+                                <div className={`w-2 h-2 rounded-full shrink-0 ${dotColor} ${activity === "active" ? "animate-pulse" : ""}`} />
+                                <span className="text-sm font-medium truncate">{student.display_name}</span>
+                              </div>
+                              <span className="text-[11px] font-mono text-muted-foreground">{formatTime(student.focus_seconds)}</span>
                             </div>
-                          )}
-                          <div className="flex items-center gap-1.5">
-                            <div className={`w-2 h-2 rounded-full shrink-0 ${dotColor} ${activity === "active" ? "animate-pulse" : ""}`} />
-                            <span className="text-sm font-medium truncate">{student.display_name}</span>
-                          </div>
-                          <span className="text-[11px] font-mono text-muted-foreground">
-                            {formatTime(student.focus_seconds)}
-                          </span>
-                        </div>
-                      );
-                    })}
+                          );
+                        })}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          )}
+              );
+            }
+
+            // Layout exists — render the classroom grid
+            const { rows, cols, seats } = layout;
+            const seatToStudent = new Map<string, RosterStudent>();
+            for (const student of roster) {
+              if (student.seat_label) seatToStudent.set(student.seat_label, student);
+            }
+
+            const cells: JSX.Element[] = [];
+            for (let r = 0; r < rows; r++) {
+              for (let c = 0; c < cols; c++) {
+                const key = `${r}-${c}`;
+                const seatLabel = seats[key];
+
+                if (seatLabel === undefined) {
+                  // Aisle / gap
+                  cells.push(<div key={key} />);
+                  continue;
+                }
+
+                const student = seatToStudent.get(seatLabel);
+
+                if (student) {
+                  const activity = getActivityStatus(student.last_heartbeat);
+                  const dotColor =
+                    activity === "active" ? "bg-focus-active" :
+                    activity === "paused" ? "bg-focus-paused" : "bg-destructive";
+                  const borderColor =
+                    activity === "active" ? "border-focus-active/40" :
+                    activity === "paused" ? "border-focus-paused/40" : "border-destructive/40";
+                  const bgColor =
+                    activity === "active" ? "bg-focus-active/5" :
+                    activity === "paused" ? "bg-focus-paused/5" : "bg-destructive/5";
+                  cells.push(
+                    <div
+                      key={key}
+                      className={`rounded-md border ${borderColor} ${bgColor} p-1.5 flex flex-col gap-0.5`}
+                      style={{ minHeight: 68 }}
+                    >
+                      <span className="text-[9px] font-mono font-bold text-muted-foreground leading-none">{seatLabel}</span>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor} ${activity === "active" ? "animate-pulse" : ""}`} />
+                        <span className="text-[10px] font-medium truncate leading-none">{student.display_name}</span>
+                      </div>
+                      <span className="text-[9px] font-mono text-muted-foreground mt-auto">{formatTime(student.focus_seconds)}</span>
+                    </div>
+                  );
+                } else {
+                  // Empty seat
+                  cells.push(
+                    <div
+                      key={key}
+                      className="rounded-md border border-border/25 bg-muted/5 flex items-center justify-center"
+                      style={{ minHeight: 68 }}
+                    >
+                      <span className="text-[9px] font-mono text-muted-foreground/35 font-bold">{seatLabel}</span>
+                    </div>
+                  );
+                }
+              }
+            }
+
+            return (
+              <div className="p-4 overflow-x-auto">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex-1 h-px bg-border/40" />
+                  <span className="text-[10px] font-medium text-muted-foreground/50 tracking-widest uppercase">Front of Room</span>
+                  <div className="flex-1 h-px bg-border/40" />
+                </div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: `repeat(${cols}, minmax(58px, 1fr))`,
+                    gap: 4,
+                    minWidth: cols * 62,
+                  }}
+                >
+                  {cells}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Roster view */}
           {viewMode === "roster" && (
