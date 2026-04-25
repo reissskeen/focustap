@@ -29,6 +29,7 @@ interface RosterStudent {
   joined_at: string;
   last_heartbeat: string | null;
   seat_label: string | null;
+  focus_score: number | null;
 }
 
 type StudentSessionRealtimeRow = Omit<RosterStudent, "display_name">;
@@ -68,6 +69,34 @@ const AttendanceBadge = ({ status }: { status: AttendanceStatus }) => {
   );
 };
 
+const FocusScoreBadge = ({ score }: { score: number | null }) => {
+  if (score == null) return null;
+  const [color, bg] =
+    score >= 80
+      ? ["#34d399", "rgba(52,211,153,0.10)"]
+      : score >= 50
+      ? ["#fbbf24", "rgba(251,191,36,0.10)"]
+      : ["#ef4444", "rgba(239,68,68,0.10)"];
+  return (
+    <span
+      style={{
+        fontSize: 9,
+        fontWeight: 700,
+        color,
+        background: bg,
+        border: `1px solid ${color}44`,
+        borderRadius: 4,
+        padding: "1px 5px",
+        fontFamily: "monospace",
+        letterSpacing: "0.02em",
+        flexShrink: 0,
+      }}
+    >
+      {score}
+    </span>
+  );
+};
+
 // --- Main Component ---
 
 const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionViewProps) => {
@@ -96,6 +125,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
           focus_seconds: u.focus_seconds,
           last_heartbeat: u.last_heartbeat,
           seat_label: u.seat_label ?? student.seat_label,
+          focus_score: (u as { focus_score?: number | null }).focus_score ?? student.focus_score,
         };
       })
     );
@@ -111,7 +141,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
   const fetchRoster = async () => {
     const { data: studentSessions } = await supabase
       .from("student_sessions")
-      .select("id, user_id, focus_seconds, joined_at, last_heartbeat, seat_label")
+      .select("id, user_id, focus_seconds, joined_at, last_heartbeat, seat_label, focus_score")
       .eq("session_id", session.id);
 
     if (!studentSessions || studentSessions.length === 0) {
@@ -133,6 +163,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
       studentSessions.map((ss) => ({
         ...ss,
         seat_label: ss.seat_label ?? null,
+        focus_score: (ss as { focus_score?: number | null }).focus_score ?? null,
         display_name: profileMap.get(ss.user_id) || "Anonymous",
       }))
     );
@@ -522,6 +553,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                       <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Status</th>
                       <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Attendance</th>
                       <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Focus</th>
+                      <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Score</th>
                       <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Joined</th>
                     </tr>
                   </thead>
@@ -540,6 +572,7 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                           </td>
                           <td className="px-4 py-2.5"><AttendanceBadge status={attendance} /></td>
                           <td className="px-4 py-2.5 font-mono text-xs">{formatTime(student.focus_seconds)}</td>
+                          <td className="px-4 py-2.5"><FocusScoreBadge score={student.focus_score} /></td>
                           <td className="px-4 py-2.5 text-xs text-muted-foreground">
                             {new Date(student.joined_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
                           </td>
@@ -584,8 +617,11 @@ const ActiveSessionView = ({ session, course, onSessionEnded }: ActiveSessionVie
                       <div key={student.id} className="flex items-center justify-between px-4 py-2.5 hover:bg-muted/30 transition-colors">
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div className={`w-2 h-2 rounded-full shrink-0 ${dotColor} ${status === "active" ? "animate-pulse" : ""}`} />
-                          <div className="min-w-0">
-                            <span className="text-sm font-medium truncate block">{student.display_name}</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm font-medium truncate">{student.display_name}</span>
+                              <FocusScoreBadge score={student.focus_score} />
+                            </div>
                             {student.seat_label && (
                               <span className="font-mono text-[10px] text-muted-foreground">{student.seat_label}</span>
                             )}

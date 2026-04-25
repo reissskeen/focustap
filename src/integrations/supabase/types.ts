@@ -176,6 +176,7 @@ export type Database = {
       focus_events: {
         Row: {
           created_at: string
+          duration_ms: number | null
           event_type: string
           id: string
           session_id: string
@@ -183,6 +184,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          duration_ms?: number | null
           event_type: string
           id?: string
           session_id: string
@@ -190,6 +192,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          duration_ms?: number | null
           event_type?: string
           id?: string
           session_id?: string
@@ -347,30 +350,42 @@ export type Database = {
       }
       student_sessions: {
         Row: {
+          focus_score: number | null
           focus_seconds: number
           id: string
           joined_at: string
           last_heartbeat: string | null
+          note_save_count: number
+          seat_label: string | null
           session_id: string
           submitted_at: string | null
+          suspended_at: string | null
           user_id: string
         }
         Insert: {
+          focus_score?: number | null
           focus_seconds?: number
           id?: string
           joined_at?: string
           last_heartbeat?: string | null
+          note_save_count?: number
+          seat_label?: string | null
           session_id: string
           submitted_at?: string | null
+          suspended_at?: string | null
           user_id: string
         }
         Update: {
+          focus_score?: number | null
           focus_seconds?: number
           id?: string
           joined_at?: string
           last_heartbeat?: string | null
+          note_save_count?: number
+          seat_label?: string | null
           session_id?: string
           submitted_at?: string | null
+          suspended_at?: string | null
           user_id?: string
         }
         Relationships: [

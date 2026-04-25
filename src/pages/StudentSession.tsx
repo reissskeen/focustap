@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BookOpen, Send, Download, Copy, Check, Loader2, Wifi, WifiOff, ChevronLeft } from "lucide-react";
+import { BookOpen, Send, Download, Copy, Check, Loader2, Wifi, WifiOff, ChevronLeft, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import FocusTimer from "@/components/FocusTimer";
 import NotesEditor from "@/components/NotesEditor";
 import SeatPicker from "@/components/SeatPicker";
+import FocusViolationOverlay from "@/components/FocusViolationOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHeartbeat } from "@/hooks/useHeartbeat";
+import { useFocusAudit } from "@/hooks/useFocusAudit";
 import { format } from "date-fns";
 import type { SeatLayout } from "@/components/teacher/SeatLayoutEditor";
 
@@ -46,6 +48,13 @@ const StudentSession = () => {
     userId: user?.id,
     enabled: !submitted && !loading,
     initialFocusSeconds: savedFocusSeconds,
+  });
+
+  // Focus-guard: violation detection, overlay, and audit log
+  const focusAudit = useFocusAudit({
+    sessionId,
+    userId: user?.id,
+    enabled: !submitted && !loading && !needsSeatPick,
   });
 
   // Fetch session info
@@ -266,6 +275,14 @@ const StudentSession = () => {
           onSelect={handleSeatSelect}
         />
       )}
+      <FocusViolationOverlay
+        active={focusAudit.overlayActive}
+        suspended={focusAudit.suspended}
+        violationCount={focusAudit.violationCount}
+        countdownSeconds={focusAudit.countdownSeconds}
+        onDismiss={focusAudit.dismiss}
+        onExpired={focusAudit.onExpired}
+      />
       <Navbar />
       <div className="pt-20 pb-8 px-4">
         <div className="container mx-auto max-w-7xl">
@@ -302,6 +319,38 @@ const StudentSession = () => {
               <BookOpen className="w-5 h-5 text-primary" />
               <h1 className="font-display text-2xl font-bold">{sessionInfo.course}</h1>
               <div className="ml-auto flex items-center gap-2">
+                {!submitted && !focusAudit.suspended && (
+                  <button
+                    onClick={focusAudit.enterFullscreen}
+                    title="Enable focus mode (fullscreen)"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                      background: "none",
+                      border: "1px solid rgba(139,108,255,0.22)",
+                      borderRadius: 6,
+                      color: "#8585a0",
+                      fontSize: 11,
+                      fontWeight: 500,
+                      padding: "3px 8px",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      transition: "border-color 0.13s, color 0.13s",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(139,108,255,0.5)";
+                      e.currentTarget.style.color = "#8b6cff";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(139,108,255,0.22)";
+                      e.currentTarget.style.color = "#8585a0";
+                    }}
+                  >
+                    <Maximize2 style={{ width: 11, height: 11 }} />
+                    Focus Mode
+                  </button>
+                )}
                 {heartbeatStatus === "connected" ? (
                   <Wifi className="w-3.5 h-3.5 text-focus-active" />
                 ) : heartbeatStatus === "disconnected" ? (
@@ -330,7 +379,7 @@ const StudentSession = () => {
                 initialContent={initialContent}
                 onContentChange={handleContentChange}
                 onNoteSave={handleNoteSave}
-                readOnly={submitted}
+                readOnly={submitted || focusAudit.suspended}
                 cacheKey={user ? `notes-${user.id}-${sessionId}` : undefined}
               />
             </motion.div>
