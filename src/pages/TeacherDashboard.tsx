@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Plus, BookOpen, BarChart3, GraduationCap, LayoutGrid, Trash2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
@@ -11,20 +10,51 @@ import StartSessionDialog from "@/components/teacher/StartSessionDialog";
 import CreateCourseForm from "@/components/teacher/CreateCourseForm";
 import ActiveSessionView from "@/components/teacher/ActiveSessionView";
 import SeatLayoutEditor, { type SeatLayout } from "@/components/teacher/SeatLayoutEditor";
+import DashboardGreeting from "@/components/teacher/dashboard/DashboardGreeting";
+import LiveSessionHero from "@/components/teacher/dashboard/LiveSessionHero";
+import StatStrip from "@/components/teacher/dashboard/StatStrip";
+import WeekSchedule, { type WeekSessionItem } from "@/components/teacher/dashboard/WeekSchedule";
+import CourseHealthList, { type CourseStats } from "@/components/teacher/dashboard/CourseHealthList";
 
-// Design tokens
-const CYAN = "#22d3ee";
-const CYAN_DIM = "rgba(34,211,238,0.12)";
-const CYAN_BORDER = "rgba(34,211,238,0.25)";
-const CARD_BG = "rgba(255,255,255,0.03)";
-const CARD_BORDER = "rgba(255,255,255,0.07)";
-const MUTED = "#8585a0";
-const LIGHT = "#e8e8f0";
 const BG = "#09090f";
+const CYAN = "#22d3ee";
+const MUTED = "#8585a0";
+
+// ── helpers ────────────────────────────────────────────────────────────────
+
+function weekBounds(offsetWeeks = 0) {
+  const now = new Date();
+  const dow = now.getDay();
+  const daysToMon = dow === 0 ? -6 : 1 - dow;
+  const mon = new Date(now);
+  mon.setDate(now.getDate() + daysToMon + offsetWeeks * 7);
+  mon.setHours(0, 0, 0, 0);
+  const sun = new Date(mon);
+  sun.setDate(mon.getDate() + 6);
+  sun.setHours(23, 59, 59, 999);
+  return { start: mon, end: sun };
+}
+
+function avg(nums: number[]): number | null {
+  if (nums.length === 0) return null;
+  return Math.round(nums.reduce((a, b) => a + b, 0) / nums.length);
+}
+
+// ── types ──────────────────────────────────────────────────────────────────
+
+interface StudentSessionRow {
+  session_id: string;
+  user_id: string;
+  focus_score: number | null;
+  suspended_at: string | null;
+}
+
+// ── component ──────────────────────────────────────────────────────────────
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
   const [courses, setCourses] = useState<Tables<"courses">[]>([]);
   const [activeSession, setActiveSession] = useState<Tables<"sessions"> | null>(null);
   const [activeCourse, setActiveCourse] = useState<Tables<"courses"> | null>(null);
@@ -34,20 +64,34 @@ const TeacherDashboard = () => {
   const [layoutEditing, setLayoutEditing] = useState<Tables<"courses"> | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // dashboard data
+  const [teacherName, setTeacherName] = useState("Professor");
+  const [recentSessions, setRecentSessions] = useState<Tables<"sessions">[]>([]);
+  const [studentMap, setStudentMap] = useState<Record<string, StudentSessionRow[]>>({});
+  const [totalSessionsRun, setTotalSessionsRun] = useState(0);
+
   useEffect(() => {
     if (!user) return;
 
     const load = async () => {
-      // Fetch teacher's courses
+      // Profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const firstName = profile?.display_name?.split(" ")[0] || "Professor";
+      setTeacherName(firstName);
+
+      // Courses
       const { data: coursesData } = await supabase
         .from("courses")
         .select("*")
         .eq("teacher_user_id", user.id);
-
       const teacherCourses = coursesData || [];
       setCourses(teacherCourses);
 
-      // Check for an active session
+      // Active session
       if (teacherCourses.length > 0) {
         const { data: sessions } = await supabase
           .from("sessions")
@@ -56,14 +100,47 @@ const TeacherDashboard = () => {
           .eq("status", "active")
           .order("start_time", { ascending: false })
           .limit(1);
-
         if (sessions && sessions.length > 0) {
           const session = sessions[0];
           setActiveSession(session);
-          const course = teacherCourses.find((c) => c.id === session.course_id) || null;
-          setActiveCourse(course);
+          setActiveCourse(teacherCourses.find((c) => c.id === session.course_id) || null);
         }
+      }
 
+      // Recent sessions (last 5 weeks) for dashboard stats + schedule
+      const fiveWeeksAgo = new Date();
+      fiveWeeksAgo.setDate(fiveWeeksAgo.getDate() - 35);
+      const { data: recentData } = await supabase
+        .from("sessions")
+        .select("*")
+        .eq("created_by", user.id)
+        .gte("start_time", fiveWeeksAgo.toISOString())
+        .order("start_time", { ascending: false });
+      const recent = recentData || [];
+      setRecentSessions(recent);
+
+      // Total sessions run (all time)
+      const { count } = await supabase
+        .from("sessions")
+        .select("*", { count: "exact", head: true })
+        .eq("created_by", user.id)
+        .eq("status", "ended");
+      setTotalSessionsRun(count || 0);
+
+      // Student sessions for recent sessions
+      const sessionIds = recent.map((s) => s.id);
+      if (sessionIds.length > 0) {
+        const { data: ssData } = await supabase
+          .from("student_sessions")
+          .select("session_id, user_id, focus_score, suspended_at")
+          .in("session_id", sessionIds);
+        const map: Record<string, StudentSessionRow[]> = {};
+        (ssData || []).forEach((ss) => {
+          const row = ss as StudentSessionRow;
+          if (!map[row.session_id]) map[row.session_id] = [];
+          map[row.session_id].push(row);
+        });
+        setStudentMap(map);
       }
 
       setLoading(false);
@@ -72,10 +149,132 @@ const TeacherDashboard = () => {
     load();
   }, [user]);
 
+  // ── derived data ──────────────────────────────────────────────────────────
+
+  const { weekSessions, lastWeekSessions, courseMap } = useMemo(() => {
+    const thisWeek = weekBounds(0);
+    const lastWeek = weekBounds(-1);
+    const cmap = Object.fromEntries(courses.map((c) => [c.id, c]));
+    return {
+      weekSessions: recentSessions.filter((s) => {
+        const t = new Date(s.start_time);
+        return t >= thisWeek.start && t <= thisWeek.end;
+      }),
+      lastWeekSessions: recentSessions.filter((s) => {
+        const t = new Date(s.start_time);
+        return t >= lastWeek.start && t <= lastWeek.end;
+      }),
+      courseMap: cmap,
+    };
+  }, [recentSessions, courses]);
+
+  const statsData = useMemo(() => {
+    const weekScores = weekSessions.flatMap((s) =>
+      (studentMap[s.id] || [])
+        .map((ss) => ss.focus_score)
+        .filter((v): v is number => v !== null)
+    );
+    const lastWeekScores = lastWeekSessions.flatMap((s) =>
+      (studentMap[s.id] || [])
+        .map((ss) => ss.focus_score)
+        .filter((v): v is number => v !== null)
+    );
+
+    const allStudentIds = new Set(
+      recentSessions.flatMap((s) => (studentMap[s.id] || []).map((ss) => ss.user_id))
+    );
+
+    const recentRows = recentSessions.flatMap((s) => studentMap[s.id] || []);
+    const alertedIds = new Set(
+      recentRows
+        .filter(
+          (ss) =>
+            ss.suspended_at !== null ||
+            (ss.focus_score !== null && ss.focus_score < 60)
+        )
+        .map((ss) => ss.user_id)
+    );
+
+    return {
+      avgFocusThisWeek: avg(weekScores),
+      avgFocusLastWeek: avg(lastWeekScores),
+      activeStudents: allStudentIds.size,
+      attentionAlerts: alertedIds.size,
+    };
+  }, [weekSessions, lastWeekSessions, recentSessions, studentMap]);
+
+  const weekScheduleItems: WeekSessionItem[] = useMemo(
+    () =>
+      weekSessions.map((s) => ({
+        id: s.id,
+        courseId: s.course_id,
+        courseName: courseMap[s.course_id]?.name || "Unknown",
+        section: courseMap[s.course_id]?.section || null,
+        startTime: s.start_time,
+        endTime: s.end_time,
+        status: s.status,
+        studentCount: (studentMap[s.id] || []).length,
+      })),
+    [weekSessions, courseMap, studentMap]
+  );
+
+  const courseStatsData: CourseStats[] = useMemo(
+    () =>
+      courses.map((course) => {
+        const courseSessions = recentSessions.filter(
+          (s) => s.course_id === course.id
+        );
+        const rows = courseSessions.flatMap((s) => studentMap[s.id] || []);
+        const scores = rows
+          .map((r) => r.focus_score)
+          .filter((v): v is number => v !== null);
+        const focusPct = avg(scores);
+        const studentCount = new Set(rows.map((r) => r.user_id)).size;
+
+        // Flagged = suspended or very low focus score in any recent session
+        const flaggedIds = new Set(
+          rows
+            .filter(
+              (r) =>
+                r.suspended_at !== null ||
+                (r.focus_score !== null && r.focus_score < 60)
+            )
+            .map((r) => r.user_id)
+        );
+
+        return {
+          course,
+          focusPct,
+          flaggedCount: flaggedIds.size,
+          studentCount,
+        };
+      }),
+    [courses, recentSessions, studentMap]
+  );
+
+  // Active-session student count (live count)
+  const activeStudentCount = activeSession
+    ? (studentMap[activeSession.id] || []).length
+    : 0;
+
+  // Last focus % for the active course
+  const lastFocusPct = useMemo(() => {
+    if (!activeCourse) return null;
+    const lastSession = recentSessions.find(
+      (s) => s.course_id === activeCourse.id && s.status === "ended"
+    );
+    if (!lastSession) return null;
+    const rows = studentMap[lastSession.id] || [];
+    return avg(
+      rows.map((r) => r.focus_score).filter((v): v is number => v !== null)
+    );
+  }, [activeCourse, recentSessions, studentMap]);
+
+  // ── handlers ──────────────────────────────────────────────────────────────
+
   const handleSessionStarted = (session: Tables<"sessions">) => {
     setActiveSession(session);
-    const course = courses.find((c) => c.id === session.course_id) || null;
-    setActiveCourse(course);
+    setActiveCourse(courses.find((c) => c.id === session.course_id) || null);
   };
 
   const handleSessionEnded = () => {
@@ -92,7 +291,9 @@ const TeacherDashboard = () => {
     if (!layoutEditing) return;
     setCourses((prev) =>
       prev.map((c) =>
-        c.id === layoutEditing.id ? { ...c, seat_layout: layout as unknown as Tables<"courses">["seat_layout"] } : c
+        c.id === layoutEditing.id
+          ? { ...c, seat_layout: layout as unknown as Tables<"courses">["seat_layout"] }
+          : c
       )
     );
   };
@@ -108,30 +309,28 @@ const TeacherDashboard = () => {
     toast.success("Course deleted");
   };
 
+  // ── render ────────────────────────────────────────────────────────────────
+
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", background: BG }}>
         <Navbar />
-        <div className="pt-24 pb-8 px-4 flex items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}
-          >
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                border: `2px solid ${CYAN_BORDER}`,
-                borderTopColor: CYAN,
-                animation: "spin 0.8s linear infinite",
-              }}
-            />
-            <p style={{ color: MUTED, fontSize: 14 }}>Loading dashboard…</p>
-          </motion.div>
+        <div
+          className="pt-24 pb-8 px-4 flex items-center justify-center"
+          style={{ minHeight: "100vh" }}
+        >
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: "50%",
+              border: `2px solid rgba(34,211,238,0.25)`,
+              borderTopColor: CYAN,
+              animation: "spin 0.8s linear infinite",
+            }}
+          />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
@@ -139,481 +338,115 @@ const TeacherDashboard = () => {
   return (
     <div style={{ minHeight: "100vh", background: BG }}>
       <Navbar />
+
       <div className="pt-20 pb-12 px-4">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-5xl">
+
+          {/* Active session → full-page takeover */}
           {activeSession && activeCourse ? (
             <ActiveSessionView
               session={activeSession}
               course={activeCourse}
               onSessionEnded={handleSessionEnded}
             />
+          ) : showCreateCourse ? (
+            <CreateCourseForm
+              userId={user!.id}
+              onCourseCreated={handleCourseCreated}
+            />
           ) : (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              style={{ display: "flex", flexDirection: "column", gap: 32 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+              style={{ display: "flex", flexDirection: "column", gap: 20 }}
             >
-              {/* No courses yet — empty state */}
-              {courses.length === 0 && !showCreateCourse ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
+              {/* Greeting */}
+              <DashboardGreeting
+                name={teacherName}
+                onAnalytics={() => navigate("/analytics")}
+              />
+
+              {/* Hero */}
+              <LiveSessionHero
+                activeSession={null}
+                activeCourse={null}
+                courses={courses}
+                onStartSession={() => setDialogOpen(true)}
+                onEditLayout={setLayoutEditing}
+                onAddCourse={() => setShowCreateCourse(true)}
+                studentCount={activeStudentCount}
+                lastFocusPct={lastFocusPct}
+              />
+
+              {/* Stat strip — only shown when there's data */}
+              {(courses.length > 0 || totalSessionsRun > 0) && (
+                <StatStrip
+                  avgFocusThisWeek={statsData.avgFocusThisWeek}
+                  avgFocusLastWeek={statsData.avgFocusLastWeek}
+                  sessionsRun={totalSessionsRun}
+                  courseCount={courses.length}
+                  activeStudents={statsData.activeStudents}
+                  attentionAlerts={statsData.attentionAlerts}
+                />
+              )}
+
+              {/* Two-column body */}
+              {courses.length > 0 && (
+                <div
                   style={{
-                    background: CARD_BG,
-                    border: `1px solid ${CARD_BORDER}`,
-                    borderRadius: 20,
-                    padding: "64px 32px",
-                    textAlign: "center",
-                    backdropFilter: "blur(12px)",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
+                    display: "grid",
+                    gridTemplateColumns: "1.3fr 1fr",
                     gap: 16,
                   }}
+                  className="max-[900px]:grid-cols-1"
                 >
-                  <div
-                    style={{
-                      width: 64,
-                      height: 64,
-                      borderRadius: 16,
-                      background: CYAN_DIM,
-                      border: `1px solid ${CYAN_BORDER}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <BookOpen style={{ width: 28, height: 28, color: CYAN }} />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <h1
-                      style={{
-                        fontFamily: "Plus Jakarta Sans, sans-serif",
-                        fontSize: 24,
-                        fontWeight: 700,
-                        color: LIGHT,
-                        margin: 0,
-                      }}
-                    >
-                      Welcome to FocusTap
-                    </h1>
-                    <p
-                      style={{
-                        color: MUTED,
-                        fontSize: 15,
-                        maxWidth: 400,
-                        lineHeight: 1.6,
-                        margin: 0,
-                      }}
-                    >
-                      Create your first course to start running live class sessions with real-time
-                      attendance and focus tracking.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setShowCreateCourse(true)}
-                    style={{
-                      marginTop: 8,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 8,
-                      padding: "10px 22px",
-                      borderRadius: 10,
-                      background: CYAN_DIM,
-                      border: `1px solid ${CYAN_BORDER}`,
-                      color: CYAN,
-                      fontSize: 14,
-                      fontWeight: 600,
-                      fontFamily: "inherit",
-                      cursor: "pointer",
-                      transition: "background 0.15s",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = "rgba(34,211,238,0.2)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.background = CYAN_DIM)
-                    }
-                  >
-                    <Plus style={{ width: 16, height: 16 }} />
-                    Create Course
-                  </button>
-                </motion.div>
-              ) : showCreateCourse || courses.length === 0 ? (
-                <CreateCourseForm userId={user!.id} onCourseCreated={handleCourseCreated} />
-              ) : (
-                /* Has courses, no active session */
-                <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-
-                  {/* ── Page header ── */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.05 }}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 4,
-                    }}
-                    className="sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                      <p
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          letterSpacing: "0.1em",
-                          textTransform: "uppercase",
-                          color: CYAN,
-                          margin: 0,
-                        }}
-                      >
-                        Professor View
-                      </p>
-                      <h1
-                        style={{
-                          fontFamily: "Plus Jakarta Sans, sans-serif",
-                          fontSize: 26,
-                          fontWeight: 700,
-                          color: LIGHT,
-                          margin: 0,
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        Teacher Dashboard
-                      </h1>
-                      <p style={{ color: MUTED, fontSize: 14, margin: 0 }}>
-                        {courses.length} course{courses.length !== 1 ? "s" : ""} · No active session
-                      </p>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        marginTop: 12,
-                        flexWrap: "wrap",
-                      }}
-                      className="sm:mt-0"
-                    >
-                      <button
-                        onClick={() => navigate("/analytics")}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 7,
-                          padding: "8px 16px",
-                          borderRadius: 9,
-                          background: CARD_BG,
-                          border: `1px solid ${CARD_BORDER}`,
-                          color: MUTED,
-                          fontSize: 13,
-                          fontWeight: 500,
-                          fontFamily: "inherit",
-                          cursor: "pointer",
-                          transition: "border-color 0.15s, color 0.15s",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = CYAN_BORDER;
-                          e.currentTarget.style.color = LIGHT;
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = CARD_BORDER;
-                          e.currentTarget.style.color = MUTED;
-                        }}
-                      >
-                        <BarChart3 style={{ width: 14, height: 14 }} />
-                        Analytics
-                      </button>
-
-                      <button
-                        onClick={() => setShowCreateCourse(true)}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 7,
-                          padding: "8px 16px",
-                          borderRadius: 9,
-                          background: CARD_BG,
-                          border: `1px solid ${CARD_BORDER}`,
-                          color: MUTED,
-                          fontSize: 13,
-                          fontWeight: 500,
-                          fontFamily: "inherit",
-                          cursor: "pointer",
-                          transition: "border-color 0.15s, color 0.15s",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = CYAN_BORDER;
-                          e.currentTarget.style.color = LIGHT;
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = CARD_BORDER;
-                          e.currentTarget.style.color = MUTED;
-                        }}
-                      >
-                        <Plus style={{ width: 14, height: 14 }} />
-                        Add Course
-                      </button>
-
-                      <button
-                        onClick={() => setDialogOpen(true)}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 7,
-                          padding: "8px 20px",
-                          borderRadius: 9,
-                          background: CYAN_DIM,
-                          border: `1px solid ${CYAN_BORDER}`,
-                          color: CYAN,
-                          fontSize: 13,
-                          fontWeight: 600,
-                          fontFamily: "inherit",
-                          cursor: "pointer",
-                          transition: "background 0.15s",
-                        }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.background = "rgba(34,211,238,0.2)")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.background = CYAN_DIM)
-                        }
-                      >
-                        <Play style={{ width: 14, height: 14 }} />
-                        Start Session
-                      </button>
-                    </div>
-                  </motion.div>
-
-                  {/* ── Courses grid ── */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    <p
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        letterSpacing: "0.1em",
-                        textTransform: "uppercase",
-                        color: MUTED,
-                        margin: 0,
-                      }}
-                    >
-                      Your Courses
-                    </p>
-                    <div
-                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                      style={{ gap: 16 }}
-                    >
-                      {courses.map((course, i) => (
-                        <motion.div
-                          key={course.id}
-                          initial={{ opacity: 0, y: 16 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.08 + i * 0.05 }}
-                          style={{
-                            background: CARD_BG,
-                            border: `1px solid ${CARD_BORDER}`,
-                            borderRadius: 16,
-                            padding: 20,
-                            backdropFilter: "blur(12px)",
-                            display: "flex",
-                            alignItems: "flex-start",
-                            gap: 14,
-                            transition: "border-color 0.15s, background 0.15s",
-                            cursor: "pointer",
-                            position: "relative",
-                          }}
-                          onClick={() => navigate(`/teacher/course/${course.id}`)}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = CYAN_BORDER;
-                            e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = CARD_BORDER;
-                            e.currentTarget.style.background = CARD_BG;
-                          }}
-                        >
-                          <div
-                            style={{
-                              width: 36,
-                              height: 36,
-                              borderRadius: 10,
-                              background: CYAN_DIM,
-                              border: `1px solid ${CYAN_BORDER}`,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              flexShrink: 0,
-                            }}
-                          >
-                            <GraduationCap style={{ width: 16, height: 16, color: CYAN }} />
-                          </div>
-                          <div style={{ minWidth: 0, flex: 1 }}>
-                            <p
-                              style={{
-                                fontFamily: "Plus Jakarta Sans, sans-serif",
-                                fontWeight: 600,
-                                fontSize: 15,
-                                color: LIGHT,
-                                margin: 0,
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                paddingRight: 28,
-                              }}
-                            >
-                              {course.name}
-                            </p>
-                            {course.section && (
-                              <p
-                                style={{
-                                  color: MUTED,
-                                  fontSize: 13,
-                                  margin: "3px 0 0",
-                                }}
-                              >
-                                {course.section}
-                              </p>
-                            )}
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setLayoutEditing(course); }}
-                              style={{
-                                marginTop: 10,
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 5,
-                                padding: "4px 10px",
-                                borderRadius: 6,
-                                background: "rgba(34,211,238,0.06)",
-                                border: `1px solid rgba(34,211,238,0.14)`,
-                                color: MUTED,
-                                fontSize: 11,
-                                fontWeight: 500,
-                                fontFamily: "inherit",
-                                cursor: "pointer",
-                                transition: "border-color 0.13s, color 0.13s, background 0.13s",
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.borderColor = CYAN_BORDER;
-                                e.currentTarget.style.color = CYAN;
-                                e.currentTarget.style.background = CYAN_DIM;
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.borderColor = "rgba(34,211,238,0.14)";
-                                e.currentTarget.style.color = MUTED;
-                                e.currentTarget.style.background = "rgba(34,211,238,0.06)";
-                              }}
-                            >
-                              <LayoutGrid style={{ width: 11, height: 11 }} />
-                              {course.seat_layout ? "Edit Layout" : "Set Layout"}
-                            </button>
-                          </div>
-
-                          {/* Delete controls — top-right corner */}
-                          {deletingId === course.id ? (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: 10,
-                                right: 10,
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 5,
-                              }}
-                            >
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleDeleteCourse(course.id); }}
-                                style={{
-                                  padding: "3px 9px",
-                                  borderRadius: 6,
-                                  background: "rgba(239,68,68,0.12)",
-                                  border: "1px solid rgba(239,68,68,0.35)",
-                                  color: "#ef4444",
-                                  fontSize: 11,
-                                  fontWeight: 600,
-                                  fontFamily: "inherit",
-                                  cursor: "pointer",
-                                }}
-                              >
-                                Delete
-                              </button>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); setDeletingId(null); }}
-                                style={{
-                                  width: 20,
-                                  height: 20,
-                                  borderRadius: 5,
-                                  background: "none",
-                                  border: `1px solid ${CARD_BORDER}`,
-                                  color: MUTED,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  cursor: "pointer",
-                                  padding: 0,
-                                }}
-                              >
-                                <X style={{ width: 10, height: 10 }} />
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setDeletingId(course.id); }}
-                              title="Delete course"
-                              style={{
-                                position: "absolute",
-                                top: 10,
-                                right: 10,
-                                width: 24,
-                                height: 24,
-                                borderRadius: 6,
-                                background: "none",
-                                border: `1px solid transparent`,
-                                color: MUTED,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                cursor: "pointer",
-                                padding: 0,
-                                transition: "border-color 0.13s, color 0.13s, background 0.13s",
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.borderColor = "rgba(239,68,68,0.35)";
-                                e.currentTarget.style.color = "#ef4444";
-                                e.currentTarget.style.background = "rgba(239,68,68,0.08)";
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.borderColor = "transparent";
-                                e.currentTarget.style.color = MUTED;
-                                e.currentTarget.style.background = "none";
-                              }}
-                            >
-                              <Trash2 style={{ width: 12, height: 12 }} />
-                            </button>
-                          )}
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-
+                  <WeekSchedule
+                    sessions={weekScheduleItems}
+                    onNavigateToCourse={(id) => navigate(`/teacher/course/${id}`)}
+                  />
+                  <CourseHealthList
+                    courseStats={courseStatsData}
+                    deletingId={deletingId}
+                    setDeletingId={setDeletingId}
+                    onAddCourse={() => setShowCreateCourse(true)}
+                    onCourseClick={(id) => navigate(`/teacher/course/${id}`)}
+                    onEditLayout={setLayoutEditing}
+                    onDeleteCourse={handleDeleteCourse}
+                  />
                 </div>
               )}
 
-              <StartSessionDialog
-                open={dialogOpen}
-                onOpenChange={setDialogOpen}
-                courses={courses}
-                userId={user!.id}
-                onSessionStarted={handleSessionStarted}
-              />
-
+              {/* Zero courses — just show empty state below hero */}
+              {courses.length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  style={{
+                    textAlign: "center",
+                    color: MUTED,
+                    fontSize: 13,
+                    paddingTop: 8,
+                  }}
+                >
+                  Create a course to start tracking engagement.
+                </motion.div>
+              )}
             </motion.div>
           )}
         </div>
       </div>
+
+      {/* Dialogs */}
+      <StartSessionDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        courses={courses}
+        userId={user!.id}
+        onSessionStarted={handleSessionStarted}
+      />
+
       <AnimatePresence>
         {layoutEditing && (
           <SeatLayoutEditor
