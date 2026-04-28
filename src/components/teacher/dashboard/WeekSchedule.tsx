@@ -10,6 +10,7 @@ export interface WeekSessionItem {
   courseId: string;
   courseName: string;
   section: string | null;
+  room: string | null;
   startTime: string;
   endTime: string | null;
   status: string;
@@ -169,10 +170,14 @@ export default function WeekSchedule({ sessions, onNavigateToCourse }: Props) {
                     {s.section ? ` · ${s.section}` : ""}
                   </p>
                   <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>
-                    {s.studentCount > 0
-                      ? `${s.studentCount} student${s.studentCount !== 1 ? "s" : ""} joined`
-                      : s.status === "active"
+                    {s.status === "active"
                       ? "Session in progress"
+                      : s.status === "scheduled"
+                      ? s.room
+                        ? `Room ${s.room}`
+                        : "Scheduled"
+                      : s.studentCount > 0
+                      ? `${s.studentCount} student${s.studentCount !== 1 ? "s" : ""} joined`
                       : "No students recorded"}
                   </p>
                 </div>

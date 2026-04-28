@@ -30,6 +30,7 @@ interface StartSessionDialogProps {
 }
 
 const DURATION_OPTIONS = [
+  { label: "Auto (from class schedule)", value: "auto" },
   { label: "50 min", value: "50" },
   { label: "1 hr 15 min", value: "75" },
   { label: "Custom", value: "custom" },
@@ -67,6 +68,14 @@ const StartSessionDialog = ({
     }
   }, [open, courses]);
 
+  // When the selected course changes, default duration to "auto" if it has a schedule
+  useEffect(() => {
+    const selected = courses.find((c) => c.id === courseId);
+    if (selected?.end_time) {
+      setDuration("auto");
+    }
+  }, [courseId, courses]);
+
   const handleStart = async () => {
     if (!courseId) {
       toast.error("Please select a course");
@@ -75,16 +84,26 @@ const StartSessionDialog = ({
     setLoading(true);
 
     const now = new Date();
-    const durationMinutes =
-      duration === "custom"
-        ? parseInt(customDuration) || 60
-        : duration === "none"
-        ? null
-        : parseInt(duration);
+    const selectedCourse = courses.find((c) => c.id === courseId);
 
-    const endTime = durationMinutes
-      ? new Date(now.getTime() + durationMinutes * 60000).toISOString()
-      : null;
+    let endTime: string | null = null;
+    if (duration === "auto" && selectedCourse?.end_time) {
+      // Derive session end from the course's configured clock time (today's date)
+      const [eh, em] = (selectedCourse.end_time as string).split(":").map(Number);
+      const courseEnd = new Date();
+      courseEnd.setHours(eh, em, 0, 0);
+      endTime = courseEnd.toISOString();
+    } else {
+      const durationMinutes =
+        duration === "custom"
+          ? parseInt(customDuration) || 60
+          : duration === "none"
+          ? null
+          : parseInt(duration);
+      endTime = durationMinutes
+        ? new Date(now.getTime() + durationMinutes * 60000).toISOString()
+        : null;
+    }
 
     const cutoffMinutes = cutoff === "none" ? null : parseInt(cutoff);
     const lateJoinCutoff = cutoffMinutes
@@ -180,6 +199,18 @@ const StartSessionDialog = ({
                 ))}
               </SelectContent>
             </Select>
+            {duration === "auto" && (() => {
+              const sel = courses.find((c) => c.id === courseId);
+              if (!sel?.end_time) return null;
+              const [eh, em] = (sel.end_time as string).split(":").map(Number);
+              const label = new Date();
+              label.setHours(eh, em, 0, 0);
+              return (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Ends at {label.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })} (from class schedule)
+                </p>
+              );
+            })()}
             {duration === "custom" && (
               <Input
                 type="number"

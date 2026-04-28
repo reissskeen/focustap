@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Zap, Clock, Wifi, WifiOff, Play, Loader2, Plus } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import ImportCanvasCourses from "@/components/student/ImportCanvasCourses";
-import CanvasCoursesList from "@/components/student/CanvasCoursesList";
+import { BookOpen, Zap, Clock, Wifi, WifiOff, Play, Loader2, MapPin, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useHeartbeat, type ConnectionStatus } from "@/hooks/useHeartbeat";
+import { format } from "date-fns";
 
-interface EnrolledCourse {
+// ── types ─────────────────────────────────────────────────────────────────
+
+interface AttendedCourse {
   id: string;
   name: string;
   section: string | null;
@@ -19,9 +20,14 @@ interface EnrolledCourse {
 interface ActiveSessionInfo {
   session_id: string;
   course_name: string;
+  course_code: string | null;
   section: string | null;
+  room: string | null;
+  instructor_name: string | null;
   start_time: string;
 }
+
+// ── helpers ───────────────────────────────────────────────────────────────
 
 const formatTime = (s: number) => {
   const h = Math.floor(s / 3600);
@@ -51,69 +57,119 @@ const ConnectionIndicator = ({ status }: { status: ConnectionStatus }) => {
   );
 };
 
+// ── component ─────────────────────────────────────────────────────────────
+
 const StudentDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [courses, setCourses] = useState<EnrolledCourse[]>([]);
-  const [activeSession, setActiveSession] = useState<ActiveSessionInfo | null>(null);
+  const [attendedCourses, setAttendedCourses] = useState<AttendedCourse[]>([]);
+  // Session the student is currently IN (joined student_sessions row)
+  const [myActiveSession, setMyActiveSession] = useState<ActiveSessionInfo | null>(null);
+  // Live sessions from institution the student hasn't joined yet
+  const [availableSessions, setAvailableSessions] = useState<ActiveSessionInfo[]>([]);
   const [todayFocus, setTodayFocus] = useState(0);
 
-  // Heartbeat for active session
   const { status: heartbeatStatus, focusSeconds } = useHeartbeat({
-    sessionId: activeSession?.session_id,
+    sessionId: myActiveSession?.session_id,
     userId: user?.id,
-    enabled: !!activeSession,
+    enabled: !!myActiveSession,
   });
 
   useEffect(() => {
     if (!user) return;
 
     const load = async () => {
-      // 1. Get courses the student has participated in
+      // ── 1. Past sessions this student attended ─────────────────────────
       const { data: studentSessions } = await supabase
         .from("student_sessions")
-        .select("session_id, focus_seconds, sessions(id, course_id, status, start_time, courses(id, name, section))")
+        .select(
+          "session_id, focus_seconds, sessions(id, course_id, status, start_time, courses(id, name, section, course_code, room, instructor_name))"
+        )
         .eq("user_id", user.id);
 
+      const courseMap = new Map<string, AttendedCourse>();
+      let activeFound: ActiveSessionInfo | null = null;
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      let todayTotal = 0;
+      const joinedSessionIds = new Set<string>();
+
       if (studentSessions) {
-        // Unique courses
-        const courseMap = new Map<string, EnrolledCourse>();
-        let activeFound: ActiveSessionInfo | null = null;
-
-        // Today's focus total
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
-        let todayTotal = 0;
-
         for (const ss of studentSessions) {
           const session = ss.sessions as Record<string, unknown> | null;
-          const course = (session?.courses as Record<string, unknown>) ?? null;
-          if (course && !courseMap.has(course.id)) {
-            courseMap.set(course.id, { id: course.id, name: course.name, section: course.section });
+          const course = session?.courses as Record<string, unknown> | null;
+          const courseId = course?.id as string | undefined;
+
+          if (courseId && !courseMap.has(courseId)) {
+            courseMap.set(courseId, {
+              id: courseId,
+              name: course?.name as string,
+              section: (course?.section as string) ?? null,
+            });
           }
-          // Check if this session is currently active
+
+          joinedSessionIds.add(ss.session_id);
+
           if (session?.status === "active") {
             activeFound = {
-              session_id: session.id,
-              course_name: course?.name ?? "Unknown",
-              section: course?.section ?? null,
-              start_time: session.start_time,
+              session_id: session.id as string,
+              course_name: (course?.name as string) ?? "Unknown",
+              course_code: (course?.course_code as string) ?? null,
+              section: (course?.section as string) ?? null,
+              room: (course?.room as string) ?? null,
+              instructor_name: (course?.instructor_name as string) ?? null,
+              start_time: session.start_time as string,
             };
           }
-          // Sum today's focus
-          if (new Date(session?.start_time) >= todayStart) {
+
+          if (new Date((session?.start_time as string) ?? 0) >= todayStart) {
             todayTotal += ss.focus_seconds;
           }
         }
-
-        setCourses(Array.from(courseMap.values()));
-        setActiveSession(activeFound);
-        setTodayFocus(todayTotal);
       }
 
-      // Also check for active sessions in courses where student is enrolled (even if not yet joined)
-      // This lets them see "Active Class Now" for classes they haven't joined yet today
+      setAttendedCourses(Array.from(courseMap.values()));
+      setMyActiveSession(activeFound);
+      setTodayFocus(todayTotal);
+
+      // ── 2. Live sessions from the student's institution ────────────────
+      // Get the student's institution_id from their profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("institution_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (profile?.institution_id) {
+        // All active sessions from courses in this institution
+        const { data: instSessions } = await supabase
+          .from("sessions")
+          .select(
+            "id, start_time, courses!inner(id, name, section, course_code, room, instructor_name, institution_id)"
+          )
+          .eq("status", "active")
+          .eq("courses.institution_id", profile.institution_id);
+
+        if (instSessions) {
+          const available: ActiveSessionInfo[] = instSessions
+            .filter((s) => !joinedSessionIds.has(s.id))
+            .map((s) => {
+              const course = s.courses as Record<string, unknown>;
+              return {
+                session_id: s.id,
+                course_name: (course.name as string) ?? "Unknown",
+                course_code: (course.course_code as string) ?? null,
+                section: (course.section as string) ?? null,
+                room: (course.room as string) ?? null,
+                instructor_name: (course.instructor_name as string) ?? null,
+                start_time: s.start_time,
+              };
+            });
+          setAvailableSessions(available);
+        }
+      }
+
       setLoading(false);
     };
 
@@ -128,11 +184,15 @@ const StudentDashboard = () => {
     );
   }
 
+  // All sessions to highlight (joined + available)
+  const liveCount = (myActiveSession ? 1 : 0) + availableSessions.length;
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="pt-20 pb-8 px-4">
         <div className="container mx-auto max-w-4xl">
+
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -142,16 +202,15 @@ const StudentDashboard = () => {
             <div>
               <h1 className="font-display text-2xl font-bold">My Dashboard</h1>
               <p className="text-sm text-muted-foreground">
-                {courses.length} class{courses.length !== 1 ? "es" : ""} enrolled
+                {attendedCourses.length} class{attendedCourses.length !== 1 ? "es" : ""} attended
+                {liveCount > 0 && (
+                  <span className="ml-2 text-focus-active font-medium">
+                    · {liveCount} live now
+                  </span>
+                )}
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <Button size="sm" className="gap-1.5" onClick={() => navigate("/join")}>
-                <Plus className="w-4 h-4" /> Join Class
-              </Button>
-              <ImportCanvasCourses onCoursesImported={() => window.location.reload()} />
-              <ConnectionIndicator status={activeSession ? heartbeatStatus : "idle"} />
-            </div>
+            <ConnectionIndicator status={myActiveSession ? heartbeatStatus : "idle"} />
           </motion.div>
 
           {/* Stats Row */}
@@ -167,7 +226,7 @@ const StudentDashboard = () => {
                 <span className="text-xs font-medium text-muted-foreground">Today's Focus</span>
               </div>
               <p className="font-display text-2xl font-bold">
-                {formatTime(activeSession ? todayFocus + focusSeconds : todayFocus)}
+                {formatTime(myActiveSession ? todayFocus + focusSeconds : todayFocus)}
               </p>
             </div>
             <div className="glass-card rounded-xl p-4">
@@ -175,7 +234,7 @@ const StudentDashboard = () => {
                 <BookOpen className="w-4 h-4 text-muted-foreground" />
                 <span className="text-xs font-medium text-muted-foreground">Classes</span>
               </div>
-              <p className="font-display text-2xl font-bold">{courses.length}</p>
+              <p className="font-display text-2xl font-bold">{attendedCourses.length}</p>
             </div>
             <div className="glass-card rounded-xl p-4 col-span-2 sm:col-span-1">
               <div className="flex items-center gap-2 mb-1">
@@ -183,7 +242,7 @@ const StudentDashboard = () => {
                 <span className="text-xs font-medium text-muted-foreground">Focus Status</span>
               </div>
               <p className="font-display text-lg font-bold">
-                {activeSession
+                {myActiveSession
                   ? heartbeatStatus === "connected"
                     ? "Focused"
                     : "Paused"
@@ -192,71 +251,160 @@ const StudentDashboard = () => {
             </div>
           </motion.div>
 
-          {/* Active Session Banner */}
-          {activeSession && (
+          {/* ── Active session (student is already in) ── */}
+          {myActiveSession && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
+              className="mb-6"
+            >
+              <SessionCard
+                session={myActiveSession}
+                label="In session"
+                labelColor="text-focus-active"
+                borderColor="border-l-focus-active"
+                onJoin={() => navigate(`/session/${myActiveSession.session_id}`)}
+                buttonLabel="Go to Session"
+              />
+            </motion.div>
+          )}
+
+          {/* ── Available sessions from institution ── */}
+          {availableSessions.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
               className="mb-8"
             >
-              <div className="glass-card rounded-xl p-6 border-l-4 border-l-focus-active">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <motion.div
-                        className="w-2.5 h-2.5 rounded-full bg-focus-active"
-                        animate={{ scale: [1, 1.4, 1] }}
-                        transition={{ repeat: Infinity, duration: 1.5 }}
-                      />
-                      <span className="text-sm font-semibold text-focus-active">Active Class Now</span>
-                    </div>
-                    <h2 className="font-display text-xl font-bold">{activeSession.course_name}</h2>
-                    {activeSession.section && (
-                      <p className="text-sm text-muted-foreground">{activeSession.section}</p>
-                    )}
-                  </div>
-                  <Button className="gap-2" onClick={() => navigate(`/session/${activeSession.session_id}`)}>
-                    <Play className="w-4 h-4" /> Go to Session
-                  </Button>
-                </div>
+              <h2 className="font-display text-base font-semibold mb-3">
+                Classes happening now
+              </h2>
+              <div className="space-y-3">
+                {availableSessions.map((s) => (
+                  <SessionCard
+                    key={s.session_id}
+                    session={s}
+                    label="Live now"
+                    labelColor="text-primary"
+                    borderColor="border-l-primary"
+                    onJoin={() => navigate(`/session/${s.session_id}`)}
+                    buttonLabel="Join Now"
+                  />
+                ))}
               </div>
             </motion.div>
           )}
 
-          {/* Canvas Courses with Join/Waitlist */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-          >
-            <h2 className="font-display text-lg font-semibold mb-4">My Courses</h2>
-            {user && <CanvasCoursesList userId={user.id} />}
-
-            {/* Fallback: courses from past sessions */}
-            {courses.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">Previously Attended</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {courses.map((course) => (
-                    <div key={course.id} className="glass-card rounded-xl p-5 space-y-1">
-                      <h3 className="font-display font-semibold">{course.name}</h3>
-                      {course.section && (
-                        <p className="text-sm text-muted-foreground">{course.section}</p>
-                      )}
-                      <Button variant="ghost" size="sm" className="gap-1.5 mt-2 text-primary" onClick={() => navigate(`/course/${course.id}`)}>
-                        Enter Class →
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+          {/* ── Previously attended courses ── */}
+          {attendedCourses.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <h2 className="font-display text-base font-semibold mb-3">Previously Attended</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {attendedCourses.map((course) => (
+                  <div key={course.id} className="glass-card rounded-xl p-5 space-y-1">
+                    <h3 className="font-display font-semibold">{course.name}</h3>
+                    {course.section && (
+                      <p className="text-sm text-muted-foreground">{course.section}</p>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1.5 mt-2 text-primary"
+                      onClick={() => navigate(`/course/${course.id}`)}
+                    >
+                      View →
+                    </Button>
+                  </div>
+                ))}
               </div>
-            )}
-          </motion.div>
+            </motion.div>
+          )}
+
+          {/* Empty state */}
+          {!myActiveSession && availableSessions.length === 0 && attendedCourses.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-center py-16"
+            >
+              <BookOpen className="w-10 h-10 text-muted-foreground mx-auto mb-4 opacity-40" />
+              <p className="text-muted-foreground text-sm">
+                No sessions yet. Classes will appear here automatically when your professor starts one.
+              </p>
+            </motion.div>
+          )}
+
         </div>
       </div>
     </div>
   );
 };
+
+// ── SessionCard sub-component ──────────────────────────────────────────────
+
+function SessionCard({
+  session,
+  label,
+  labelColor,
+  borderColor,
+  onJoin,
+  buttonLabel,
+}: {
+  session: ActiveSessionInfo;
+  label: string;
+  labelColor: string;
+  borderColor: string;
+  onJoin: () => void;
+  buttonLabel: string;
+}) {
+  return (
+    <div className={`glass-card rounded-xl p-6 border-l-4 ${borderColor}`}>
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <motion.div
+              className="w-2 h-2 rounded-full bg-current"
+              style={{ color: "inherit" }}
+              animate={{ scale: [1, 1.4, 1] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            />
+            <span className={`text-xs font-semibold ${labelColor}`}>{label}</span>
+          </div>
+          <h2 className="font-display text-xl font-bold truncate">
+            {session.course_code ? `${session.course_code} — ` : ""}{session.course_name}
+          </h2>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
+            {session.section && (
+              <span className="text-sm text-muted-foreground">{session.section}</span>
+            )}
+            {session.instructor_name && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <User className="w-3 h-3" /> {session.instructor_name}
+              </span>
+            )}
+            {session.room && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <MapPin className="w-3 h-3" /> {session.room}
+              </span>
+            )}
+            <span className="text-xs text-muted-foreground">
+              Started {format(new Date(session.start_time), "h:mm a")}
+            </span>
+          </div>
+        </div>
+        <Button className="gap-2 shrink-0" onClick={onJoin}>
+          <Play className="w-4 h-4" /> {buttonLabel}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export default StudentDashboard;

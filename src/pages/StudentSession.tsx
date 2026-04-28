@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHeartbeat } from "@/hooks/useHeartbeat";
 import { useFocusAudit } from "@/hooks/useFocusAudit";
+import { focusGuard } from "@/services/focusGuard";
 import { format } from "date-fns";
 import type { SeatLayout } from "@/components/teacher/SeatLayoutEditor";
 
@@ -104,10 +105,10 @@ const StudentSession = () => {
       const rawLayout = (sessionRow?.courses as { seat_layout?: unknown } | null)?.seat_layout;
       const layout: SeatLayout | null = rawLayout ? (rawLayout as SeatLayout) : null;
 
-      // Check if already joined — preserve joined_at and focus_seconds on refresh
+      // Check if already joined — preserve joined_at, focus_seconds, and submitted state on refresh
       const { data: existing } = await supabase
         .from("student_sessions")
-        .select("focus_seconds, seat_label")
+        .select("focus_seconds, seat_label, submitted_at, last_heartbeat")
         .eq("user_id", uid)
         .eq("session_id", sessionId)
         .maybeSingle();
@@ -121,6 +122,14 @@ const StudentSession = () => {
         });
       } else {
         setSavedFocusSeconds(existing.focus_seconds ?? 0);
+        if (existing.submitted_at) setSubmitted(true);
+        // Warn if another device is actively sending heartbeats for this student
+        if (existing.last_heartbeat) {
+          const msSinceHeartbeat = Date.now() - new Date(existing.last_heartbeat).getTime();
+          if (msSinceHeartbeat < 15_000) {
+            toast.warning("You appear to be joined on another device. Focus time will only be counted once.");
+          }
+        }
         // Update seat_label if provided and not already set
         if (seatLabel && !existing.seat_label) {
           await supabase
@@ -153,21 +162,16 @@ const StudentSession = () => {
           { onConflict: "user_id,session_id" }
         );
 
-      // Fetch existing note content + submitted status
+      // Fetch existing note content
       const { data: noteDoc } = await supabase
         .from("note_docs")
-        .select("content_json, submitted_at")
+        .select("content_json")
         .eq("user_id", uid)
         .eq("session_id", sessionId)
         .maybeSingle();
 
-      if (noteDoc) {
-        if (noteDoc.content_json && Object.keys(noteDoc.content_json as object).length > 0) {
-          setInitialContent(noteDoc.content_json as object);
-        }
-        if (noteDoc.submitted_at) {
-          setSubmitted(true);
-        }
+      if (noteDoc?.content_json && Object.keys(noteDoc.content_json as object).length > 0) {
+        setInitialContent(noteDoc.content_json as object);
       }
 
       setLoading(false);
@@ -219,29 +223,22 @@ const StudentSession = () => {
   // FocusTimer is kept for visual display only
   const handleFocusUpdate = useCallback(() => {}, []);
 
-  // Submit notes
+  // Submit notes — attendance record lives only in student_sessions
   const handleSubmit = async () => {
     if (!sessionId || !user) return;
     const now = new Date().toISOString();
-    await Promise.all([
-      supabase
-        .from("note_docs")
-        .update({ submitted_at: now })
-        .eq("user_id", user.id)
-        .eq("session_id", sessionId),
-      supabase
-        .from("student_sessions")
-        .update({ submitted_at: now })
-        .eq("user_id", user.id)
-        .eq("session_id", sessionId),
-    ]);
+    await supabase
+      .from("student_sessions")
+      .update({ submitted_at: now })
+      .eq("user_id", user.id)
+      .eq("session_id", sessionId);
     setSubmitted(true);
     toast.success("Notes submitted successfully!");
   };
 
-  // Copy plain text
+  // Copy plain text — suppress focus violations while the clipboard dialog is open
   const handleCopy = async () => {
-    // Extract text from the editor's DOM
+    focusGuard.suppressFor(2000);
     const editorEl = document.querySelector(".tiptap");
     const text = editorEl?.textContent ?? "";
     if (text) {

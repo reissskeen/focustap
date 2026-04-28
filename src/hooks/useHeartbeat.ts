@@ -44,14 +44,13 @@ export function useHeartbeat({
     heartbeatInFlightRef.current = true;
 
     try {
-      const { error } = await supabase
-        .from("student_sessions")
-        .update({
-          last_heartbeat: new Date().toISOString(),
-          focus_seconds: focusRef.current,
-        })
-        .eq("user_id", userId)
-        .eq("session_id", sessionId);
+      // Use GREATEST so a second device never overwrites a higher value already in DB
+      const { error } = await supabase.rpc("update_focus_heartbeat", {
+        p_user_id: userId,
+        p_session_id: sessionId,
+        p_focus_seconds: focusRef.current,
+        p_last_heartbeat: new Date().toISOString(),
+      });
 
       if (error) {
         heartbeatFailuresRef.current = true;
@@ -168,6 +167,8 @@ export function useHeartbeat({
       stopFocusTick();
       document.removeEventListener("visibilitychange", handleVisibility);
       window.removeEventListener("pagehide", handlePageHide);
+      // Write final focus_seconds on SPA navigation (pagehide doesn't fire there)
+      sendFinalHeartbeat();
     };
   }, [enabled, sessionId, userId, sendHeartbeat, sendFinalHeartbeat, writeFocusEvent, intervalMs]);
 

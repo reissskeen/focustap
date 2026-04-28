@@ -4,18 +4,13 @@ export type StudentActivityStatus = "active" | "paused" | "disconnected";
 export function getAttendanceStatus(
   joinedAt: string,
   sessionStartTime: string,
-  lateJoinCutoff: string | null
+  _lateJoinCutoff: string | null
 ): AttendanceStatus {
-  if (!lateJoinCutoff) return "present";
   const joinTime = new Date(joinedAt).getTime();
-  const cutoff = new Date(lateJoinCutoff).getTime();
   const start = new Date(sessionStartTime).getTime();
-  // "Late" = joined after the late cutoff window
-  // Use a grace period of 5 minutes after start as "on time"
   const graceMs = 5 * 60 * 1000;
   if (joinTime <= start + graceMs) return "present";
-  if (joinTime <= cutoff) return "late";
-  return "late"; // still joined, but after grace
+  return "late";
 }
 
 export function getActivityStatus(lastHeartbeat: string | null): StudentActivityStatus {

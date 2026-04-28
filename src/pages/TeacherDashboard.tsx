@@ -11,7 +11,7 @@ import CreateCourseForm from "@/components/teacher/CreateCourseForm";
 import ActiveSessionView from "@/components/teacher/ActiveSessionView";
 import SeatLayoutEditor, { type SeatLayout } from "@/components/teacher/SeatLayoutEditor";
 import DashboardGreeting from "@/components/teacher/dashboard/DashboardGreeting";
-import LiveSessionHero from "@/components/teacher/dashboard/LiveSessionHero";
+import LiveSessionHero, { type NextClassInfo } from "@/components/teacher/dashboard/LiveSessionHero";
 import StatStrip from "@/components/teacher/dashboard/StatStrip";
 import WeekSchedule, { type WeekSessionItem } from "@/components/teacher/dashboard/WeekSchedule";
 import CourseHealthList, { type CourseStats } from "@/components/teacher/dashboard/CourseHealthList";
@@ -149,6 +149,53 @@ const TeacherDashboard = () => {
     load();
   }, [user]);
 
+  // ── Realtime: pick up auto-started or auto-ended sessions ─────────────────
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`teacher-sessions-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "sessions",
+          filter: `created_by=eq.${user.id}`,
+        },
+        (payload) => {
+          const updated = payload.new as Tables<"sessions"> | undefined;
+          const old = payload.old as Tables<"sessions"> | undefined;
+
+          if (payload.eventType === "INSERT" && updated?.status === "active") {
+            // Auto-started session — show it immediately
+            setActiveSession(updated);
+            setActiveCourse((prev) => prev ?? courses.find((c) => c.id === updated.course_id) ?? null);
+          }
+
+          if (payload.eventType === "UPDATE") {
+            if (updated?.status === "ended" && old?.status === "active") {
+              // Session ended (manual or auto)
+              setActiveSession((prev) => (prev?.id === updated.id ? null : prev));
+              setActiveCourse((prev) => {
+                if (activeSession?.id === updated.id) return null;
+                return prev;
+              });
+            }
+            if (updated?.status === "active") {
+              setActiveSession(updated);
+              setActiveCourse(courses.find((c) => c.id === updated.course_id) ?? null);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, courses, activeSession]);
+
   // ── derived data ──────────────────────────────────────────────────────────
 
   const { weekSessions, lastWeekSessions, courseMap } = useMemo(() => {
@@ -203,20 +250,73 @@ const TeacherDashboard = () => {
     };
   }, [weekSessions, lastWeekSessions, recentSessions, studentMap]);
 
-  const weekScheduleItems: WeekSessionItem[] = useMemo(
-    () =>
-      weekSessions.map((s) => ({
-        id: s.id,
-        courseId: s.course_id,
-        courseName: courseMap[s.course_id]?.name || "Unknown",
-        section: courseMap[s.course_id]?.section || null,
-        startTime: s.start_time,
-        endTime: s.end_time,
-        status: s.status,
-        studentCount: (studentMap[s.id] || []).length,
-      })),
-    [weekSessions, courseMap, studentMap]
-  );
+  const weekScheduleItems: WeekSessionItem[] = useMemo(() => {
+    const DAY_OFFSET: Record<string, number> = {
+      Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6,
+    };
+
+    const realItems: WeekSessionItem[] = weekSessions.map((s) => ({
+      id: s.id,
+      courseId: s.course_id,
+      courseName: courseMap[s.course_id]?.name || "Unknown",
+      section: courseMap[s.course_id]?.section || null,
+      room: courseMap[s.course_id]?.room || null,
+      startTime: s.start_time,
+      endTime: s.end_time,
+      status: s.status,
+      studentCount: (studentMap[s.id] || []).length,
+    }));
+
+    const weekMon = weekBounds(0).start;
+    const scheduledItems: WeekSessionItem[] = [];
+
+    for (const course of courses) {
+      if (!course.meeting_days || !course.start_time) continue;
+      for (const day of course.meeting_days) {
+        const offset = DAY_OFFSET[day];
+        if (offset === undefined) continue;
+
+        const date = new Date(weekMon);
+        date.setDate(weekMon.getDate() + offset);
+        const [hh, mm] = course.start_time.split(":").map(Number);
+        date.setHours(hh, mm, 0, 0);
+
+        const hasRealSession = realItems.some((ri) => {
+          if (ri.courseId !== course.id) return false;
+          const riDate = new Date(ri.startTime);
+          return (
+            riDate.getFullYear() === date.getFullYear() &&
+            riDate.getMonth() === date.getMonth() &&
+            riDate.getDate() === date.getDate()
+          );
+        });
+        if (hasRealSession) continue;
+
+        let endDateStr: string | null = null;
+        if (course.end_time) {
+          const endDate = new Date(weekMon);
+          endDate.setDate(weekMon.getDate() + offset);
+          const [eh, em] = course.end_time.split(":").map(Number);
+          endDate.setHours(eh, em, 0, 0);
+          endDateStr = endDate.toISOString();
+        }
+
+        scheduledItems.push({
+          id: `scheduled-${course.id}-${day}`,
+          courseId: course.id,
+          courseName: course.name,
+          section: course.section,
+          room: course.room,
+          startTime: date.toISOString(),
+          endTime: endDateStr,
+          status: "scheduled",
+          studentCount: 0,
+        });
+      }
+    }
+
+    return [...realItems, ...scheduledItems];
+  }, [weekSessions, courseMap, studentMap, courses]);
 
   const courseStatsData: CourseStats[] = useMemo(
     () =>
@@ -251,6 +351,22 @@ const TeacherDashboard = () => {
       }),
     [courses, recentSessions, studentMap]
   );
+
+  const nextClass: NextClassInfo | null = useMemo(() => {
+    if (activeSession) return null;
+    const now = new Date();
+    const upcoming = weekScheduleItems
+      .filter((item) => item.status !== "ended" && new Date(item.startTime) > now)
+      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+    if (!upcoming.length) return null;
+    const next = upcoming[0];
+    return {
+      courseName: next.courseName,
+      section: next.section,
+      startTime: new Date(next.startTime),
+      room: next.room,
+    };
+  }, [activeSession, weekScheduleItems]);
 
   // Active-session student count (live count)
   const activeStudentCount = activeSession
@@ -377,6 +493,7 @@ const TeacherDashboard = () => {
                 onAddCourse={() => setShowCreateCourse(true)}
                 studentCount={activeStudentCount}
                 lastFocusPct={lastFocusPct}
+                nextClass={nextClass}
               />
 
               {/* Stat strip — only shown when there's data */}

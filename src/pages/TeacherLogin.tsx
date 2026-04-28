@@ -24,7 +24,7 @@ const TeacherLogin = () => {
   const [accessCode, setAccessCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -185,6 +185,10 @@ const TeacherLogin = () => {
     fontSize: "0.82rem",
     fontWeight: 500,
   };
+
+  if (authLoading) {
+    return <div style={{ minHeight: "100vh", background: "#09090f" }} />;
+  }
 
   return (
     <PageTransition variant="fade">

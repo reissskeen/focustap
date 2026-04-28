@@ -83,30 +83,57 @@ export type Database = {
       }
       courses: {
         Row: {
+          course_code: string | null
           created_at: string
+          end_time: string | null
           id: string
+          institution_id: string | null
+          instructor_name: string | null
           lms_course_id: string | null
+          meeting_days: string[] | null
           name: string
+          room: string | null
           seat_layout: Json | null
           section: string | null
+          semester_end: string | null
+          semester_start: string | null
+          start_time: string | null
           teacher_user_id: string
         }
         Insert: {
+          course_code?: string | null
           created_at?: string
+          end_time?: string | null
           id?: string
+          institution_id?: string | null
+          instructor_name?: string | null
           lms_course_id?: string | null
+          meeting_days?: string[] | null
           name: string
+          room?: string | null
           seat_layout?: Json | null
           section?: string | null
+          semester_end?: string | null
+          semester_start?: string | null
+          start_time?: string | null
           teacher_user_id: string
         }
         Update: {
+          course_code?: string | null
           created_at?: string
+          end_time?: string | null
           id?: string
+          institution_id?: string | null
+          instructor_name?: string | null
           lms_course_id?: string | null
+          meeting_days?: string[] | null
           name?: string
+          room?: string | null
           seat_layout?: Json | null
           section?: string | null
+          semester_end?: string | null
+          semester_start?: string | null
+          start_time?: string | null
           teacher_user_id?: string
         }
         Relationships: []
@@ -248,28 +275,37 @@ export type Database = {
       }
       profiles: {
         Row: {
+          consent_given_at: string | null
           created_at: string
           display_name: string | null
           email: string | null
           id: string
+          institution_id: string | null
+          institution_role: string | null
           lms_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          consent_given_at?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
+          institution_id?: string | null
+          institution_role?: string | null
           lms_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          consent_given_at?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
+          institution_id?: string | null
+          institution_role?: string | null
           lms_id?: string | null
           updated_at?: string
           user_id?: string

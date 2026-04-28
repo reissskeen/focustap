@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Play, LayoutGrid } from "lucide-react";
-import { format, differenceInMinutes } from "date-fns";
+import { format, differenceInMinutes, isToday, isTomorrow } from "date-fns";
 import type { Tables } from "@/integrations/supabase/types";
 
 const CYAN = "#22d3ee";
@@ -8,6 +8,13 @@ const CYAN_DIM = "rgba(34,211,238,0.12)";
 const CYAN_BORDER = "rgba(34,211,238,0.25)";
 const MUTED = "#8585a0";
 const LIGHT = "#e8e8f0";
+
+export interface NextClassInfo {
+  courseName: string;
+  section: string | null;
+  startTime: Date;
+  room: string | null;
+}
 
 interface Props {
   activeSession: Tables<"sessions"> | null;
@@ -18,6 +25,7 @@ interface Props {
   onAddCourse: () => void;
   studentCount?: number;
   lastFocusPct?: number | null;
+  nextClass?: NextClassInfo | null;
 }
 
 function PulsingDot({ color }: { color: string }) {
@@ -57,6 +65,17 @@ function MinutesRemaining(session: Tables<"sessions">) {
   return Math.max(0, diff);
 }
 
+function nextClassLabel(nc: NextClassInfo): string {
+  const now = new Date();
+  const diff = differenceInMinutes(nc.startTime, now);
+  if (isToday(nc.startTime)) {
+    if (diff > 0 && diff <= 120) return `Next class · in ${diff}m`;
+    return `Next class today · ${format(nc.startTime, "h:mm a")}`;
+  }
+  if (isTomorrow(nc.startTime)) return `Next class tomorrow · ${format(nc.startTime, "h:mm a")}`;
+  return `Next class ${format(nc.startTime, "EEE")} · ${format(nc.startTime, "h:mm a")}`;
+}
+
 export default function LiveSessionHero({
   activeSession,
   activeCourse,
@@ -66,6 +85,7 @@ export default function LiveSessionHero({
   onAddCourse,
   studentCount = 0,
   lastFocusPct,
+  nextClass,
 }: Props) {
   const hasActive = !!activeSession && !!activeCourse;
   const hasCourses = courses.length > 0;
@@ -111,6 +131,8 @@ export default function LiveSessionHero({
           >
             {hasActive ? (
               <PulsingDot color={CYAN} />
+            ) : nextClass ? (
+              <StaticDot color={CYAN} />
             ) : (
               <StaticDot color={MUTED} />
             )}
@@ -120,15 +142,17 @@ export default function LiveSessionHero({
                 fontWeight: 600,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                color: hasActive ? CYAN : MUTED,
+                color: hasActive || nextClass ? CYAN : MUTED,
               }}
             >
               {hasActive
                 ? minsRemaining !== null
                   ? `Live now · ${minsRemaining}m remaining`
                   : "Live now"
+                : nextClass
+                ? nextClassLabel(nextClass)
                 : hasCourses
-                ? "No classes scheduled today"
+                ? "No classes scheduled this week"
                 : "No courses yet"}
             </span>
           </div>
@@ -145,6 +169,8 @@ export default function LiveSessionHero({
           >
             {hasActive
               ? `${activeCourse.name}${activeCourse.section ? ` — Section ${activeCourse.section}` : ""}`
+              : nextClass
+              ? `${nextClass.courseName}${nextClass.section ? ` — Section ${nextClass.section}` : ""}`
               : hasCourses
               ? "You're all caught up"
               : "Get started with FocusTap"}
@@ -159,6 +185,11 @@ export default function LiveSessionHero({
                   ? ` – ${format(new Date(activeSession.end_time), "h:mm a")}`
                   : ""}
                 {studentCount > 0 ? ` · ${studentCount} students joined` : ""}
+              </>
+            ) : nextClass ? (
+              <>
+                {format(nextClass.startTime, "h:mm a")}
+                {nextClass.room ? ` · Room ${nextClass.room}` : ""}
               </>
             ) : hasCourses ? (
               "Start a session when you're ready to begin class."

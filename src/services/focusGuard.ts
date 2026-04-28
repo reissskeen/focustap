@@ -41,6 +41,7 @@ class FocusGuard {
   private _blurStart: number | null = null;
   private _pollTimer: ReturnType<typeof setInterval> | null = null;
   private _lastSplitWarning = 0;
+  private _suppressedUntil = 0;
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -75,6 +76,11 @@ class FocusGuard {
       clearInterval(this._pollTimer);
       this._pollTimer = null;
     }
+  }
+
+  // Mute violation callbacks for a given duration (e.g. during clipboard ops).
+  suppressFor(ms: number) {
+    this._suppressedUntil = Date.now() + ms;
   }
 
   // ── Fullscreen ───────────────────────────────────────────────────────────
@@ -140,6 +146,7 @@ class FocusGuard {
   private _fireViolation(event: FocusEvent) {
     this._push(event);
     if (this._violationActive) return;
+    if (Date.now() < this._suppressedUntil) return; // muted (e.g. during clipboard write)
     this._violationActive = true;
     this._violationCbs.forEach((cb) => cb(event));
   }
