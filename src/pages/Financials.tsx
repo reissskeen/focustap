@@ -394,7 +394,6 @@ export default function Financials() {
             <TabsTrigger value="profitability">Profitability</TabsTrigger>
             <TabsTrigger value="breakeven">Break-Even</TabsTrigger>
             <TabsTrigger value="proforma">Pro-Forma P&L</TabsTrigger>
-            <TabsTrigger value="tiers">Tier Mix</TabsTrigger>
             {showAssumptions && <TabsTrigger value="assumptions">Assumptions</TabsTrigger>}
           </TabsList>
 
@@ -497,8 +496,8 @@ export default function Financials() {
                     {
                       icon: Target,
                       color: "#8b6cff",
-                      title: "$450M+ Addressable Market",
-                      desc: "4,000+ US institutions × 2,500 avg students × $45/yr subscription.",
+                      title: "$500M+ Addressable Market",
+                      desc: "4,000+ US institutions × 2,500 avg students × $50/yr subscription.",
                     },
                     {
                       icon: CheckCircle2,
@@ -1041,44 +1040,6 @@ export default function Financials() {
                 </Table>
               </CardContent>
             </Card>
-          </TabsContent>
-
-          {/* ======================== TIER MIX ======================== */}
-          <TabsContent value="tiers" className="space-y-4">
-            <div className="grid lg:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Institutions Over Time (Tier 3)</CardTitle></CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={280}>
-                    <BarChart data={chartData}>
-                      <CartesianGrid {...GRID_STYLE} />
-                      <XAxis dataKey="label" tick={AXIS_STYLE} />
-                      <YAxis tick={AXIS_STYLE} />
-                      <Tooltip contentStyle={TOOLTIP_STYLE} />
-                      <Legend />
-                      <Bar dataKey="tier3Inst" name="Tier 3 — Full Campus Intelligence" fill={CHART_COLORS.institutions} radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Pricing — Tier 3</CardTitle></CardHeader>
-                <CardContent className="flex items-center justify-center">
-                  <div className="p-6 rounded-lg border border-primary bg-primary/5 w-full max-w-sm text-center space-y-3">
-                    <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">Full Campus Intelligence</span>
-                    <p className="text-4xl font-bold text-foreground">
-                      ${TIERS[3].pricePerStudentPerYear}
-                      <span className="text-sm font-normal text-muted-foreground">/student/yr</span>
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Implementation: ${TIERS[3].implementationFeePerTag}/tag · {formatCurrency(Math.ceil(assumptions.studentsPerInstitution / assumptions.deskToStudentRatio) * TIERS[3].implementationFeePerTag)} for {Math.ceil(assumptions.studentsPerInstitution / assumptions.deskToStudentRatio).toLocaleString()} desks
-                    </p>
-                    <p className="text-sm text-muted-foreground">ARR/Institution: {formatCurrency(assumptions.studentsPerInstitution * TIERS[3].pricePerStudentPerYear)}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </TabsContent>
 
           {/* ======================== ASSUMPTIONS ======================== */}
