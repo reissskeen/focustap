@@ -26,6 +26,7 @@ import {
   type YearlyFinancials,
 } from "@/lib/financialData";
 import { useFinancialAssumptions } from "@/hooks/useFinancialAssumptions";
+import TAMAnalysis from "@/components/TAMAnalysis";
 
 /* ------------------------------------------------------------------ */
 /*  Shared UI                                                          */
@@ -388,6 +389,7 @@ export default function Financials() {
         <Tabs defaultValue="investor" className="space-y-4">
           <TabsList className="bg-muted flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="investor">Investor Overview</TabsTrigger>
+            <TabsTrigger value="tam">TAM Analysis</TabsTrigger>
             <TabsTrigger value="projection">5-Year Projection</TabsTrigger>
             <TabsTrigger value="revenue">Revenue</TabsTrigger>
             <TabsTrigger value="deployment">Deployment</TabsTrigger>
@@ -646,6 +648,11 @@ export default function Financials() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* ======================== TAM ANALYSIS ======================== */}
+          <TabsContent value="tam">
+            <TAMAnalysis />
           </TabsContent>
 
           {/* ======================== 5-YEAR PROJECTION ======================== */}
