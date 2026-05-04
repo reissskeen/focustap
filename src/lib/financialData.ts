@@ -1,4 +1,4 @@
-// 3-Year Revenue Forecast & Pro-Forma Financial Model
+// 5-Year Revenue Forecast & Pro-Forma Financial Model
 // FocusTap — Enterprise B2B Campus Infrastructure SaaS + NFC Hardware
 // March 2026 Board of Directors Presentation
 
@@ -53,7 +53,11 @@ export interface Assumptions {
   h2_2027: HalfYearAdoption;
   h1_2028: HalfYearAdoption;
   h2_2028: HalfYearAdoption;
-  // Post-2028: steady-state new institutions per half-year (Tier 3)
+  h1_2029: HalfYearAdoption;
+  h2_2029: HalfYearAdoption;
+  h1_2030: HalfYearAdoption;
+  h2_2030: HalfYearAdoption;
+  // Post-2030: steady-state new institutions per half-year (Tier 3)
   postForecastHalfYearGrowth: number;
   // Fixed operating costs (annual, at base scale of 1 institution)
   annualOpex: AnnualOpex;
@@ -85,6 +89,10 @@ export const defaultAssumptions: Assumptions = {
   h2_2027: { tier3: 2 },
   h1_2028: { tier3: 4 },
   h2_2028: { tier3: 7 },
+  h1_2029: { tier3: 11 },
+  h2_2029: { tier3: 16 },
+  h1_2030: { tier3: 21 },
+  h2_2030: { tier3: 27 },
   // initialRolloutPercent, annualChurnRate, opexGrowthRate removed — hardcoded in engine
   annualOpex: {
     salaries: 0,
@@ -158,6 +166,10 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     { year: 2027, half: 2, target: a.h2_2027 },
     { year: 2028, half: 1, target: a.h1_2028 },
     { year: 2028, half: 2, target: a.h2_2028 },
+    { year: 2029, half: 1, target: a.h1_2029 },
+    { year: 2029, half: 2, target: a.h2_2029 },
+    { year: 2030, half: 1, target: a.h1_2030 },
+    { year: 2030, half: 2, target: a.h2_2030 },
   ];
 
   const ninvTotal = computeNINVTotal(a.ninv);
@@ -179,7 +191,7 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
   const processQuarter = (
     yearLabel: string,
     quarterLabel: string,
-    yearIndex: number,   // 0-based from 2026
+    _yearIndex: number,
     newT3: number,
   ) => {
     const prevCumT3 = cumT3;
@@ -282,10 +294,10 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
     });
   };
 
-  // --- Phase 1: modeled 2026-2028 quarters ---
+  // --- Phase 1: modeled 2026-2030 quarters ---
   let halfIdx = 0;
-  for (let i = 0; i < 12; i++) {
-    const y = Math.floor(i / 4);             // 0 = 2026, 1 = 2027, 2 = 2028
+  for (let i = 0; i < 20; i++) {
+    const y = Math.floor(i / 4);             // 0 = 2026, 1 = 2027, 2 = 2028, 3 = 2029, 4 = 2030
     const q = i % 4;
     const yearLabel = `FY ${2026 + y}`;
     const isFirstOfHalf = q === 0 || q === 2;
@@ -301,10 +313,10 @@ export function generateForecast(a: Assumptions): YearlyFinancials[] {
 
     const prevCumT3 = cumT3;
     const newT3 = allocate(prevCumT3, target.tier3);
-    processQuarter(yearLabel, quarters[q], y, newT3);
+    processQuarter(yearLabel, quarters[q], y, newT3); // y kept as _yearIndex
   }
 
-  // Forecast ends at 2028 — no extension beyond modeled period
+  // Forecast ends at 2030 — no extension beyond modeled period
 
   return data;
 }
@@ -345,7 +357,7 @@ export function computeBreakEven(forecast: YearlyFinancials[], _ninvTotal: numbe
 }
 
 export const ASSUMPTIONS_STORAGE_KEY = "focustap_financial_assumptions_v3";
-export const ASSUMPTIONS_BASELINE_VERSION = 3;
+export const ASSUMPTIONS_BASELINE_VERSION = 4;
 
 type StoredAssumptions = Partial<Assumptions> & {
   __baselineVersion?: number;
