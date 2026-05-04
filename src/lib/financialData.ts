@@ -32,6 +32,7 @@ export interface NINV {
 }
 
 export interface AnnualOpex {
+  salaries: number;
   cloudInfra: number;
   softwareMaintenance: number;
   salesOutreach: number;
@@ -69,7 +70,7 @@ export function computeNINVTotal(ninv: NINV): number {
 }
 
 export function computeAnnualOpexTotal(opex: AnnualOpex): number {
-  return opex.cloudInfra + opex.softwareMaintenance + opex.salesOutreach + opex.customerSupport + opex.generalAdmin;
+  return opex.salaries + opex.cloudInfra + opex.softwareMaintenance + opex.salesOutreach + opex.customerSupport + opex.generalAdmin;
 }
 
 export const defaultAssumptions: Assumptions = {
@@ -86,6 +87,7 @@ export const defaultAssumptions: Assumptions = {
   h2_2028: { tier3: 7 },
   // initialRolloutPercent, annualChurnRate, opexGrowthRate removed — hardcoded in engine
   annualOpex: {
+    salaries: 0,
     cloudInfra: 2_400,
     softwareMaintenance: 8_000,
     salesOutreach: 5_000,

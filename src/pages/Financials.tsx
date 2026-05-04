@@ -123,6 +123,7 @@ function exportToExcel(
     ["Total NINV", ninvTotal],
     [],
     ["Annual OPEX (Base)", "Amount"],
+    ["Salaries", assumptions.annualOpex.salaries],
     ["Cloud Infrastructure", assumptions.annualOpex.cloudInfra],
     ["Software Maintenance", assumptions.annualOpex.softwareMaintenance],
     ["Sales & Outreach", assumptions.annualOpex.salesOutreach],
@@ -665,8 +666,9 @@ export default function Financials() {
               <Card>
                 <CardHeader className="pb-2"><CardTitle className="text-sm">Annual Operating Costs (Year 1) — Total: {formatCurrency(annualOpexTotal)}</CardTitle></CardHeader>
                 <CardContent>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {([
+                      { key: "salaries" as const, label: "Salaries" },
                       { key: "cloudInfra" as const, label: "Cloud Infrastructure" },
                       { key: "softwareMaintenance" as const, label: "Software Maintenance" },
                       { key: "salesOutreach" as const, label: "Sales & Outreach" },

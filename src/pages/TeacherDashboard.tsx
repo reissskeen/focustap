@@ -255,17 +255,19 @@ const TeacherDashboard = () => {
       Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6,
     };
 
-    const realItems: WeekSessionItem[] = weekSessions.map((s) => ({
-      id: s.id,
-      courseId: s.course_id,
-      courseName: courseMap[s.course_id]?.name || "Unknown",
-      section: courseMap[s.course_id]?.section || null,
-      room: courseMap[s.course_id]?.room || null,
-      startTime: s.start_time,
-      endTime: s.end_time,
-      status: s.status,
-      studentCount: (studentMap[s.id] || []).length,
-    }));
+    const realItems: WeekSessionItem[] = weekSessions
+      .filter((s) => courseMap[s.course_id])
+      .map((s) => ({
+        id: s.id,
+        courseId: s.course_id,
+        courseName: courseMap[s.course_id].name,
+        section: courseMap[s.course_id].section || null,
+        room: courseMap[s.course_id].room || null,
+        startTime: s.start_time,
+        endTime: s.end_time,
+        status: s.status,
+        studentCount: (studentMap[s.id] || []).length,
+      }));
 
     const weekMon = weekBounds(0).start;
     const scheduledItems: WeekSessionItem[] = [];

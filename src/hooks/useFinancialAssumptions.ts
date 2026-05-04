@@ -22,9 +22,16 @@ export async function loadAssumptionsFromDB(): Promise<Assumptions> {
 
     if (!error && data?.data && typeof data.data === "object") {
       const stored = data.data as Record<string, unknown>;
-      // If DB row has real data (not empty {}), use it
       if (Object.keys(stored).length > 0) {
-        return { ...defaultAssumptions, ...stored } as Assumptions;
+        const merged = { ...defaultAssumptions, ...stored } as Assumptions;
+        // Deep-merge nested objects so new fields get their defaults
+        if (stored.annualOpex && typeof stored.annualOpex === "object") {
+          merged.annualOpex = { ...defaultAssumptions.annualOpex, ...(stored.annualOpex as typeof defaultAssumptions.annualOpex) };
+        }
+        if (stored.ninv && typeof stored.ninv === "object") {
+          merged.ninv = { ...defaultAssumptions.ninv, ...(stored.ninv as typeof defaultAssumptions.ninv) };
+        }
+        return merged;
       }
     }
   } catch {
@@ -38,9 +45,15 @@ export async function loadAssumptionsFromDB(): Promise<Assumptions> {
       const parsed = JSON.parse(raw);
       if (parsed.__baselineVersion === ASSUMPTIONS_BASELINE_VERSION) {
         const { __baselineVersion, ...rest } = parsed;
-        // Migrate to DB silently
-        await saveAssumptionsToDB({ ...defaultAssumptions, ...rest });
-        return { ...defaultAssumptions, ...rest } as Assumptions;
+        const merged = { ...defaultAssumptions, ...rest } as Assumptions;
+        if (rest.annualOpex && typeof rest.annualOpex === "object") {
+          merged.annualOpex = { ...defaultAssumptions.annualOpex, ...rest.annualOpex };
+        }
+        if (rest.ninv && typeof rest.ninv === "object") {
+          merged.ninv = { ...defaultAssumptions.ninv, ...rest.ninv };
+        }
+        await saveAssumptionsToDB(merged);
+        return merged;
       }
     }
   } catch {
