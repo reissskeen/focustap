@@ -207,6 +207,51 @@ export default function TAMAnalysis() {
 
   return (
     <div className="space-y-6" style={{ fontFamily: font }}>
+      {/* TAM Summary */}
+      <div
+        className="rounded-2xl p-6"
+        style={{
+          background: "linear-gradient(135deg, rgba(139,108,255,0.10), rgba(34,211,238,0.04))",
+          border: "1px solid rgba(139,108,255,0.25)",
+        }}
+      >
+        <div className="text-xs uppercase tracking-widest font-medium mb-3" style={{ color: "#8b6cff" }}>
+          FocusTap TAM Summary
+        </div>
+        <p className="text-gray-200 text-sm leading-relaxed mb-4">
+          The U.S. private education market includes roughly{" "}
+          <span className="text-white font-semibold">33,700 private institutions</span> serving about{" "}
+          <span className="text-white font-semibold">10 million students</span> across private K–12 schools and private
+          postsecondary institutions.
+        </p>
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div
+            style={{ background: "rgba(139,108,255,0.12)", border: "1px solid rgba(139,108,255,0.2)", borderRadius: 12 }}
+            className="p-4 text-center"
+          >
+            <div className="text-2xl font-extrabold text-white">~$500M</div>
+            <div className="text-xs text-gray-400 mt-1">Annual TAM @ $50/student</div>
+            <div className="text-xs mt-1" style={{ color: "#8b6cff" }}>Current pricing model</div>
+          </div>
+          <div
+            style={{ background: "rgba(34,211,238,0.08)", border: "1px solid rgba(34,211,238,0.2)", borderRadius: 12 }}
+            className="p-4 text-center"
+          >
+            <div className="text-2xl font-extrabold text-white">~$1B</div>
+            <div className="text-xs text-gray-400 mt-1">Annual TAM @ $100/student</div>
+            <div className="text-xs mt-1" style={{ color: "#22d3ee" }}>Expansion pricing tier</div>
+          </div>
+          <div
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12 }}
+            className="p-4 text-center"
+          >
+            <div className="text-2xl font-extrabold text-white">$1B+</div>
+            <div className="text-xs text-gray-400 mt-1">Upside potential</div>
+            <div className="text-xs text-gray-500 mt-1">Enterprise institution-wide pricing</div>
+          </div>
+        </div>
+      </div>
+
       {/* Grand Total Banner */}
       <div
         className="rounded-2xl p-6"
