@@ -26,7 +26,7 @@ const StaggeredCards = ({
   children,
   childSelector = ".stagger-card",
   stagger = 0.1,
-  duration = 0.65,
+  duration = 0.56,
   preset = "fadeUp",
   className,
   style,
@@ -42,15 +42,16 @@ const StaggeredCards = ({
 
     const from: gsap.TweenVars =
       preset === "scale"
-        ? { opacity: 0, scale: 0.9, y: 20 }
+        ? { opacity: 0, scale: 0.965, y: 12 }
         : preset === "fadeIn"
         ? { opacity: 0 }
-        : { opacity: 0, y: 40 };
+        : { opacity: 0, y: 24 };
 
     const tween = gsap.from(cards, {
       ...from,
       duration,
       stagger,
+      ease: "power2.out",
       clearProps: "all",
       scrollTrigger: {
         trigger: el,

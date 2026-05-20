@@ -17,12 +17,12 @@ interface ScrollRevealOptions {
 }
 
 const PRESETS: Record<Preset, gsap.TweenVars> = {
-  fadeUp:    { opacity: 0, y: 48 },
+  fadeUp:    { opacity: 0, y: 26 },
   fadeIn:    { opacity: 0 },
-  fadeLeft:  { opacity: 0, x: -48 },
-  fadeRight: { opacity: 0, x: 48 },
-  blur:      { opacity: 0, filter: "blur(12px)", y: 20 },
-  scale:     { opacity: 0, scale: 0.92 },
+  fadeLeft:  { opacity: 0, x: -26 },
+  fadeRight: { opacity: 0, x: 26 },
+  blur:      { opacity: 0, filter: "blur(8px)", y: 14 },
+  scale:     { opacity: 0, scale: 0.965 },
 };
 
 /**
@@ -39,7 +39,7 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(
 ): RefObject<T> {
   const {
     delay = 0,
-    duration = 0.7,
+    duration = 0.58,
     threshold = 0.15,
     once = true,
     staggerChildren,
@@ -60,6 +60,7 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(
       duration,
       delay,
       stagger: staggerChildren ? staggerAmount : 0,
+      ease: "power2.out",
       clearProps: "all",
       scrollTrigger: {
         trigger: el,
