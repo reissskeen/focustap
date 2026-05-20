@@ -14,8 +14,7 @@ import Navbar from "@/components/Navbar";
 import { ADMIN_PIN, PIN_KEY } from "@/components/PinProtectedRoute";
 import focustapLogo from "@/assets/focustap-logo.png";
 import {
-  SmoothScroll, StaggeredCards,
-  useScrollReveal, useMagneticHover,
+  SmoothScroll,
 } from "@/components/animations";
 import { FocusTapBackdrop, HeroShowcase, SignalStorySection } from "@/components/landing/FocusTapVisuals";
 
@@ -190,15 +189,20 @@ const DashboardMockup = () => {
   );
 };
 
-// ── Section sub-components using GSAP ──────────────────────────────────────
+// ── Section sub-components ─────────────────────────────────────────────────
 
 const FeaturesSection = () => {
-  const headerRef = useScrollReveal<HTMLDivElement>("fadeUp");
-
   return (
-    <section id="features" style={{ padding: "96px 16px" }}>
+    <section id="features" className="ft-flow-section">
       <div className="container mx-auto max-w-6xl">
-        <div ref={headerRef} className="text-center" style={{ marginBottom: 64 }}>
+        <motion.div
+          className="text-center"
+          style={{ marginBottom: 56 }}
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        >
           <p style={{ color: "#8b6cff", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>
             Features
           </p>
@@ -208,59 +212,46 @@ const FeaturesSection = () => {
           <p style={{ color: "#8585a0", fontSize: "1rem", maxWidth: 520, margin: "0 auto", lineHeight: 1.6 }}>
             A non-invasive toolkit that respects student autonomy while giving teachers real engagement data.
           </p>
-        </div>
+        </motion.div>
 
-        <StaggeredCards className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" stagger={0.09}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map((f) => (
-            <div
+            <motion.div
               key={f.title}
-              className="stagger-card"
-              style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                borderRadius: 18,
-                padding: "28px 26px",
-                cursor: "default",
-                transition: "background 0.3s ease, border-color 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease",
-                position: "relative",
-                overflow: "hidden",
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget;
-                el.style.background = "rgba(255,255,255,0.05)";
-                el.style.borderColor = "rgba(255,255,255,0.12)";
-                el.style.transform = "translateY(-3px)";
-                el.style.boxShadow = "0 12px 40px rgba(0,0,0,0.3)";
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget;
-                el.style.background = "rgba(255,255,255,0.03)";
-                el.style.borderColor = "rgba(255,255,255,0.07)";
-                el.style.transform = "translateY(0)";
-                el.style.boxShadow = "none";
-              }}
+              className="ft-soft-card"
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.42, delay: Math.min(features.indexOf(f) * 0.045, 0.18), ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -4 }}
             >
-              <div style={{ width: 42, height: 42, borderRadius: 10, background: `${f.color}18`, border: `1px solid ${f.color}25`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 18 }}>
+              <div className="ft-soft-card-glow" style={{ background: `radial-gradient(circle, ${f.color}28, transparent 68%)` }} />
+              <div style={{ width: 42, height: 42, borderRadius: 12, background: `${f.color}18`, border: `1px solid ${f.color}25`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 18 }}>
                 <f.icon style={{ width: 18, height: 18, color: f.color }} />
               </div>
               <h3 style={{ color: "#e8e8f0", fontWeight: 600, fontSize: "0.98rem", marginBottom: 8, letterSpacing: "-0.01em" }}>{f.title}</h3>
               <p style={{ color: "#8585a0", fontWeight: 400, fontSize: "0.875rem", lineHeight: 1.6 }}>{f.description}</p>
-            </div>
+            </motion.div>
           ))}
-        </StaggeredCards>
+        </div>
       </div>
     </section>
   );
 };
 
 const HowItWorksSection = () => {
-  const headerRef = useScrollReveal<HTMLDivElement>("fadeUp");
-
   return (
-    <section id="how-it-works" style={{ padding: "96px 16px", position: "relative", overflow: "hidden" }}>
+    <section id="how-it-works" className="ft-flow-section" style={{ position: "relative", overflow: "hidden" }}>
       <div className="ft-section-threads" aria-hidden="true" />
       <div className="container mx-auto max-w-5xl relative z-10">
-        <div ref={headerRef} className="text-center" style={{ marginBottom: 64 }}>
+        <motion.div
+          className="text-center"
+          style={{ marginBottom: 56 }}
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        >
           <p style={{ color: "#8b6cff", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>
             Process
           </p>
@@ -268,41 +259,45 @@ const HowItWorksSection = () => {
             How it works
           </h2>
           <p style={{ color: "#8585a0", fontSize: "1rem" }}>Four simple steps to focused classrooms.</p>
-        </div>
+        </motion.div>
 
-        <StaggeredCards className="grid grid-cols-1 sm:grid-cols-2 gap-4" stagger={0.12}>
-          {steps.map((step) => (
-            <div
+        <div className="ft-process-grid">
+          {steps.map((step, index) => (
+            <motion.div
               key={step.number}
-              className="stagger-card"
-              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 18, padding: "28px 26px", transition: "background 0.3s ease, border-color 0.3s ease, transform 0.25s ease" }}
-              onMouseEnter={(e) => { const el = e.currentTarget; el.style.background = "rgba(255,255,255,0.05)"; el.style.borderColor = "rgba(255,255,255,0.12)"; el.style.transform = "translateY(-3px)"; }}
-              onMouseLeave={(e) => { const el = e.currentTarget; el.style.background = "rgba(255,255,255,0.03)"; el.style.borderColor = "rgba(255,255,255,0.07)"; el.style.transform = "translateY(0)"; }}
+              className="ft-process-step"
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.42, delay: index * 0.055, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -3 }}
             >
-              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg, #8b6cff, #22d3ee)", boxShadow: "0 0 20px rgba(139,108,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 18 }}>
+              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg, #8b6cff, #22d3ee)", boxShadow: "0 0 20px rgba(139,108,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <span style={{ color: "white", fontWeight: 700, fontSize: "0.85rem" }}>{step.number}</span>
               </div>
-              <h3 style={{ color: "#e8e8f0", fontWeight: 600, fontSize: "1rem", marginBottom: 8, letterSpacing: "-0.01em" }}>{step.title}</h3>
-              <p style={{ color: "#8585a0", fontSize: "0.875rem", lineHeight: 1.6 }}>{step.description}</p>
-            </div>
+              <div>
+                <h3 style={{ color: "#e8e8f0", fontWeight: 600, fontSize: "1rem", marginBottom: 8, letterSpacing: "-0.01em" }}>{step.title}</h3>
+                <p style={{ color: "#8585a0", fontSize: "0.875rem", lineHeight: 1.6 }}>{step.description}</p>
+              </div>
+            </motion.div>
           ))}
-        </StaggeredCards>
+        </div>
       </div>
     </section>
   );
 };
 
 const CTASection = () => {
-  const ref = useScrollReveal<HTMLDivElement>("scale", { threshold: 0.2 });
-  const ctaBtn = useMagneticHover<HTMLButtonElement>({ strength: 10 });
-
   return (
-    <section style={{ padding: "96px 16px" }}>
+    <section className="ft-flow-section">
       <div className="container mx-auto max-w-3xl">
-        <div
-          ref={ref}
+        <motion.div
           className="ft-cta-panel"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 24, padding: "64px 40px", textAlign: "center", position: "relative", overflow: "hidden" }}
+          style={{ textAlign: "center", position: "relative", overflow: "hidden" }}
+          initial={{ opacity: 0, y: 18, scale: 0.985 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="relative z-10">
             <h2 style={{ fontWeight: 500, fontSize: "clamp(1.6rem, 3.5vw, 2.2rem)", letterSpacing: "-0.03em", color: "#e8e8f0", marginBottom: 16 }}>
@@ -312,17 +307,16 @@ const CTASection = () => {
               Start a free pilot with your class. No hardware, no installs, no setup friction.
             </p>
             <Link to="/login?mode=signup">
-              <button
-                ref={ctaBtn}
-                style={{ background: "#8b6cff", boxShadow: "0 0 24px rgba(139,108,255,0.3)", color: "white", fontWeight: 600, padding: "14px 32px", borderRadius: 10, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: 8, border: "none", cursor: "pointer", transition: "box-shadow 0.25s ease", fontFamily: "inherit" }}
-                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 40px rgba(139,108,255,0.55)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 0 24px rgba(139,108,255,0.3)"; }}
+              <motion.button
+                style={{ background: "#8b6cff", boxShadow: "0 0 24px rgba(139,108,255,0.3)", color: "white", fontWeight: 600, padding: "14px 32px", borderRadius: 10, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: 8, border: "none", cursor: "pointer", fontFamily: "inherit" }}
+                whileHover={{ y: -2, boxShadow: "0 0 40px rgba(139,108,255,0.55)" }}
+                whileTap={{ scale: 0.98 }}
               >
                 Sign Up Free <ArrowRight style={{ width: 16, height: 16 }} />
-              </button>
+              </motion.button>
             </Link>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

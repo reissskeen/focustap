@@ -111,6 +111,80 @@
     backdrop-filter: blur(12px);
   }
 
+  .ft-flow-section {
+    padding: 96px 16px;
+  }
+
+  .ft-soft-card,
+  .ft-process-step {
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(145deg, rgba(255,255,255,0.046), rgba(255,255,255,0.018)),
+      rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.075);
+    border-radius: 14px;
+    box-shadow: 0 18px 54px rgba(0,0,0,0.18);
+    transform: translateZ(0);
+  }
+
+  .ft-soft-card {
+    min-height: 214px;
+    padding: 28px 26px;
+    cursor: default;
+  }
+
+  .ft-soft-card::before,
+  .ft-process-step::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(139,108,255,0.09), transparent 42%, rgba(34,211,238,0.055));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+
+  .ft-soft-card:hover::before,
+  .ft-process-step:hover::before {
+    opacity: 1;
+  }
+
+  .ft-soft-card-glow {
+    position: absolute;
+    right: -54px;
+    top: -54px;
+    width: 150px;
+    height: 150px;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .ft-process-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .ft-process-step {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 18px;
+    align-items: start;
+    padding: 24px;
+  }
+
+  .ft-cta-panel {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(139,108,255,0.18), transparent 42%),
+      linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.022));
+    border: 1px solid rgba(255,255,255,0.085);
+    border-radius: 18px;
+    padding: 64px 40px;
+    box-shadow: 0 28px 80px rgba(0,0,0,0.24);
+  }
+
   .ft-visual-field {
     position: absolute;
     inset: -8% -10%;
