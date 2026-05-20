@@ -1,13 +1,13 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { Activity, BookOpen, QrCode, Radio, ShieldCheck, Users } from "lucide-react";
-import type { CSSProperties } from "react";
+import { useRef, type CSSProperties } from "react";
 
 const COLORS = {
-  bg: "#09090f",
-  card: "rgba(255,255,255,0.03)",
-  border: "rgba(255,255,255,0.07)",
-  muted: "#8585a0",
-  light: "#e8e8f0",
+  bg: "#f6f2ea",
+  card: "rgba(255,255,255,0.72)",
+  border: "rgba(31,41,55,0.10)",
+  muted: "#667085",
+  light: "#111827",
   purple: "#8b6cff",
   cyan: "#22d3ee",
   green: "#34d399",
@@ -41,12 +41,24 @@ export function FocusTapBackdrop() {
 }
 
 export function HeroShowcase() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const easedProgress = useSpring(scrollYProgress, { stiffness: 90, damping: 24, mass: 0.32 });
+  const y = useTransform(easedProgress, [0, 1], [36, -44]);
+  const rotateX = useTransform(easedProgress, [0, 0.5, 1], [2.5, 0, -2]);
+  const scale = useTransform(easedProgress, [0, 0.38, 1], [0.985, 1, 0.992]);
+
   return (
     <motion.div
+      ref={ref}
       className="ft-hero-showcase"
       initial={{ opacity: 0, y: 24, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.7, delay: 0.26, ease: [0.22, 1, 0.36, 1] }}
+      style={{ y, rotateX, scale }}
     >
       <div className="ft-product-frame">
         <div className="ft-browser-bar">
@@ -175,7 +187,7 @@ export function SignalStorySection() {
       <div className="container mx-auto max-w-6xl">
         <div className="ft-section-kicker">FocusTap system</div>
         <div className="ft-section-heading-row">
-          <h2>The page should show the product, not repeat the logo.</h2>
+          <h2>Scroll through the classroom flow.</h2>
           <p>
             FocusTap is about a live classroom flow: students checking in, notes saving,
             and professors seeing calm engagement signals at a glance.
@@ -190,7 +202,8 @@ export function SignalStorySection() {
               initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.55, delay: index * 0.08 }}
+              transition={{ duration: 0.7, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -8, rotate: index % 2 === 0 ? -0.35 : 0.35 }}
             >
               <div className="ft-story-visual" style={{ borderColor: `${card.color}33` }}>
                 <StoryVisual type={card.visual} color={card.color} />
