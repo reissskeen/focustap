@@ -14,9 +14,10 @@ import Navbar from "@/components/Navbar";
 import { ADMIN_PIN, PIN_KEY } from "@/components/PinProtectedRoute";
 import focustapLogo from "@/assets/focustap-logo.png";
 import {
-  SmoothScroll, StaggeredCards, ParallaxSection,
+  SmoothScroll, StaggeredCards,
   useScrollReveal, useMagneticHover,
 } from "@/components/animations";
+import { FocusTapBackdrop, HeroShowcase, SignalStorySection } from "@/components/landing/FocusTapVisuals";
 
 const features = [
   {
@@ -257,7 +258,7 @@ const HowItWorksSection = () => {
 
   return (
     <section id="how-it-works" style={{ padding: "96px 16px", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 600, height: 400, background: "radial-gradient(ellipse at center, rgba(139,108,255,0.05) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
+      <div className="ft-section-threads" aria-hidden="true" />
       <div className="container mx-auto max-w-5xl relative z-10">
         <div ref={headerRef} className="text-center" style={{ marginBottom: 64 }}>
           <p style={{ color: "#8b6cff", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>
@@ -300,9 +301,9 @@ const CTASection = () => {
       <div className="container mx-auto max-w-3xl">
         <div
           ref={ref}
+          className="ft-cta-panel"
           style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 24, padding: "64px 40px", textAlign: "center", position: "relative", overflow: "hidden" }}
         >
-          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 500, height: 300, background: "radial-gradient(ellipse at center, rgba(139,108,255,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
           <div className="relative z-10">
             <h2 style={{ fontWeight: 500, fontSize: "clamp(1.6rem, 3.5vw, 2.2rem)", letterSpacing: "-0.03em", color: "#e8e8f0", marginBottom: 16 }}>
               Ready to bring focus back to your classroom?
@@ -356,48 +357,9 @@ const Index = () => {
       {/* ── HERO ── */}
       <section
         className="relative flex flex-col items-center justify-center px-4 overflow-hidden"
-        style={{ minHeight: "100vh", paddingTop: 80 }}
+        style={{ minHeight: "calc(100vh - 24px)", paddingTop: 96, paddingBottom: 72 }}
       >
-        {/* Purple orb */}
-        <div
-          style={{
-            position: "absolute",
-            top: "30%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 800,
-            height: 600,
-            background: "radial-gradient(ellipse at center, rgba(139,108,255,0.13) 0%, transparent 70%)",
-            filter: "blur(40px)",
-            pointerEvents: "none",
-          }}
-        />
-        {/* Cyan orb */}
-        <div
-          style={{
-            position: "absolute",
-            top: "10%",
-            right: "5%",
-            width: 400,
-            height: 300,
-            background: "radial-gradient(ellipse at center, rgba(34,211,238,0.07) 0%, transparent 70%)",
-            filter: "blur(40px)",
-            pointerEvents: "none",
-          }}
-        />
-        {/* Grid pattern */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage:
-              "linear-gradient(rgba(139,108,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(139,108,255,0.025) 1px, transparent 1px)",
-            backgroundSize: "72px 72px",
-            maskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 100%)",
-            WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 100%)",
-            pointerEvents: "none",
-          }}
-        />
+        <FocusTapBackdrop />
 
         <div className="relative z-10 text-center w-full max-w-3xl mx-auto">
           {/* Badge */}
@@ -433,14 +395,30 @@ const Index = () => {
             transition={{ duration: 0.7, delay: 0.07 }}
             style={{
               fontWeight: 500,
-              fontSize: "clamp(2.6rem, 5.5vw, 4rem)",
+              fontSize: "clamp(3rem, 7vw, 5.5rem)",
               letterSpacing: "-0.04em",
-              lineHeight: 1.15,
+              lineHeight: 0.98,
               color: "#e8e8f0",
-              marginBottom: 24,
+              marginBottom: 18,
             }}
           >
-            Measure{" "}
+            FocusTap
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.12 }}
+            style={{
+              fontWeight: 500,
+              fontSize: "clamp(1.45rem, 3vw, 2.35rem)",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.15,
+              color: "#e8e8f0",
+              marginBottom: 22,
+            }}
+          >
+            Classroom focus analytics that feel{" "}
             <span
               style={{
                 background: "linear-gradient(135deg, #a78bfa, #22d3ee)",
@@ -449,27 +427,26 @@ const Index = () => {
                 backgroundClip: "text",
               }}
             >
-              focus
+              calm, live, and human.
             </span>
-            ,<br />
-            not compliance.
-          </motion.h1>
+          </motion.p>
 
           {/* Subheadline */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.14 }}
+            transition={{ duration: 0.7, delay: 0.18 }}
             style={{
               color: "#8585a0",
               fontWeight: 400,
               fontSize: "1.05rem",
-              maxWidth: 500,
+              maxWidth: 560,
               margin: "0 auto 36px",
               lineHeight: 1.65,
             }}
           >
-            FocusTap tracks time-on-task while students take notes — no blocking, no monitoring, no hardware. Just engagement data that matters.
+            Measure time-on-task while students take notes, without blocking,
+            watching, or turning class into a surveillance tool.
           </motion.p>
 
           {/* Buttons */}
@@ -538,21 +515,15 @@ const Index = () => {
           </motion.p>
 
           {/* Dashboard mockup */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.35 }}
-            style={{ marginTop: 56 }}
-          >
-            <ParallaxSection depth={40} direction="up">
-              <DashboardMockup />
-            </ParallaxSection>
-          </motion.div>
+          <HeroShowcase />
         </div>
       </section>
 
       {/* ── FEATURES ── */}
       <FeaturesSection />
+
+      {/* ── VISUAL SYSTEM ── */}
+      <SignalStorySection />
 
       {/* ── HOW IT WORKS ── */}
       <HowItWorksSection />

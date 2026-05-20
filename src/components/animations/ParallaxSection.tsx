@@ -36,20 +36,23 @@ const ParallaxSection = ({
     if (!outer || !inner) return;
 
     const sign = direction === "up" ? -1 : 1;
+    gsap.set(inner, { willChange: "transform", force3D: true });
 
     const tween = gsap.to(inner, {
       y: sign * depth,
       ease: "none",
+      force3D: true,
       scrollTrigger: {
         trigger: outer,
         start: "top bottom",
         end: "bottom top",
-        scrub: true,
+        scrub: 0.75,
       },
     });
 
     return () => {
       tween.kill();
+      gsap.set(inner, { clearProps: "willChange,transform" });
       ScrollTrigger.getAll().forEach((t) => {
         if (t.trigger === outer) t.kill();
       });

@@ -23,15 +23,27 @@ interface SmoothScrollProps {
 const SmoothScroll = ({ children }: SmoothScrollProps) => {
   useEffect(() => {
     // Recalculate all trigger positions after fonts/images finish loading
-    const refresh = () => ScrollTrigger.refresh();
+    const refresh = () => requestAnimationFrame(() => ScrollTrigger.refresh());
     window.addEventListener("load", refresh);
 
     // Also refresh after a short delay to catch late layout shifts
     const timer = setTimeout(refresh, 300);
+    const lateTimer = setTimeout(refresh, 900);
+
+    const images = Array.from(document.images).filter((image) => !image.complete);
+    images.forEach((image) => {
+      image.addEventListener("load", refresh, { once: true });
+      image.addEventListener("error", refresh, { once: true });
+    });
 
     return () => {
       window.removeEventListener("load", refresh);
       clearTimeout(timer);
+      clearTimeout(lateTimer);
+      images.forEach((image) => {
+        image.removeEventListener("load", refresh);
+        image.removeEventListener("error", refresh);
+      });
     };
   }, []);
 
