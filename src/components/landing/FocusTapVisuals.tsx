@@ -199,9 +199,9 @@ export function SignalStorySection() {
             <motion.article
               key={card.title}
               className="ft-story-card"
-              initial={{ opacity: 0, y: 28 }}
+              initial={{ opacity: 0, y: 36 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.7, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
               whileHover={{ y: -8, rotate: index % 2 === 0 ? -0.35 : 0.35 }}
             >

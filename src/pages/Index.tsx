@@ -198,9 +198,9 @@ const FeaturesSection = () => {
         <motion.div
           className="text-center"
           style={{ marginBottom: 56 }}
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
+          viewport={{ once: true, amount: 0.1 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
           <p style={{ color: "#8b6cff", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>
@@ -219,10 +219,10 @@ const FeaturesSection = () => {
             <motion.div
               key={f.title}
               className="ft-soft-card"
-              initial={{ opacity: 0, y: 18 }}
+              initial={{ opacity: 0, y: 32 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.25 }}
-              transition={{ duration: 0.42, delay: Math.min(features.indexOf(f) * 0.045, 0.18), ease: [0.22, 1, 0.36, 1] }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.42, delay: features.indexOf(f) * 0.07, ease: [0.22, 1, 0.36, 1] }}
               whileHover={{ y: -4 }}
             >
               <div className="ft-soft-card-glow" style={{ background: `radial-gradient(circle, ${f.color}28, transparent 68%)` }} />
@@ -247,9 +247,9 @@ const HowItWorksSection = () => {
         <motion.div
           className="text-center"
           style={{ marginBottom: 56 }}
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
+          viewport={{ once: true, amount: 0.1 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
           <p style={{ color: "#8b6cff", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>
@@ -266,10 +266,10 @@ const HowItWorksSection = () => {
             <motion.div
               key={step.number}
               className="ft-process-step"
-              initial={{ opacity: 0, y: 18 }}
+              initial={{ opacity: 0, y: 32 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.42, delay: index * 0.055, ease: [0.22, 1, 0.36, 1] }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.42, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
               whileHover={{ y: -3 }}
             >
               <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg, #8b6cff, #22d3ee)", boxShadow: "0 0 20px rgba(139,108,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -294,9 +294,9 @@ const CTASection = () => {
         <motion.div
           className="ft-cta-panel"
           style={{ textAlign: "center", position: "relative", overflow: "hidden" }}
-          initial={{ opacity: 0, y: 18, scale: 0.985 }}
+          initial={{ opacity: 0, y: 28, scale: 0.985 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true, amount: 0.35 }}
+          viewport={{ once: true, amount: 0.1 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="relative z-10">

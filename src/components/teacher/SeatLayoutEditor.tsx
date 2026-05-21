@@ -7,10 +7,10 @@ import { toast } from "sonner";
 const CYAN = "#22d3ee";
 const CYAN_DIM = "rgba(34,211,238,0.10)";
 const CYAN_BORDER = "rgba(34,211,238,0.22)";
-const CARD_BG = "rgba(255,255,255,0.03)";
-const CARD_BORDER = "rgba(255,255,255,0.07)";
-const MUTED = "#8585a0";
-const LIGHT = "#e8e8f0";
+const CARD_BG = "rgba(17,24,39,0.03)";
+const CARD_BORDER = "rgba(17,24,39,0.08)";
+const MUTED = "#667085";
+const LIGHT = "#111827";
 
 export interface SeatLayout {
   rows: number;
@@ -281,7 +281,7 @@ const SeatLayoutEditor = ({
             style={{
               height: 48,
               borderRadius: 8,
-              border: "1px dashed rgba(255,255,255,0.06)",
+              border: "1px dashed rgba(17,24,39,0.12)",
               cursor: "pointer",
               transition: "border-color 0.12s, background 0.12s",
             }}
@@ -304,7 +304,7 @@ const SeatLayoutEditor = ({
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(9,9,15,0.88)",
+        background: "rgba(17,24,39,0.48)",
         backdropFilter: "blur(6px)",
         zIndex: 50,
         display: "flex",
@@ -321,7 +321,7 @@ const SeatLayoutEditor = ({
         transition={{ duration: 0.18 }}
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#0d0d16",
+          background: "#f6f7fa",
           border: `1px solid ${CARD_BORDER}`,
           borderRadius: 20,
           padding: "28px 28px 24px",
@@ -372,8 +372,8 @@ const SeatLayoutEditor = ({
               value={rows}
               onChange={(e) => handleRowsChange(+e.target.value)}
               style={{
-                width: 52, background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.09)",
+                width: 52, background: "rgba(17,24,39,0.04)",
+                border: "1px solid rgba(17,24,39,0.09)",
                 color: LIGHT, borderRadius: 7, padding: "5px 8px",
                 fontSize: 13, fontFamily: "inherit", outline: "none",
               }}
@@ -387,8 +387,8 @@ const SeatLayoutEditor = ({
               value={cols}
               onChange={(e) => handleColsChange(+e.target.value)}
               style={{
-                width: 52, background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.09)",
+                width: 52, background: "rgba(17,24,39,0.04)",
+                border: "1px solid rgba(17,24,39,0.09)",
                 color: LIGHT, borderRadius: 7, padding: "5px 8px",
                 fontSize: 13, fontFamily: "inherit", outline: "none",
               }}

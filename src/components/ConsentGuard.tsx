@@ -44,7 +44,7 @@ export default function ConsentGuard({ children }: { children: ReactNode }) {
       <div
         style={{
           minHeight: "100vh",
-          background: "#09090f",
+          background: "#f6f7fa",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

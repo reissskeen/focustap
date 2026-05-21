@@ -16,9 +16,9 @@ import StatStrip from "@/components/teacher/dashboard/StatStrip";
 import WeekSchedule, { type WeekSessionItem } from "@/components/teacher/dashboard/WeekSchedule";
 import CourseHealthList, { type CourseStats } from "@/components/teacher/dashboard/CourseHealthList";
 
-const BG = "#09090f";
+const BG = "#f6f7fa";
 const CYAN = "#22d3ee";
-const MUTED = "#8585a0";
+const MUTED = "#667085";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 

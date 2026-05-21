@@ -174,20 +174,20 @@ const TeacherLogin = () => {
   };
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.09)",
-    color: "#e8e8f0",
+    background: "rgba(17,24,39,0.04)",
+    border: "1px solid rgba(17,24,39,0.09)",
+    color: "#111827",
     borderRadius: 8,
   };
 
   const labelStyle = {
-    color: "#8585a0",
+    color: "#667085",
     fontSize: "0.82rem",
     fontWeight: 500,
   };
 
   if (authLoading) {
-    return <div style={{ minHeight: "100vh", background: "#09090f" }} />;
+    return <div style={{ minHeight: "100vh", background: "#f9fafb" }} />;
   }
 
   return (
@@ -195,7 +195,7 @@ const TeacherLogin = () => {
     <div
       style={{
         minHeight: "100vh",
-        background: "#09090f",
+        background: "#f6f7fa",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -204,33 +204,6 @@ const TeacherLogin = () => {
         overflow: "hidden",
       }}
     >
-      {/* Background orb */}
-      <div
-        style={{
-          position: "absolute",
-          top: "30%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 600,
-          height: 400,
-          background: "radial-gradient(ellipse at center, rgba(34,211,238,0.07) 0%, transparent 70%)",
-          filter: "blur(40px)",
-          pointerEvents: "none",
-        }}
-      />
-      {/* Grid pattern */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage:
-            "linear-gradient(rgba(139,108,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(139,108,255,0.02) 1px, transparent 1px)",
-          backgroundSize: "72px 72px",
-          maskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 100%)",
-          WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 100%)",
-          pointerEvents: "none",
-        }}
-      />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -247,8 +220,8 @@ const TeacherLogin = () => {
         <div
           style={{
             display: "flex",
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.07)",
+            background: "rgba(17,24,39,0.04)",
+            border: "1px solid rgba(17,24,39,0.08)",
             borderRadius: 10,
             padding: 4,
             marginBottom: 20,
@@ -261,15 +234,15 @@ const TeacherLogin = () => {
               textAlign: "center",
               padding: "7px 0",
               borderRadius: 7,
-              color: "#55556a",
+              color: "#667085",
               fontWeight: 500,
               fontSize: "0.84rem",
               textDecoration: "none",
               display: "block",
               transition: "color 0.2s",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#8585a0")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#55556a")}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#344054")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#667085")}
           >
             Student
           </Link>
@@ -280,7 +253,7 @@ const TeacherLogin = () => {
               padding: "7px 0",
               borderRadius: 7,
               background: "rgba(34,211,238,0.1)",
-              border: "1px solid rgba(34,211,238,0.18)",
+              border: "1px solid rgba(34,211,238,0.2)",
               color: "#22d3ee",
               fontWeight: 600,
               fontSize: "0.84rem",
@@ -293,11 +266,11 @@ const TeacherLogin = () => {
         {/* Card */}
         <div
           style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.07)",
+            background: "rgba(17,24,39,0.03)",
+            border: "1px solid rgba(17,24,39,0.08)",
             borderRadius: 16,
             padding: "28px 24px",
-            boxShadow: "0 0 0 1px rgba(34,211,238,0.05), 0 24px 60px rgba(0,0,0,0.4)",
+            boxShadow: "0 0 0 1px rgba(34,211,238,0.05), 0 4px 24px rgba(17,24,39,0.06)",
           }}
         >
           <motion.div
@@ -311,14 +284,14 @@ const TeacherLogin = () => {
                 fontWeight: 500,
                 fontSize: "1.2rem",
                 letterSpacing: "-0.02em",
-                color: "#e8e8f0",
+                color: "#111827",
                 textAlign: "center",
                 marginBottom: 4,
               }}
             >
               {mode === "login" ? "Professor Login" : "Professor Registration"}
             </h1>
-            <p style={{ color: "#55556a", fontSize: "0.82rem", textAlign: "center", marginBottom: 24 }}>
+            <p style={{ color: "#667085", fontSize: "0.82rem", textAlign: "center", marginBottom: 24 }}>
               {mode === "login"
                 ? "Sign in to your professor account"
                 : "Create a professor account with your access code"}
@@ -452,7 +425,7 @@ const TeacherLogin = () => {
                 )}
               </button>
 
-              <p style={{ color: "#55556a", fontSize: "0.78rem", textAlign: "center" }}>
+              <p style={{ color: "#667085", fontSize: "0.78rem", textAlign: "center" }}>
                 {mode === "login" ? (
                   <>No account?{" "}
                     <button type="button" onClick={switchMode} style={{ color: "#22d3ee", background: "none", border: "none", cursor: "pointer", fontWeight: 500, fontSize: "0.78rem", fontFamily: "inherit" }}>
@@ -471,7 +444,7 @@ const TeacherLogin = () => {
           </motion.div>
         </div>
 
-        <p style={{ color: "#55556a", fontSize: "0.78rem", textAlign: "center", marginTop: 16 }}>
+        <p style={{ color: "#667085", fontSize: "0.78rem", textAlign: "center", marginTop: 16 }}>
           Student?{" "}
           <Link to="/login" style={{ color: "#8b6cff", textDecoration: "none", fontWeight: 500 }}>
             Go to student login

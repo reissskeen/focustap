@@ -4,11 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import focustapLogo from "@/assets/focustap-logo.png";
 
-const BG = "#09090f";
-const CARD_BG = "rgba(255,255,255,0.03)";
-const CARD_BORDER = "rgba(255,255,255,0.07)";
-const MUTED = "#8585a0";
-const LIGHT = "#e8e8f0";
+const BG = "#f6f7fa";
+const CARD_BG = "rgba(17,24,39,0.03)";
+const CARD_BORDER = "rgba(17,24,39,0.08)";
+const MUTED = "#667085";
+const LIGHT = "#111827";
 const PURPLE = "#8b6cff";
 const PURPLE_DIM = "rgba(139,108,255,0.12)";
 const PURPLE_BORDER = "rgba(139,108,255,0.25)";
@@ -170,7 +170,7 @@ export default function Consent() {
           </button>
         </div>
 
-        <p style={{ textAlign: "center", color: "#3a3a50", fontSize: "0.75rem", marginTop: 20 }}>
+        <p style={{ textAlign: "center", color: "#98a2b3", fontSize: "0.75rem", marginTop: 20 }}>
           FocusTap · focustap.org · privacy@focustap.org
         </p>
       </div>
