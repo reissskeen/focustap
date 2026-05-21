@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 
-const MUTED = "#8585a0";
-const LIGHT = "#e8e8f0";
+const MUTED = "#667085";
+const LIGHT = "#111827";
 
 function getTimeOfDay() {
   const h = new Date().getHours();

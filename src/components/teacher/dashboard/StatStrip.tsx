@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
 
-const MUTED = "#8585a0";
-const LIGHT = "#e8e8f0";
+const MUTED = "#667085";
+const LIGHT = "#111827";
 const AMBER = "#fbbf24";
 const GREEN = "#34d399";
 
-const TILE_BG = "rgba(255,255,255,0.03)";
-const TILE_BORDER = "0.5px solid rgba(255,255,255,0.06)";
+const TILE_BG = "#ffffff";
+const TILE_BORDER = "1px solid rgba(17,24,39,0.08)";
 
 interface TileProps {
   label: string;
