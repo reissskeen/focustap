@@ -3,6 +3,7 @@ import { Play, LayoutGrid } from "lucide-react";
 import { format, differenceInMinutes, isToday, isTomorrow } from "date-fns";
 import type { Tables } from "@/integrations/supabase/types";
 
+const PURPLE = "#8b6cff";
 const CYAN = "#22d3ee";
 const CYAN_DIM = "rgba(34,211,238,0.12)";
 const CYAN_BORDER = "rgba(34,211,238,0.25)";
@@ -107,9 +108,10 @@ export default function LiveSessionHero({
         transition={{ duration: 0.28, delay: 0.06 }}
         style={{
           background: hasActive
-            ? "linear-gradient(135deg, rgba(34,211,238,0.08) 0%, rgba(255,255,255,0.96) 100%)"
+            ? "linear-gradient(135deg, rgba(34,211,238,0.07) 0%, rgba(255,255,255,0.97) 100%)"
             : "#ffffff",
           border: `1px solid ${hasActive ? CYAN_BORDER : "rgba(17,24,39,0.08)"}`,
+          borderTop: `2.5px solid ${hasActive ? CYAN : PURPLE}`,
           borderRadius: 14,
           padding: "20px 24px",
           display: "grid",
@@ -292,11 +294,11 @@ export default function LiveSessionHero({
             <button
               onClick={onStartSession}
               style={{
-                padding: "10px 18px",
+                padding: "10px 22px",
                 borderRadius: 9,
-                background: CYAN_DIM,
-                border: `0.5px solid ${CYAN_BORDER}`,
-                color: CYAN,
+                background: PURPLE,
+                border: "none",
+                color: "#ffffff",
                 fontSize: 13,
                 fontWeight: 600,
                 fontFamily: "inherit",
@@ -305,15 +307,18 @@ export default function LiveSessionHero({
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 7,
-                transition: "background 0.15s",
+                boxShadow: "0 0 20px rgba(139,108,255,0.3)",
+                transition: "box-shadow 0.15s, transform 0.15s",
                 whiteSpace: "nowrap",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "rgba(34,211,238,0.2)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = CYAN_DIM)
-              }
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = "0 0 28px rgba(139,108,255,0.5)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = "0 0 20px rgba(139,108,255,0.3)";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
             >
               <Play style={{ width: 13, height: 13 }} />
               Start session
@@ -322,11 +327,11 @@ export default function LiveSessionHero({
             <button
               onClick={onAddCourse}
               style={{
-                padding: "10px 18px",
+                padding: "10px 22px",
                 borderRadius: 9,
-                background: CYAN_DIM,
-                border: `0.5px solid ${CYAN_BORDER}`,
-                color: CYAN,
+                background: PURPLE,
+                border: "none",
+                color: "#ffffff",
                 fontSize: 13,
                 fontWeight: 600,
                 fontFamily: "inherit",
@@ -335,15 +340,18 @@ export default function LiveSessionHero({
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 7,
-                transition: "background 0.15s",
+                boxShadow: "0 0 20px rgba(139,108,255,0.3)",
+                transition: "box-shadow 0.15s, transform 0.15s",
                 whiteSpace: "nowrap",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "rgba(34,211,238,0.2)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = CYAN_DIM)
-              }
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = "0 0 28px rgba(139,108,255,0.5)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = "0 0 20px rgba(139,108,255,0.3)";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
             >
               + Add course
             </button>

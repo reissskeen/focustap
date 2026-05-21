@@ -16,9 +16,9 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, signOut } = useAuth();
   const isLanding = location.pathname === "/";
-  const navText = isLanding ? "#344054" : "#8585a0";
-  const navTextHover = isLanding ? "#111827" : "#e8e8f0";
-  const navBorder = isLanding ? "rgba(17,24,39,0.09)" : "rgba(255,255,255,0.07)";
+  const navText = "#344054";
+  const navTextHover = "#111827";
+  const navBorder = "rgba(17,24,39,0.09)";
 
   const navLinks = [
     { label: "Features", href: "/#features" },
@@ -30,7 +30,7 @@ const Navbar = () => {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       style={{
-        background: isLanding ? "rgba(246, 242, 234, 0.82)" : "rgba(9, 9, 15, 0.8)",
+        background: isLanding ? "rgba(246, 242, 234, 0.88)" : "rgba(255,255,255,0.92)",
         backdropFilter: "blur(24px)",
         borderBottom: `1px solid ${navBorder}`,
       }}
@@ -140,19 +140,19 @@ const Navbar = () => {
           ) : (
             <>
               <Link to="/teacher">
-                <button style={{ color: "#8585a0", fontWeight: 500, fontSize: "0.84rem", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}>
+                <button style={{ color: navText, fontWeight: 500, fontSize: "0.84rem", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}>
                   Dashboard
                 </button>
               </Link>
               {user ? (
                 <button
                   onClick={signOut}
-                  style={{ color: "#8585a0", fontWeight: 500, fontSize: "0.84rem", display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}
+                  style={{ color: navText, fontWeight: 500, fontSize: "0.84rem", display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}
                 >
                   <LogOut style={{ width: 14, height: 14 }} /> Sign out
                 </button>
               ) : (
-                <Link to="/login" style={{ color: "#8585a0", fontWeight: 500, fontSize: "0.84rem" }}>
+                <Link to="/login" style={{ color: navText, fontWeight: 500, fontSize: "0.84rem" }}>
                   Log in
                 </Link>
               )}
@@ -164,7 +164,7 @@ const Navbar = () => {
         {isLanding && (
           <button
             className="md:hidden"
-            style={{ color: isLanding ? "#111827" : "#e8e8f0", background: "none", border: "none", cursor: "pointer" }}
+            style={{ color: "#111827", background: "none", border: "none", cursor: "pointer" }}
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             {mobileOpen ? <X style={{ width: 22, height: 22 }} /> : <Menu style={{ width: 22, height: 22 }} />}
@@ -179,7 +179,7 @@ const Navbar = () => {
           animate={{ opacity: 1, height: "auto" }}
           style={{
             borderTop: `1px solid ${navBorder}`,
-            background: isLanding ? "rgba(255,255,255,0.97)" : "rgba(9,9,15,0.97)",
+            background: "rgba(255,255,255,0.98)",
             padding: "16px",
           }}
         >

@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
 
 const MUTED = "#667085";
-const LIGHT = "#111827";
 const AMBER = "#fbbf24";
 const GREEN = "#34d399";
+const PURPLE = "#8b6cff";
+const CYAN = "#22d3ee";
+const RED = "#ef4444";
 
 const TILE_BG = "#ffffff";
 const TILE_BORDER = "1px solid rgba(17,24,39,0.08)";
@@ -13,10 +15,11 @@ interface TileProps {
   value: string;
   context: string | null;
   contextColor?: string;
+  accentColor: string;
   index: number;
 }
 
-function Tile({ label, value, context, contextColor, index }: TileProps) {
+function Tile({ label, value, context, contextColor, accentColor, index }: TileProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -25,17 +28,18 @@ function Tile({ label, value, context, contextColor, index }: TileProps) {
       style={{
         background: TILE_BG,
         border: TILE_BORDER,
+        borderTop: `2.5px solid ${accentColor}`,
         borderRadius: 10,
-        padding: "12px 14px",
+        padding: "14px 16px",
       }}
     >
       <p
         style={{
           fontSize: 11,
-          fontWeight: 500,
-          letterSpacing: "0.05em",
+          fontWeight: 600,
+          letterSpacing: "0.06em",
           color: MUTED,
-          margin: "0 0 6px",
+          margin: "0 0 8px",
           textTransform: "uppercase",
         }}
       >
@@ -43,11 +47,11 @@ function Tile({ label, value, context, contextColor, index }: TileProps) {
       </p>
       <p
         style={{
-          fontSize: 22,
-          fontWeight: 500,
-          color: LIGHT,
+          fontSize: 26,
+          fontWeight: 600,
+          color: accentColor,
           margin: "0 0 4px",
-          letterSpacing: "-0.02em",
+          letterSpacing: "-0.03em",
         }}
       >
         {value}
@@ -88,32 +92,36 @@ export default function StatStrip({
       ? `${focusDelta >= 0 ? "▲" : "▼"} ${Math.abs(focusDelta)} pts vs last week`
       : null;
 
+  const focusAccent =
+    avgFocusThisWeek === null
+      ? PURPLE
+      : avgFocusThisWeek >= 80
+      ? GREEN
+      : avgFocusThisWeek >= 60
+      ? AMBER
+      : RED;
+
   const tiles: TileProps[] = [
     {
       label: "Avg focus this week",
       value: avgFocusThisWeek !== null ? `${avgFocusThisWeek}%` : "—",
       context: focusContext,
-      contextColor:
-        focusDelta !== null
-          ? focusDelta >= 0
-            ? GREEN
-            : AMBER
-          : undefined,
+      contextColor: focusDelta !== null ? (focusDelta >= 0 ? GREEN : AMBER) : undefined,
+      accentColor: focusAccent,
       index: 0,
     },
     {
       label: "Sessions run",
       value: String(sessionsRun),
-      context:
-        sessionsRun > 0
-          ? `across ${courseCount} course${courseCount !== 1 ? "s" : ""}`
-          : null,
+      context: sessionsRun > 0 ? `across ${courseCount} course${courseCount !== 1 ? "s" : ""}` : null,
+      accentColor: CYAN,
       index: 1,
     },
     {
       label: "Active students",
       value: activeStudents > 0 ? String(activeStudents) : "—",
       context: activeStudents > 0 ? "enrolled total" : null,
+      accentColor: GREEN,
       index: 2,
     },
     {
@@ -121,6 +129,7 @@ export default function StatStrip({
       value: String(attentionAlerts),
       context: attentionAlerts > 0 ? "need follow-up" : "all clear",
       contextColor: attentionAlerts > 0 ? AMBER : MUTED,
+      accentColor: attentionAlerts > 0 ? AMBER : MUTED,
       index: 3,
     },
   ];
