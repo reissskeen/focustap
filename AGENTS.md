@@ -31,8 +31,8 @@ focustap/
 │   ├── functions/       # Deno edge functions
 │   └── migrations/      # SQL migrations (timestamped)
 ├── public/              # Static files served at root
-├── CLAUDE.md            # This file
-└── .claude/
+├── AGENTS.md            # This file
+└── .Codex/
     └── agents/          # Specialist subagents
 ```
 
