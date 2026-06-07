@@ -40,7 +40,7 @@ focustap/
 - **Session**: A professor launches a timed class session; students join via link or NFC
 - **Student session**: A row in `student_sessions` tracking focus time, heartbeats, note saves
 - **Focus events**: Rows in `focus_events` (start/pause/resume) used for distraction scoring
-- **FEI (FocusTap Engagement Index)**: Proprietary score = Presence(35%) + Distraction Resistance(30%) + Active Participation(25%) + Session Integrity(10%)
+- **FEI (FocusTap Engagement Index)**: Proprietary engagement score. See the `fei-algorithm` skill for exact weights and calculation rules.
 - **Institution**: A school (e.g. Flagler College) with `student_code` and `teacher_code` for signup gating
 - **Roles**: `student`, `teacher`, `admin` — stored in `user_roles` table, enforced by RLS
 
@@ -65,35 +65,10 @@ focustap/
 ## Institutions
 - Flagler College: `student_code = FLC-STU-2026`, `teacher_code = FLC-PROF-2026`
 
-## Sub-Agent Routing Rules
+## Sub-Agents
 
-**Parallel dispatch** (ALL must be true):
-- 3+ unrelated tasks or independent domains
-- No shared state between tasks
-- Clear file boundaries with no overlap
-
-**Sequential dispatch** (ANY triggers):
-- Tasks have dependencies (B needs output from A)
-- Shared files or state
-- Unclear scope
-
-**Agent assignments:**
-- UI components, styling, animations, Tailwind, shadcn → @agent-frontend
-- Supabase queries, RLS policies, edge functions, migrations → @agent-backend
-- Wiring frontend to Supabase, auth flows, data fetching hooks → @agent-integrator
-- Architecture decisions, refactoring, performance → @agent-architect
-- Bug diagnosis, broken flows, TypeScript errors → @agent-debugger
+See `.claude/agents/` — each agent's frontmatter `description` defines when to use it. Dispatch in parallel when 3+ tasks are independent with no shared files; otherwise sequential.
 
 ## Design System
-- **Theme: light mode across all pages**
-- Landing page background: warm cream `#f6f2ea` (via `.ft-landing-shell`)
-- App page background: `#f6f7fa` (light gray-white)
-- Primary accent: `#8b6cff` (purple) — students/CTAs
-- Secondary accent: `#22d3ee` (cyan) — professors
-- Heading text: `#111827`
-- Muted text: `#667085`
-- Faint text: `#98a2b3`
-- Font: Plus Jakarta Sans
-- Light cards: `background: rgba(17,24,39,0.03)`, `border: 1px solid rgba(17,24,39,0.08)`, `borderRadius: 14px`
-- Use inline styles for exact rgba values (Tailwind can't express these)
-- CSS variables in `:root` are light theme — do NOT use `#09090f` or `rgba(255,255,255,0.03)` dark glass patterns
+
+Light mode across all pages. See the `design-system` skill (`.claude/skills/design-system/SKILL.md`) for tokens, card pattern, accents, and banned patterns.
