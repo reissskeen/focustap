@@ -78,9 +78,9 @@ const DashboardMockup = () => {
       style={{
         borderRadius: 14,
         overflow: "hidden",
-        border: "1px solid rgba(255,255,255,0.08)",
-        boxShadow: "0 24px 80px rgba(0,0,0,0.6), 0 0 80px rgba(139,108,255,0.07)",
-        background: "rgba(12,12,22,0.97)",
+        border: "1px solid rgba(17,24,39,0.08)",
+        boxShadow: "0 28px 90px rgba(71,64,52,0.16), 0 0 80px rgba(139,108,255,0.07)",
+        background: "#f6f7fa",
         maxWidth: 760,
         margin: "0 auto",
         userSelect: "none",
@@ -89,8 +89,8 @@ const DashboardMockup = () => {
       {/* Browser chrome */}
       <div
         style={{
-          background: "rgba(255,255,255,0.025)",
-          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          background: "rgba(17,24,39,0.03)",
+          borderBottom: "1px solid rgba(17,24,39,0.08)",
           padding: "10px 16px",
           display: "flex",
           alignItems: "center",
@@ -105,8 +105,8 @@ const DashboardMockup = () => {
         <div
           style={{
             flex: 1,
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.06)",
+            background: "rgba(17,24,39,0.03)",
+            border: "1px solid rgba(17,24,39,0.08)",
             borderRadius: 6,
             padding: "3px 0",
             color: "#98a2b3",
@@ -128,8 +128,8 @@ const DashboardMockup = () => {
             <div
               key={s.label}
               style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.06)",
+                background: "rgba(17,24,39,0.03)",
+                border: "1px solid rgba(17,24,39,0.08)",
                 borderRadius: 10,
                 padding: "12px 14px",
               }}
@@ -147,8 +147,8 @@ const DashboardMockup = () => {
         {/* Chart */}
         <div
           style={{
-            background: "rgba(255,255,255,0.02)",
-            border: "1px solid rgba(255,255,255,0.05)",
+            background: "rgba(17,24,39,0.03)",
+            border: "1px solid rgba(17,24,39,0.08)",
             borderRadius: 10,
             padding: "14px 16px",
           }}
