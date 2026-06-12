@@ -109,7 +109,7 @@ export default function LiveSessionHero({
         style={{
           background: hasActive
             ? "linear-gradient(135deg, rgba(34,211,238,0.07) 0%, rgba(255,255,255,0.06) 100%)"
-            : "#12141d",
+            : "#20232e",
           border: `1px solid ${hasActive ? CYAN_BORDER : "rgba(255,255,255,0.08)"}`,
           borderTop: `2.5px solid ${hasActive ? CYAN : PURPLE}`,
           borderRadius: 14,

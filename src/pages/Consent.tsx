@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import focustapLogo from "@/assets/focustap-logo.png";
 
-const BG = "#0e1118";
-const CARD_BG = "rgba(255,255,255,0.03)";
+const BG = "#161922";
+const CARD_BG = "rgba(255,255,255,0.05)";
 const CARD_BORDER = "rgba(255,255,255,0.08)";
 const MUTED = "#98a3b8";
 const LIGHT = "#eef1f7";

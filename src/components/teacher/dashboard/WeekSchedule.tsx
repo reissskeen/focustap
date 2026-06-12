@@ -72,7 +72,7 @@ export default function WeekSchedule({ sessions, onNavigateToCourse }: Props) {
       {/* Container */}
       <div
         style={{
-          background: "#12141d",
+          background: "#20232e",
           border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: 10,
           overflow: "hidden",

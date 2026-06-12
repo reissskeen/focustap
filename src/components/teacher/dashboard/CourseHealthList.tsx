@@ -105,7 +105,7 @@ export default function CourseHealthList({
               transition={{ delay: 0.5 + i * 0.04, duration: 0.22 }}
               onClick={() => !isDeleting && onCourseClick(course.id)}
               style={{
-                background: "#12141d",
+                background: "#20232e",
                 border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: 10,
                 padding: "12px 14px",

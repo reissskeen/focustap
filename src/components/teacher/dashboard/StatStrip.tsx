@@ -7,7 +7,7 @@ const PURPLE = "#8b6cff";
 const CYAN = "#22d3ee";
 const RED = "#ef4444";
 
-const TILE_BG = "#12141d";
+const TILE_BG = "#20232e";
 const TILE_BORDER = "1px solid rgba(255,255,255,0.08)";
 
 interface TileProps {
