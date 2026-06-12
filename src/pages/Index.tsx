@@ -81,7 +81,7 @@ const DashboardMockup = () => {
         overflow: "hidden",
         border: "1px solid rgba(255,255,255,0.08)",
         boxShadow: "0 28px 90px rgba(71,64,52,0.16), 0 0 80px rgba(139,108,255,0.07)",
-        background: "#161922",
+        background: "#0e1118",
         maxWidth: 760,
         margin: "0 auto",
         userSelect: "none",

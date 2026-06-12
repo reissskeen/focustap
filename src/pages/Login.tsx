@@ -119,7 +119,7 @@ const Login = () => {
   };
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.06)",
+    background: "rgba(255,255,255,0.04)",
     border: "1px solid rgba(255,255,255,0.09)",
     color: "#eef1f7",
     borderRadius: 8,
@@ -132,7 +132,7 @@ const Login = () => {
   };
 
   if (authLoading) {
-    return <div style={{ minHeight: "100vh", background: "#161922" }} />;
+    return <div style={{ minHeight: "100vh", background: "#0e1118" }} />;
   }
 
   return (
@@ -140,7 +140,7 @@ const Login = () => {
     <div
       style={{
         minHeight: "100vh",
-        background: "#161922",
+        background: "#0e1118",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -165,7 +165,7 @@ const Login = () => {
         <div
           style={{
             display: "flex",
-            background: "rgba(255,255,255,0.06)",
+            background: "rgba(255,255,255,0.04)",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 10,
             padding: 4,
@@ -211,7 +211,7 @@ const Login = () => {
         {/* Card */}
         <div
           style={{
-            background: "rgba(255,255,255,0.05)",
+            background: "rgba(255,255,255,0.03)",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 16,
             padding: "28px 24px",

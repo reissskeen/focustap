@@ -9,7 +9,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import StartSessionDialog from "@/components/teacher/StartSessionDialog";
 import { format } from "date-fns";
 
-const BG = "#161922";
+const BG = "#0e1118";
 const CYAN = "#22d3ee";
 const CYAN_DIM = "rgba(34,211,238,0.10)";
 const CYAN_BORDER = "rgba(34,211,238,0.22)";

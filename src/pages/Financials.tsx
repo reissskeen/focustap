@@ -67,7 +67,7 @@ const CHART_COLORS = {
 const AXIS_STYLE = { stroke: "#6b7280", fontSize: 11 };
 const GRID_STYLE = { stroke: "#d1d5db", strokeDasharray: "3 3" };
 const TOOLTIP_STYLE = {
-  backgroundColor: "#20232e",
+  backgroundColor: "#12141d",
   border: "1px solid #222634",
   borderRadius: 8,
   boxShadow: "0 4px 12px rgba(0,0,0,0.1)",

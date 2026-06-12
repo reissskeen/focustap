@@ -321,7 +321,7 @@ const SeatLayoutEditor = ({
         transition={{ duration: 0.18 }}
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#161922",
+          background: "#0e1118",
           border: `1px solid ${CARD_BORDER}`,
           borderRadius: 20,
           padding: "28px 28px 24px",

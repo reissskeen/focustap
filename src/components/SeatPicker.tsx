@@ -139,7 +139,7 @@ const SeatPicker = ({ layout, takenLabels, courseName, onSelect }: SeatPickerPro
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.18 }}
         style={{
-          background: "#161922",
+          background: "#0e1118",
           border: `1px solid ${CARD_BORDER}`,
           borderRadius: 20,
           padding: "28px 28px 24px",

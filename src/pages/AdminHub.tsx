@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { PIN_KEY } from "@/components/PinProtectedRoute";
 
-const CARD_BG = "rgba(255,255,255,0.05)";
+const CARD_BG = "rgba(255,255,255,0.03)";
 const CARD_BORDER = "rgba(255,255,255,0.08)";
 const MUTED = "#98a3b8";
 const LIGHT = "#eef1f7";
@@ -86,7 +86,7 @@ export default function AdminHub() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#161922", padding: "16px" }}>
+    <div style={{ minHeight: "100vh", background: "#0e1118", padding: "16px" }}>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
