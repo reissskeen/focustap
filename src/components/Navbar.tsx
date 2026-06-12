@@ -16,9 +16,9 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, signOut } = useAuth();
   const isLanding = location.pathname === "/";
-  const navText = "#344054";
-  const navTextHover = "#111827";
-  const navBorder = "rgba(17,24,39,0.09)";
+  const navText = isLanding ? "rgba(236,239,247,0.82)" : "#344054";
+  const navTextHover = isLanding ? "#ffffff" : "#111827";
+  const navBorder = isLanding ? "rgba(255,255,255,0.10)" : "rgba(17,24,39,0.09)";
 
   const navLinks = [
     { label: "Features", href: "/#features" },
@@ -30,7 +30,7 @@ const Navbar = () => {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       style={{
-        background: isLanding ? "rgba(246, 242, 234, 0.88)" : "rgba(255,255,255,0.92)",
+        background: isLanding ? "rgba(8, 10, 18, 0.72)" : "rgba(255,255,255,0.92)",
         backdropFilter: "blur(24px)",
         borderBottom: `1px solid ${navBorder}`,
       }}
@@ -164,7 +164,7 @@ const Navbar = () => {
         {isLanding && (
           <button
             className="md:hidden"
-            style={{ color: "#111827", background: "none", border: "none", cursor: "pointer" }}
+            style={{ color: isLanding ? "#ffffff" : "#111827", background: "none", border: "none", cursor: "pointer" }}
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             {mobileOpen ? <X style={{ width: 22, height: 22 }} /> : <Menu style={{ width: 22, height: 22 }} />}
@@ -179,7 +179,7 @@ const Navbar = () => {
           animate={{ opacity: 1, height: "auto" }}
           style={{
             borderTop: `1px solid ${navBorder}`,
-            background: "rgba(255,255,255,0.98)",
+            background: isLanding ? "rgba(10, 12, 22, 0.97)" : "rgba(255,255,255,0.98)",
             padding: "16px",
           }}
         >

@@ -293,14 +293,14 @@ const ClassroomHero = () => {
     scene.fog = new THREE.Fog(0x040406, 14, 60);
     const camera = new THREE.PerspectiveCamera(46, innerWidth / innerHeight, 0.1, 200);
 
-    const ambient = new THREE.AmbientLight(0x6a6f82, 0.16); scene.add(ambient);
-    const key = new THREE.DirectionalLight(0xc7c9df, 0.36);
+    const ambient = new THREE.AmbientLight(0x8a90a8, 0.5); scene.add(ambient);
+    const key = new THREE.DirectionalLight(0xc7c9df, 0.62);
     key.position.set(7, 16, 8); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); scene.add(key);
     const screenLight = new THREE.PointLight(0xd2dbff, 1.5, 46, 2); screenLight.position.set(0, 6.5, -25); scene.add(screenLight);
     const purpleLight = new THREE.PointLight(0x8b6cff, 0.4, 34); purpleLight.position.set(-7, 4, -16); scene.add(purpleLight);
     const cyanLight = new THREE.PointLight(0x22d3ee, 0.36, 34); cyanLight.position.set(7, 4, -16); scene.add(cyanLight);
 
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshStandardMaterial({ color: 0x08080c, roughness: 0.9, metalness: 0.06 }));
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshStandardMaterial({ color: 0x0e0f15, roughness: 0.9, metalness: 0.06 }));
     floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
 
     function makeScreenIdle() {
@@ -340,16 +340,16 @@ const ClassroomHero = () => {
       b.position.set(i * 3.8, 13.5, -23.5); b.rotation.y = i % 2 ? 0.32 : -0.32; scene.add(b);
     }
 
-    const deskTopMat = new THREE.MeshStandardMaterial({ color: 0x090a0f, roughness: 0.52, metalness: 0.08 });
-    const farDeskMat = new THREE.MeshStandardMaterial({ color: 0x17171e, roughness: 0.6, metalness: 0.12 });
-    const legMat = new THREE.MeshStandardMaterial({ color: 0x0d0d12, roughness: 0.72 });
+    const deskTopMat = new THREE.MeshStandardMaterial({ color: 0x262b39, roughness: 0.52, metalness: 0.08 });
+    const farDeskMat = new THREE.MeshStandardMaterial({ color: 0x2d3341, roughness: 0.6, metalness: 0.12 });
+    const legMat = new THREE.MeshStandardMaterial({ color: 0x1a1d26, roughness: 0.72 });
     const paperMat = new THREE.MeshStandardMaterial({ color: 0xe9e9ee, roughness: 0.88, emissive: 0x202024 });
     const tagTex = makeTagTexture();
     const phoneReadyTex = makePhoneScreenTexture("ready");
     const phoneCheckedTex = makePhoneScreenTexture("checked");
     const phoneBackTex = makePhoneBackTexture();
-    const chairMat = new THREE.MeshStandardMaterial({ color: 0x11131a, roughness: 0.62, metalness: 0.12 });
-    const chairEdgeMat = new THREE.MeshStandardMaterial({ color: 0x08090d, roughness: 0.55, metalness: 0.22 });
+    const chairMat = new THREE.MeshStandardMaterial({ color: 0x232734, roughness: 0.62, metalness: 0.12 });
+    const chairEdgeMat = new THREE.MeshStandardMaterial({ color: 0x171a22, roughness: 0.55, metalness: 0.22 });
     const PHONE_MODEL = { w: 0.34, h: 0.71, d: 0.038 };
     const DESK_TOP_Y = 1.5, ROWS = 6, COLS = 7, ROW_Z0 = -22, ROW_DZ = 3.3, COL_X = 2.9;
     let heroDesk = null;
