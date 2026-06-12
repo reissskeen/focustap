@@ -7,8 +7,8 @@ const PURPLE = "#8b6cff";
 const CYAN = "#22d3ee";
 const CYAN_DIM = "rgba(34,211,238,0.12)";
 const CYAN_BORDER = "rgba(34,211,238,0.25)";
-const MUTED = "#667085";
-const LIGHT = "#111827";
+const MUTED = "#98a3b8";
+const LIGHT = "#eef1f7";
 
 export interface NextClassInfo {
   courseName: string;
@@ -108,9 +108,9 @@ export default function LiveSessionHero({
         transition={{ duration: 0.28, delay: 0.06 }}
         style={{
           background: hasActive
-            ? "linear-gradient(135deg, rgba(34,211,238,0.07) 0%, rgba(255,255,255,0.97) 100%)"
-            : "#ffffff",
-          border: `1px solid ${hasActive ? CYAN_BORDER : "rgba(17,24,39,0.08)"}`,
+            ? "linear-gradient(135deg, rgba(34,211,238,0.07) 0%, rgba(255,255,255,0.06) 100%)"
+            : "#12141d",
+          border: `1px solid ${hasActive ? CYAN_BORDER : "rgba(255,255,255,0.08)"}`,
           borderTop: `2.5px solid ${hasActive ? CYAN : PURPLE}`,
           borderRadius: 14,
           padding: "20px 24px",
@@ -264,7 +264,7 @@ export default function LiveSessionHero({
                   padding: "9px 18px",
                   borderRadius: 9,
                   background: "transparent",
-                  border: "1px solid rgba(17,24,39,0.12)",
+                  border: "1px solid rgba(255,255,255,0.12)",
                   color: MUTED,
                   fontSize: 13,
                   fontWeight: 500,
@@ -278,11 +278,11 @@ export default function LiveSessionHero({
                   whiteSpace: "nowrap",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(17,24,39,0.24)";
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.24)";
                   e.currentTarget.style.color = LIGHT;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(17,24,39,0.12)";
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
                   e.currentTarget.style.color = MUTED;
                 }}
               >

@@ -3,8 +3,8 @@ import { LayoutGrid, Trash2, X, Plus } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 const CYAN = "#22d3ee";
-const MUTED = "#667085";
-const LIGHT = "#111827";
+const MUTED = "#98a3b8";
+const LIGHT = "#eef1f7";
 const AMBER = "#fbbf24";
 const RED = "#ef4444";
 
@@ -105,8 +105,8 @@ export default function CourseHealthList({
               transition={{ delay: 0.5 + i * 0.04, duration: 0.22 }}
               onClick={() => !isDeleting && onCourseClick(course.id)}
               style={{
-                background: "#ffffff",
-                border: "1px solid rgba(17,24,39,0.08)",
+                background: "#12141d",
+                border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: 10,
                 padding: "12px 14px",
                 cursor: isDeleting ? "default" : "pointer",
@@ -115,10 +115,10 @@ export default function CourseHealthList({
               }}
               onMouseEnter={(e) => {
                 if (!isDeleting)
-                  e.currentTarget.style.borderColor = "rgba(17,24,39,0.18)";
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "rgba(17,24,39,0.08)";
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
               }}
             >
               {/* Top row */}
@@ -215,7 +215,7 @@ export default function CourseHealthList({
                           height: 20,
                           borderRadius: 5,
                           background: "none",
-                          border: "1px solid rgba(17,24,39,0.12)",
+                          border: "1px solid rgba(255,255,255,0.12)",
                           color: MUTED,
                           display: "flex",
                           alignItems: "center",
@@ -303,7 +303,7 @@ export default function CourseHealthList({
                 style={{
                   height: 4,
                   borderRadius: 2,
-                  background: "rgba(17,24,39,0.08)",
+                  background: "rgba(255,255,255,0.08)",
                   overflow: "hidden",
                   marginBottom: flaggedCount > 0 ? 8 : 0,
                 }}

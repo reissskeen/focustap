@@ -3,11 +3,11 @@ import { Activity, BookOpen, QrCode, Radio, ShieldCheck, Users } from "lucide-re
 import { useRef, type CSSProperties } from "react";
 
 const COLORS = {
-  bg: "#f6f2ea",
-  card: "rgba(255,255,255,0.72)",
-  border: "rgba(31,41,55,0.10)",
-  muted: "#667085",
-  light: "#111827",
+  bg: "#0b0d15",
+  card: "rgba(255,255,255,0.05)",
+  border: "rgba(255,255,255,0.10)",
+  muted: "#98a3b8",
+  light: "#eef1f7",
   purple: "#8b6cff",
   cyan: "#22d3ee",
   green: "#34d399",

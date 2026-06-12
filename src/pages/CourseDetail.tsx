@@ -9,14 +9,14 @@ import type { Tables } from "@/integrations/supabase/types";
 import StartSessionDialog from "@/components/teacher/StartSessionDialog";
 import { format } from "date-fns";
 
-const BG = "#f6f7fa";
+const BG = "#0e1118";
 const CYAN = "#22d3ee";
 const CYAN_DIM = "rgba(34,211,238,0.10)";
 const CYAN_BORDER = "rgba(34,211,238,0.22)";
-const CARD_BG = "rgba(17,24,39,0.03)";
-const CARD_BORDER = "rgba(17,24,39,0.08)";
-const MUTED = "#667085";
-const LIGHT = "#111827";
+const CARD_BG = "rgba(255,255,255,0.03)";
+const CARD_BORDER = "rgba(255,255,255,0.08)";
+const MUTED = "#98a3b8";
+const LIGHT = "#eef1f7";
 
 interface PastSession extends Tables<"sessions"> {
   student_count: number;
