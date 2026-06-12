@@ -6,9 +6,9 @@ import type { SeatLayout } from "@/components/teacher/SeatLayoutEditor";
 const PURPLE = "#8b6cff";
 const PURPLE_DIM = "rgba(139,108,255,0.12)";
 const PURPLE_BORDER = "rgba(139,108,255,0.28)";
-const MUTED = "#98a3b8";
-const LIGHT = "#eef1f7";
-const CARD_BORDER = "rgba(255,255,255,0.08)";
+const MUTED = "#667085";
+const LIGHT = "#111827";
+const CARD_BORDER = "rgba(17,24,39,0.08)";
 
 interface SeatPickerProps {
   layout: SeatLayout;
@@ -76,14 +76,14 @@ const SeatPicker = ({ layout, takenLabels, courseName, onSelect }: SeatPickerPro
             background: isSelected
               ? "rgba(139,108,255,0.12)"
               : taken
-              ? "rgba(255,255,255,0.04)"
-              : "rgba(255,255,255,0.04)",
+              ? "rgba(17,24,39,0.04)"
+              : "rgba(17,24,39,0.04)",
             border: `1px solid ${
               isSelected
                 ? PURPLE_BORDER
                 : taken
-                ? "rgba(255,255,255,0.08)"
-                : "rgba(255,255,255,0.10)"
+                ? "rgba(17,24,39,0.08)"
+                : "rgba(17,24,39,0.10)"
             }`,
             display: "flex",
             alignItems: "center",
@@ -101,8 +101,8 @@ const SeatPicker = ({ layout, takenLabels, courseName, onSelect }: SeatPickerPro
           }}
           onMouseLeave={(e) => {
             if (!taken && !isSelected) {
-              e.currentTarget.style.background = "rgba(255,255,255,0.04)";
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.10)";
+              e.currentTarget.style.background = "rgba(17,24,39,0.04)";
+              e.currentTarget.style.borderColor = "rgba(17,24,39,0.10)";
             }
           }}
         >
@@ -125,7 +125,7 @@ const SeatPicker = ({ layout, takenLabels, courseName, onSelect }: SeatPickerPro
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(255,255,255,0.48)",
+        background: "rgba(17,24,39,0.48)",
         backdropFilter: "blur(8px)",
         zIndex: 50,
         display: "flex",
@@ -139,7 +139,7 @@ const SeatPicker = ({ layout, takenLabels, courseName, onSelect }: SeatPickerPro
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.18 }}
         style={{
-          background: "#0e1118",
+          background: "#f6f7fa",
           border: `1px solid ${CARD_BORDER}`,
           borderRadius: 20,
           padding: "28px 28px 24px",
@@ -179,13 +179,13 @@ const SeatPicker = ({ layout, takenLabels, courseName, onSelect }: SeatPickerPro
         {/* Legend */}
         <div style={{ display: "flex", gap: 16 }}>
           <LegendItem
-            color="rgba(255,255,255,0.06)"
-            border="rgba(255,255,255,0.10)"
+            color="rgba(17,24,39,0.06)"
+            border="rgba(17,24,39,0.10)"
             label="Available"
           />
           <LegendItem
-            color="rgba(255,255,255,0.04)"
-            border="rgba(255,255,255,0.08)"
+            color="rgba(17,24,39,0.04)"
+            border="rgba(17,24,39,0.08)"
             label="Taken"
             opacity={0.4}
           />

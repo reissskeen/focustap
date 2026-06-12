@@ -157,7 +157,7 @@ function SegmentCard({
             <div className="text-gray-400 text-xs mb-1">Key Insight</div>
             <div className="text-gray-300 text-sm">{segment.keyFact}</div>
           </div>
-          <div className="text-gray-400 text-xs italic">{segment.revenueNote}</div>
+          <div className="text-gray-600 text-xs italic">{segment.revenueNote}</div>
         </div>
       )}
 
@@ -166,7 +166,7 @@ function SegmentCard({
           <span>{segment.enrollment} students</span>
           <span>•</span>
           <span>{segment.avgTuition} avg tuition</span>
-          <span className="ml-auto text-gray-400">tap to expand ↓</span>
+          <span className="ml-auto text-gray-600">tap to expand ↓</span>
         </div>
       )}
     </div>
@@ -323,8 +323,8 @@ export default function TAMAnalysis() {
 
       {/* Sources */}
       <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.02)" }}>
-        <div className="text-xs uppercase tracking-widest text-gray-400 mb-2 font-medium">Sources</div>
-        <div className="text-xs text-gray-400 space-y-1">
+        <div className="text-xs uppercase tracking-widest text-gray-600 mb-2 font-medium">Sources</div>
+        <div className="text-xs text-gray-600 space-y-1">
           <p>NCES Private School Universe Survey (PSS) 2021–22 · NCES Digest of Education Statistics 2023</p>
           <p>IBISWorld Private Schools Industry Report 2025 · IBISWorld Colleges & Universities 2025</p>
           <p>College Board Trends in College Pricing 2025 · NAICU Key Facts 2023</p>
@@ -332,8 +332,8 @@ export default function TAMAnalysis() {
           <p>EdChoice School Choice Data · NCES IPEDS Finance Component 2024</p>
           <p>MDR Education School Counts · Research.com Education Statistics 2025–26</p>
         </div>
-        <p className="mt-3 text-xs text-gray-300 leading-relaxed">
-          <strong className="text-gray-400">Methodology:</strong> K-12 segment revenue estimates calculated from enrollment × average tuition by level. University revenue from NCES IPEDS institutional reporting. Institution counts from NCES PSS and IPEDS. Some segments use estimated breakdowns from combined NCES categories. All figures represent most recent available data (2021–22 school year for counts; 2024–25 or 2025–26 for tuition/revenue).
+        <p className="mt-3 text-xs text-gray-700 leading-relaxed">
+          <strong className="text-gray-600">Methodology:</strong> K-12 segment revenue estimates calculated from enrollment × average tuition by level. University revenue from NCES IPEDS institutional reporting. Institution counts from NCES PSS and IPEDS. Some segments use estimated breakdowns from combined NCES categories. All figures represent most recent available data (2021–22 school year for counts; 2024–25 or 2025–26 for tuition/revenue).
         </p>
       </div>
     </div>

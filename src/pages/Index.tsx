@@ -79,9 +79,9 @@ const DashboardMockup = () => {
       style={{
         borderRadius: 14,
         overflow: "hidden",
-        border: "1px solid rgba(255,255,255,0.08)",
+        border: "1px solid rgba(17,24,39,0.08)",
         boxShadow: "0 28px 90px rgba(71,64,52,0.16), 0 0 80px rgba(139,108,255,0.07)",
-        background: "#0e1118",
+        background: "#f6f7fa",
         maxWidth: 760,
         margin: "0 auto",
         userSelect: "none",
@@ -90,8 +90,8 @@ const DashboardMockup = () => {
       {/* Browser chrome */}
       <div
         style={{
-          background: "rgba(255,255,255,0.03)",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          background: "rgba(17,24,39,0.03)",
+          borderBottom: "1px solid rgba(17,24,39,0.08)",
           padding: "10px 16px",
           display: "flex",
           alignItems: "center",
@@ -106,8 +106,8 @@ const DashboardMockup = () => {
         <div
           style={{
             flex: 1,
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(17,24,39,0.03)",
+            border: "1px solid rgba(17,24,39,0.08)",
             borderRadius: 6,
             padding: "3px 0",
             color: "#98a2b3",
@@ -129,8 +129,8 @@ const DashboardMockup = () => {
             <div
               key={s.label}
               style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: "rgba(17,24,39,0.03)",
+                border: "1px solid rgba(17,24,39,0.08)",
                 borderRadius: 10,
                 padding: "12px 14px",
               }}
@@ -148,13 +148,13 @@ const DashboardMockup = () => {
         {/* Chart */}
         <div
           style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(17,24,39,0.03)",
+            border: "1px solid rgba(17,24,39,0.08)",
             borderRadius: 10,
             padding: "14px 16px",
           }}
         >
-          <p style={{ color: "#98a3b8", fontSize: "0.7rem", fontWeight: 600, marginBottom: 12, letterSpacing: "0.03em" }}>
+          <p style={{ color: "#667085", fontSize: "0.7rem", fontWeight: 600, marginBottom: 12, letterSpacing: "0.03em" }}>
             Weekly Engagement Trend
           </p>
           <svg viewBox="0 0 600 80" width="100%" style={{ overflow: "visible", display: "block" }}>
@@ -207,10 +207,10 @@ const FeaturesSection = () => {
           <p style={{ color: "#8b6cff", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>
             Features
           </p>
-          <h2 style={{ fontWeight: 500, fontSize: "clamp(1.8rem, 3.5vw, 2.4rem)", letterSpacing: "-0.03em", color: "#eef1f7", marginBottom: 14 }}>
+          <h2 style={{ fontWeight: 500, fontSize: "clamp(1.8rem, 3.5vw, 2.4rem)", letterSpacing: "-0.03em", color: "#111827", marginBottom: 14 }}>
             Everything you need for engaged classrooms
           </h2>
-          <p style={{ color: "#98a3b8", fontSize: "1rem", maxWidth: 520, margin: "0 auto", lineHeight: 1.6 }}>
+          <p style={{ color: "#667085", fontSize: "1rem", maxWidth: 520, margin: "0 auto", lineHeight: 1.6 }}>
             A non-invasive toolkit that respects student autonomy while giving teachers real engagement data.
           </p>
         </motion.div>
@@ -230,8 +230,8 @@ const FeaturesSection = () => {
               <div style={{ width: 42, height: 42, borderRadius: 12, background: `${f.color}18`, border: `1px solid ${f.color}25`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 18 }}>
                 <f.icon style={{ width: 18, height: 18, color: f.color }} />
               </div>
-              <h3 style={{ color: "#eef1f7", fontWeight: 600, fontSize: "0.98rem", marginBottom: 8, letterSpacing: "-0.01em" }}>{f.title}</h3>
-              <p style={{ color: "#98a3b8", fontWeight: 400, fontSize: "0.875rem", lineHeight: 1.6 }}>{f.description}</p>
+              <h3 style={{ color: "#111827", fontWeight: 600, fontSize: "0.98rem", marginBottom: 8, letterSpacing: "-0.01em" }}>{f.title}</h3>
+              <p style={{ color: "#667085", fontWeight: 400, fontSize: "0.875rem", lineHeight: 1.6 }}>{f.description}</p>
             </motion.div>
           ))}
         </div>
@@ -256,10 +256,10 @@ const HowItWorksSection = () => {
           <p style={{ color: "#8b6cff", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>
             Process
           </p>
-          <h2 style={{ fontWeight: 500, fontSize: "clamp(1.8rem, 3.5vw, 2.4rem)", letterSpacing: "-0.03em", color: "#eef1f7", marginBottom: 14 }}>
+          <h2 style={{ fontWeight: 500, fontSize: "clamp(1.8rem, 3.5vw, 2.4rem)", letterSpacing: "-0.03em", color: "#111827", marginBottom: 14 }}>
             How it works
           </h2>
-          <p style={{ color: "#98a3b8", fontSize: "1rem" }}>Four simple steps to focused classrooms.</p>
+          <p style={{ color: "#667085", fontSize: "1rem" }}>Four simple steps to focused classrooms.</p>
         </motion.div>
 
         <div className="ft-process-grid">
@@ -277,8 +277,8 @@ const HowItWorksSection = () => {
                 <span style={{ color: "white", fontWeight: 700, fontSize: "0.85rem" }}>{step.number}</span>
               </div>
               <div>
-                <h3 style={{ color: "#eef1f7", fontWeight: 600, fontSize: "1rem", marginBottom: 8, letterSpacing: "-0.01em" }}>{step.title}</h3>
-                <p style={{ color: "#98a3b8", fontSize: "0.875rem", lineHeight: 1.6 }}>{step.description}</p>
+                <h3 style={{ color: "#111827", fontWeight: 600, fontSize: "1rem", marginBottom: 8, letterSpacing: "-0.01em" }}>{step.title}</h3>
+                <p style={{ color: "#667085", fontSize: "0.875rem", lineHeight: 1.6 }}>{step.description}</p>
               </div>
             </motion.div>
           ))}
@@ -301,10 +301,10 @@ const CTASection = () => {
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="relative z-10">
-            <h2 style={{ fontWeight: 500, fontSize: "clamp(1.6rem, 3.5vw, 2.2rem)", letterSpacing: "-0.03em", color: "#eef1f7", marginBottom: 16 }}>
+            <h2 style={{ fontWeight: 500, fontSize: "clamp(1.6rem, 3.5vw, 2.2rem)", letterSpacing: "-0.03em", color: "#111827", marginBottom: 16 }}>
               Ready to bring focus back to your classroom?
             </h2>
-            <p style={{ color: "#98a3b8", fontSize: "1rem", marginBottom: 36, lineHeight: 1.6, maxWidth: 460, margin: "0 auto 36px" }}>
+            <p style={{ color: "#667085", fontSize: "1rem", marginBottom: 36, lineHeight: 1.6, maxWidth: 460, margin: "0 auto 36px" }}>
               Start a free pilot with your class. No hardware, no installs, no setup friction.
             </p>
             <Link to="/login?mode=signup">
@@ -346,7 +346,7 @@ const Index = () => {
 
   return (
     <SmoothScroll>
-    <div className="ft-landing-shell" style={{ minHeight: "100vh", color: "#eef1f7" }}>
+    <div className="ft-landing-shell" style={{ minHeight: "100vh", color: "#111827" }}>
       <Navbar />
 
       {/* ── 3D scroll-driven classroom hero (mounts above the existing hero) ── */}
@@ -396,7 +396,7 @@ const Index = () => {
               fontSize: "clamp(3rem, 7vw, 5.5rem)",
               letterSpacing: "-0.04em",
               lineHeight: 0.98,
-              color: "#eef1f7",
+              color: "#111827",
               marginBottom: 18,
             }}
           >
@@ -412,7 +412,7 @@ const Index = () => {
               fontSize: "clamp(1.45rem, 3vw, 2.35rem)",
               letterSpacing: "-0.03em",
               lineHeight: 1.15,
-              color: "#eef1f7",
+              color: "#111827",
               marginBottom: 22,
             }}
           >
@@ -435,7 +435,7 @@ const Index = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.18 }}
             style={{
-              color: "#98a3b8",
+              color: "#667085",
               fontWeight: 400,
               fontSize: "1.05rem",
               maxWidth: 560,
@@ -481,9 +481,9 @@ const Index = () => {
             <Link to="/teacher-login?mode=signup">
               <button
                 style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "#eef1f7",
+                  background: "rgba(255,255,255,0.72)",
+                  border: "1px solid rgba(17,24,39,0.12)",
+                  color: "#111827",
                   fontWeight: 500,
                   padding: "13px 28px",
                   borderRadius: 10,
@@ -492,8 +492,8 @@ const Index = () => {
                   transition: "border-color 0.25s ease, transform 0.2s ease",
                   fontFamily: "inherit",
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.24)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; e.currentTarget.style.transform = "translateY(0)"; }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(17,24,39,0.24)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(17,24,39,0.12)"; e.currentTarget.style.transform = "translateY(0)"; }}
               >
                 Professor Sign Up
               </button>
@@ -530,7 +530,7 @@ const Index = () => {
       <CTASection />
 
       {/* ── FOOTER ── */}
-      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "32px 16px" }}>
+      <footer style={{ borderTop: "1px solid rgba(17,24,39,0.08)", padding: "32px 16px" }}>
         <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 max-w-6xl">
           <div className="flex items-center">
             <img src={focustapLogo} alt="FocusTap" style={{ height: 32, width: "auto" }} />
@@ -557,9 +557,9 @@ const Index = () => {
 
       {/* Admin PIN dialog */}
       <Dialog open={adminOpen} onOpenChange={setAdminOpen}>
-        <DialogContent className="max-w-xs" style={{ background: "rgba(20, 22, 32, 0.98)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 16 }}>
+        <DialogContent className="max-w-xs" style={{ background: "rgba(255,255,255,0.98)", border: "1px solid rgba(17,24,39,0.09)", borderRadius: 16 }}>
           <DialogHeader>
-            <DialogTitle style={{ color: "#eef1f7", fontSize: "1rem" }}>Admin Access</DialogTitle>
+            <DialogTitle style={{ color: "#111827", fontSize: "1rem" }}>Admin Access</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleAdminSubmit} className="space-y-3 mt-1">
             <Input
@@ -568,7 +568,7 @@ const Index = () => {
               value={pin}
               onChange={(e) => { setPin(e.target.value); setPinError(false); }}
               autoFocus
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", color: "#eef1f7" }}
+              style={{ background: "rgba(17,24,39,0.04)", border: "1px solid rgba(17,24,39,0.09)", color: "#111827" }}
             />
             {pinError && <p style={{ color: "#fb7185", fontSize: "0.75rem" }}>Incorrect code.</p>}
             <Button type="submit" className="w-full" size="sm" style={{ background: "#8b6cff", color: "white", fontWeight: 600 }}>

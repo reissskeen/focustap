@@ -119,20 +119,20 @@ const Login = () => {
   };
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.09)",
-    color: "#eef1f7",
+    background: "rgba(17,24,39,0.04)",
+    border: "1px solid rgba(17,24,39,0.09)",
+    color: "#111827",
     borderRadius: 8,
   };
 
   const labelStyle = {
-    color: "#98a3b8",
+    color: "#667085",
     fontSize: "0.82rem",
     fontWeight: 500,
   };
 
   if (authLoading) {
-    return <div style={{ minHeight: "100vh", background: "#0e1118" }} />;
+    return <div style={{ minHeight: "100vh", background: "#f9fafb" }} />;
   }
 
   return (
@@ -140,7 +140,7 @@ const Login = () => {
     <div
       style={{
         minHeight: "100vh",
-        background: "#0e1118",
+        background: "#f6f7fa",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -165,8 +165,8 @@ const Login = () => {
         <div
           style={{
             display: "flex",
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(17,24,39,0.04)",
+            border: "1px solid rgba(17,24,39,0.08)",
             borderRadius: 10,
             padding: 4,
             marginBottom: 20,
@@ -194,15 +194,15 @@ const Login = () => {
               textAlign: "center",
               padding: "7px 0",
               borderRadius: 7,
-              color: "#98a3b8",
+              color: "#667085",
               fontWeight: 500,
               fontSize: "0.84rem",
               textDecoration: "none",
               display: "block",
               transition: "color 0.2s",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#c3c9d6")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#98a3b8")}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#344054")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#667085")}
           >
             Professor
           </Link>
@@ -211,11 +211,11 @@ const Login = () => {
         {/* Card */}
         <div
           style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(17,24,39,0.03)",
+            border: "1px solid rgba(17,24,39,0.08)",
             borderRadius: 16,
             padding: "28px 24px",
-            boxShadow: "0 0 0 1px rgba(139,108,255,0.06), 0 4px 24px rgba(255,255,255,0.06)",
+            boxShadow: "0 0 0 1px rgba(139,108,255,0.06), 0 4px 24px rgba(17,24,39,0.06)",
           }}
         >
           <motion.div
@@ -229,14 +229,14 @@ const Login = () => {
                 fontWeight: 500,
                 fontSize: "1.2rem",
                 letterSpacing: "-0.02em",
-                color: "#eef1f7",
+                color: "#111827",
                 textAlign: "center",
                 marginBottom: 4,
               }}
             >
               {mode === "login" ? "Welcome back" : "Create your account"}
             </h1>
-            <p style={{ color: "#98a3b8", fontSize: "0.82rem", textAlign: "center", marginBottom: 24 }}>
+            <p style={{ color: "#667085", fontSize: "0.82rem", textAlign: "center", marginBottom: 24 }}>
               {mode === "login"
                 ? "Enter your credentials to continue"
                 : "Sign up with your school email"}
@@ -369,7 +369,7 @@ const Login = () => {
                 )}
               </button>
 
-              <p style={{ color: "#98a3b8", fontSize: "0.78rem", textAlign: "center" }}>
+              <p style={{ color: "#667085", fontSize: "0.78rem", textAlign: "center" }}>
                 {mode === "login" ? (
                   <>No account?{" "}
                     <button type="button" onClick={switchMode} style={{ color: "#8b6cff", background: "none", border: "none", cursor: "pointer", fontWeight: 500, fontSize: "0.78rem", fontFamily: "inherit" }}>
@@ -388,7 +388,7 @@ const Login = () => {
           </motion.div>
         </div>
 
-        <p style={{ color: "#98a3b8", fontSize: "0.78rem", textAlign: "center", marginTop: 16 }}>
+        <p style={{ color: "#667085", fontSize: "0.78rem", textAlign: "center", marginTop: 16 }}>
           Professor?{" "}
           <Link to="/teacher-login" style={{ color: "#8b6cff", textDecoration: "none", fontWeight: 500 }}>
             Go to professor login

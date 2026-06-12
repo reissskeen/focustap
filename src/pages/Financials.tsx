@@ -67,8 +67,8 @@ const CHART_COLORS = {
 const AXIS_STYLE = { stroke: "#6b7280", fontSize: 11 };
 const GRID_STYLE = { stroke: "#d1d5db", strokeDasharray: "3 3" };
 const TOOLTIP_STYLE = {
-  backgroundColor: "#12141d",
-  border: "1px solid #222634",
+  backgroundColor: "#fff",
+  border: "1px solid #e5e7eb",
   borderRadius: 8,
   boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
 };
@@ -454,7 +454,7 @@ export default function Financials() {
                   ].map(({ label, value, color }) => (
                     <div
                       key={label}
-                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.06)" }}
+                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
                       className="rounded-xl p-4 text-center min-w-[110px]"
                     >
                       <p style={{ color }} className="text-2xl font-bold">{value}</p>
@@ -637,7 +637,7 @@ export default function Financials() {
                   ].map(({ label, pct, note, color }) => (
                     <div
                       key={label}
-                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.06)" }}
+                      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}
                       className="rounded-xl p-4"
                     >
                       <p style={{ color }} className="text-3xl font-bold">{pct}</p>

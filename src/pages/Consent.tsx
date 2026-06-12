@@ -4,11 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import focustapLogo from "@/assets/focustap-logo.png";
 
-const BG = "#0e1118";
-const CARD_BG = "rgba(255,255,255,0.03)";
-const CARD_BORDER = "rgba(255,255,255,0.08)";
-const MUTED = "#98a3b8";
-const LIGHT = "#eef1f7";
+const BG = "#f6f7fa";
+const CARD_BG = "rgba(17,24,39,0.03)";
+const CARD_BORDER = "rgba(17,24,39,0.08)";
+const MUTED = "#667085";
+const LIGHT = "#111827";
 const PURPLE = "#8b6cff";
 const PURPLE_DIM = "rgba(139,108,255,0.12)";
 const PURPLE_BORDER = "rgba(139,108,255,0.25)";

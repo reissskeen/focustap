@@ -6,10 +6,10 @@ import {
 } from "lucide-react";
 import { PIN_KEY } from "@/components/PinProtectedRoute";
 
-const CARD_BG = "rgba(255,255,255,0.03)";
-const CARD_BORDER = "rgba(255,255,255,0.08)";
-const MUTED = "#98a3b8";
-const LIGHT = "#eef1f7";
+const CARD_BG = "rgba(17,24,39,0.03)";
+const CARD_BORDER = "rgba(17,24,39,0.08)";
+const MUTED = "#667085";
+const LIGHT = "#111827";
 const CYAN = "#22d3ee";
 const CYAN_DIM = "rgba(34,211,238,0.1)";
 const CYAN_BORDER = "rgba(34,211,238,0.22)";
@@ -27,8 +27,8 @@ interface NavCardProps {
 
 const NavCard = ({ icon: Icon, label, description, accent, onClick }: NavCardProps) => {
   const color = accent === "cyan" ? CYAN : accent === "purple" ? PURPLE : MUTED;
-  const bg = accent === "cyan" ? CYAN_DIM : accent === "purple" ? PURPLE_DIM : "rgba(255,255,255,0.05)";
-  const border = accent === "cyan" ? CYAN_BORDER : accent === "purple" ? PURPLE_BORDER : "rgba(255,255,255,0.1)";
+  const bg = accent === "cyan" ? CYAN_DIM : accent === "purple" ? PURPLE_DIM : "rgba(17,24,39,0.05)";
+  const border = accent === "cyan" ? CYAN_BORDER : accent === "purple" ? PURPLE_BORDER : "rgba(17,24,39,0.1)";
 
   return (
     <button
@@ -49,7 +49,7 @@ const NavCard = ({ icon: Icon, label, description, accent, onClick }: NavCardPro
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = border;
-        e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+        e.currentTarget.style.background = "rgba(17,24,39,0.05)";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = CARD_BORDER;
@@ -86,7 +86,7 @@ export default function AdminHub() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0e1118", padding: "16px" }}>
+    <div style={{ minHeight: "100vh", background: "#f6f7fa", padding: "16px" }}>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}

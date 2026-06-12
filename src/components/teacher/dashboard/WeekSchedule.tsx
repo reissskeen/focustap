@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 import { format, isToday, differenceInMinutes, differenceInDays } from "date-fns";
 
 const CYAN = "#22d3ee";
-const MUTED = "#98a3b8";
-const LIGHT = "#eef1f7";
+const MUTED = "#667085";
+const LIGHT = "#111827";
 
 export interface WeekSessionItem {
   id: string;
@@ -72,8 +72,8 @@ export default function WeekSchedule({ sessions, onNavigateToCourse }: Props) {
       {/* Container */}
       <div
         style={{
-          background: "#12141d",
-          border: "1px solid rgba(255,255,255,0.08)",
+          background: "#ffffff",
+          border: "1px solid rgba(17,24,39,0.08)",
           borderRadius: 10,
           overflow: "hidden",
         }}
@@ -111,7 +111,7 @@ export default function WeekSchedule({ sessions, onNavigateToCourse }: Props) {
                     : "transparent",
                   borderBottom:
                     i < sorted.length - 1
-                      ? "1px solid rgba(255,255,255,0.06)"
+                      ? "1px solid rgba(17,24,39,0.06)"
                       : "none",
                   cursor: "pointer",
                   transition: "background 0.15s",
@@ -119,7 +119,7 @@ export default function WeekSchedule({ sessions, onNavigateToCourse }: Props) {
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.background = accent
                     ? "rgba(34,211,238,0.07)"
-                    : "rgba(255,255,255,0.02)")
+                    : "rgba(17,24,39,0.02)")
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.background = accent
@@ -145,7 +145,7 @@ export default function WeekSchedule({ sessions, onNavigateToCourse }: Props) {
                     style={{
                       fontSize: 14,
                       fontWeight: 500,
-                      color: accent ? LIGHT : "#aab2c0",
+                      color: accent ? LIGHT : "#374151",
                       margin: 0,
                     }}
                   >
@@ -159,7 +159,7 @@ export default function WeekSchedule({ sessions, onNavigateToCourse }: Props) {
                     style={{
                       fontSize: 13,
                       fontWeight: 500,
-                      color: accent ? LIGHT : "#aab2c0",
+                      color: accent ? LIGHT : "#374151",
                       margin: "0 0 2px",
                       overflow: "hidden",
                       textOverflow: "ellipsis",

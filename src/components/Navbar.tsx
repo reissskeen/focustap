@@ -117,19 +117,19 @@ const Navbar = () => {
                   <DropdownMenuContent
                     align="end"
                     style={{
-                      background: "rgba(16,18,28,0.98)",
-                      border: "1px solid rgba(255,255,255,0.10)",
+                      background: "rgba(255,255,255,0.98)",
+                      border: "1px solid rgba(17,24,39,0.09)",
                       borderRadius: 10,
                       minWidth: 180,
                     }}
                   >
                     <DropdownMenuItem asChild>
-                      <Link to="/login?mode=signup" className="flex items-center gap-2 cursor-pointer" style={{ color: "#eef1f7", fontWeight: 500 }}>
+                      <Link to="/login?mode=signup" className="flex items-center gap-2 cursor-pointer" style={{ color: "#111827", fontWeight: 500 }}>
                         <GraduationCap style={{ width: 15, height: 15, color: "#8b6cff" }} /> Student Sign Up
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/teacher-login?mode=signup" className="flex items-center gap-2 cursor-pointer" style={{ color: "#eef1f7", fontWeight: 500 }}>
+                      <Link to="/teacher-login?mode=signup" className="flex items-center gap-2 cursor-pointer" style={{ color: "#111827", fontWeight: 500 }}>
                         <BookOpen style={{ width: 15, height: 15, color: "#22d3ee" }} /> Professor Sign Up
                       </Link>
                     </DropdownMenuItem>
