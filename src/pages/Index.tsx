@@ -17,6 +17,7 @@ import {
   SmoothScroll,
 } from "@/components/animations";
 import { FocusTapBackdrop, HeroShowcase, SignalStorySection } from "@/components/landing/FocusTapVisuals";
+import ClassroomHero from "@/components/landing/ClassroomHero";
 
 const features = [
   {
@@ -347,6 +348,9 @@ const Index = () => {
     <SmoothScroll>
     <div className="ft-landing-shell" style={{ minHeight: "100vh", color: "#111827" }}>
       <Navbar />
+
+      {/* ── 3D scroll-driven classroom hero (mounts above the existing hero) ── */}
+      <ClassroomHero />
 
       {/* ── HERO ── */}
       <section
