@@ -831,7 +831,7 @@ const ClassroomHero = () => {
             <p className="osub">Verified attendance and real engagement analytics for every classroom &mdash; no surveillance, no app installs, no distractions.</p>
             <div className="oactions">
               <button className="obtn primary" onClick={() => navigate("/demo")}>Book a demo</button>
-              <button className="obtn ghost" onClick={() => navigate("/teacher-login")}>focustap.org</button>
+              <button className="obtn ghost" onClick={() => navigate("/")}>focustap.org</button>
             </div>
             <div className="ofoot">reiss@focustap.org</div>
           </div>
