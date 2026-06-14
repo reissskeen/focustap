@@ -535,7 +535,7 @@ const Index = () => {
           <div className="flex items-center">
             <img src={focustapLogo} alt="FocusTap" style={{ height: 32, width: "auto" }} />
           </div>
-          <p style={{ color: "#98a2b3", fontSize: "0.8rem" }}>© 2026 FocusTap. Privacy-first classroom engagement.</p>
+          <p style={{ color: "#98a2b3", fontSize: "0.8rem" }}>© 2026 FocusTap LLC. Privacy-first classroom engagement.</p>
           <button
             onClick={() => { setAdminOpen(true); setPinError(false); }}
             style={{

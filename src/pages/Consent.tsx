@@ -85,7 +85,7 @@ export default function Consent() {
             Before you continue
           </h1>
           <p style={{ color: MUTED, fontSize: "0.875rem", marginBottom: 32, lineHeight: 1.6 }}>
-            FocusTap is committed to your privacy. Please read what data we collect and how it
+            FocusTap LLC (&ldquo;FocusTap&rdquo;) is committed to your privacy. Please read what data we collect and how it
             is used before using the platform.
           </p>
 
@@ -144,7 +144,7 @@ export default function Consent() {
 
           <p style={{ color: MUTED, fontSize: "0.8rem", lineHeight: 1.6, marginBottom: 24 }}>
             By clicking <strong style={{ color: LIGHT }}>I Accept</strong>, you agree to
-            FocusTap collecting and storing the data described above for the purpose of
+            FocusTap LLC collecting and storing the data described above for the purpose of
             tracking classroom engagement and providing session reports to your professor.
           </p>
 
@@ -171,7 +171,7 @@ export default function Consent() {
         </div>
 
         <p style={{ textAlign: "center", color: "#98a2b3", fontSize: "0.75rem", marginTop: 20 }}>
-          FocusTap · focustap.org · privacy@focustap.org
+          FocusTap LLC · focustap.org · privacy@focustap.org
         </p>
       </div>
     </div>
