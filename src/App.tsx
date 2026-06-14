@@ -29,6 +29,8 @@ import SessionReport from "./pages/SessionReport";
 import ProfessorAnalytics from "./pages/ProfessorAnalytics";
 import CourseDetail from "./pages/CourseDetail";
 import Consent from "./pages/Consent";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +83,8 @@ const App = () => (
                 <RoleProtectedRoute allowedRoles={["teacher", "admin"]} redirectTo="/teacher-login"><SessionReport /></RoleProtectedRoute>
               } />
               <Route path="/consent" element={<Consent />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             </ConsentGuard>

@@ -38,7 +38,7 @@ const Navbar = () => {
     >
       <div className="container mx-auto flex items-center justify-between h-full px-4 max-w-6xl">
         {/* Logo */}
-        <Link to="/" className="flex items-center shrink-0">
+        <Link to="/login" className="flex items-center shrink-0">
           <img src={focustapLogo} alt="FocusTap" style={{ height: 36, width: "auto" }} />
         </Link>
 

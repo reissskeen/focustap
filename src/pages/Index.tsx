@@ -16,7 +16,7 @@ import focustapLogo from "@/assets/focustap-logo.png";
 import {
   SmoothScroll,
 } from "@/components/animations";
-import { FocusTapBackdrop, HeroShowcase, SignalStorySection } from "@/components/landing/FocusTapVisuals";
+import { FocusTapBackdrop, SignalStorySection } from "@/components/landing/FocusTapVisuals";
 import ClassroomHero from "@/components/landing/ClassroomHero";
 
 const features = [
@@ -511,9 +511,6 @@ const Index = () => {
               Log in
             </Link>
           </motion.p>
-
-          {/* Dashboard mockup */}
-          <HeroShowcase />
         </div>
       </section>
 
@@ -535,7 +532,13 @@ const Index = () => {
           <div className="flex items-center">
             <img src={focustapLogo} alt="FocusTap" style={{ height: 32, width: "auto" }} />
           </div>
-          <p style={{ color: "#98a2b3", fontSize: "0.8rem" }}>© 2026 FocusTap LLC. Privacy-first classroom engagement.</p>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+            <p style={{ color: "#98a2b3", fontSize: "0.8rem" }}>© 2026 FocusTap LLC. Privacy-first classroom engagement.</p>
+            <div style={{ display: "flex", gap: 18, fontSize: "0.78rem" }}>
+              <Link to="/terms" style={{ color: "#667085", textDecoration: "none" }}>Terms</Link>
+              <Link to="/privacy" style={{ color: "#667085", textDecoration: "none" }}>Privacy</Link>
+            </div>
+          </div>
           <button
             onClick={() => { setAdminOpen(true); setPinError(false); }}
             style={{
