@@ -120,7 +120,7 @@
 .classroom-hero #intro .icard{display:flex;flex-direction:column;align-items:center;gap:16px;padding:0 28px;max-width:880px}
 .classroom-hero #intro .iplate{background:#fff;border-radius:16px;padding:12px 22px;box-shadow:0 14px 36px rgba(0,0,0,.45);display:inline-flex}
 .classroom-hero #intro .iplate img{height:38px;width:auto;display:block}
-.classroom-hero #intro .ihead{font-size:clamp(40px,6.4vw,76px);font-weight:800;letter-spacing:-.03em;line-height:1.08;padding-bottom:.06em;margin:8px 0 0;background:linear-gradient(90deg,#fff,#c9d2ff 75%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.classroom-hero #intro .ihead{font-size:clamp(30px,4.2vw,52px);font-weight:800;letter-spacing:-.03em;line-height:1.12;padding-bottom:.06em;margin:8px 0 0;background:linear-gradient(90deg,#fff,#c9d2ff 75%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .classroom-hero #intro .isub{font-size:clamp(16px,2vw,21px);color:#cdd5e4;max-width:580px;line-height:1.5;margin:0;text-shadow:0 2px 18px rgba(0,0,0,.55)}
 .classroom-hero #intro .icue{margin-top:26px;display:flex;flex-direction:column;align-items:center;gap:9px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.66)}
 .classroom-hero #intro .icue svg{animation:ch-icuebob 1.8s ease-in-out infinite}

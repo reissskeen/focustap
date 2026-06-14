@@ -309,7 +309,7 @@ const ClassroomHero = () => {
     key.position.set(7, 16, 8); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); scene.add(key);
     // front fill so desk tops/fronts read against the floor (brighter than the dim reference)
     const fill = new THREE.DirectionalLight(0xaab6d8, 0.5); fill.position.set(0, 9, 18); scene.add(fill);
-    const screenLight = new THREE.PointLight(0xd2dbff, 1.5, 46, 2); screenLight.position.set(0, 6.5, -25); scene.add(screenLight);
+    const screenLight = new THREE.PointLight(0xd2dbff, 1.5, 46, 2); screenLight.position.set(0, 7.9, -25); scene.add(screenLight);
     const purpleLight = new THREE.PointLight(0x8b6cff, 0.4, 34); purpleLight.position.set(-7, 4, -16); scene.add(purpleLight);
     const cyanLight = new THREE.PointLight(0x22d3ee, 0.36, 34); cyanLight.position.set(7, 4, -16); scene.add(cyanLight);
 
@@ -335,11 +335,11 @@ const ClassroomHero = () => {
     }
     const dashTex = makeDashboard(); dashTex.anisotropy = 8;
     const screenIdleTex = makeScreenIdle(); screenIdleTex.anisotropy = 8;
-    const SCR_W = 26, SCR_H = 9.1;
+    const SCR_W = 23, SCR_H = 8.05;
     const bezel = new THREE.Mesh(new THREE.BoxGeometry(SCR_W + 0.78, SCR_H + 0.78, 0.48), new THREE.MeshStandardMaterial({ color: 0x09090d, roughness: 0.48, metalness: 0.18 }));
-    bezel.position.set(0, 6.8, -30.28); bezel.castShadow = true; scene.add(bezel);
+    bezel.position.set(0, 8.5, -30.28); bezel.castShadow = true; scene.add(bezel);
     const screen = new THREE.Mesh(new THREE.PlaneGeometry(SCR_W, SCR_H), new THREE.MeshBasicMaterial({ map: screenIdleTex, fog: false }));
-    screen.position.set(0, 6.8, -30); scene.add(screen);
+    screen.position.set(0, 8.5, -30); scene.add(screen);
     const stagePlatform = new THREE.Mesh(new THREE.BoxGeometry(35, 1.2, 6.6), new THREE.MeshStandardMaterial({ color: 0x111116, roughness: 0.82, metalness: 0.08 }));
     stagePlatform.position.set(0, 0.6, -27); stagePlatform.receiveShadow = true; scene.add(stagePlatform);
 
@@ -541,8 +541,8 @@ const ClassroomHero = () => {
     const camMobileB = { pos: new THREE.Vector3(0, 9.6, HERO_Z + 14.2), tgt: new THREE.Vector3(0, 4.3, -24) };
     const camC = { pos: new THREE.Vector3(9.6, 7.7, -21), tgt: new THREE.Vector3(11.0, 8.5, -30) };
     const camMobileC = { pos: new THREE.Vector3(8.4, 7.6, -19.5), tgt: new THREE.Vector3(10.6, 8.4, -30) };
-    const camIntro = { pos: new THREE.Vector3(0, 7.5, 14), tgt: new THREE.Vector3(0, 5.4, -27) };
-    const camMobileIntro = { pos: new THREE.Vector3(0, 8.6, 17.5), tgt: new THREE.Vector3(0, 5.4, -27) };
+    const camIntro = { pos: new THREE.Vector3(0, 8.0, 15), tgt: new THREE.Vector3(0, 4.4, -27) };
+    const camMobileIntro = { pos: new THREE.Vector3(0, 9.0, 18), tgt: new THREE.Vector3(0, 4.4, -27) };
     const _p = new THREE.Vector3(), _t = new THREE.Vector3();
 
     const pbar = q("#pbar");
