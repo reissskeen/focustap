@@ -125,3 +125,9 @@
 .classroom-hero #intro .icue{margin-top:26px;display:flex;flex-direction:column;align-items:center;gap:9px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.66)}
 .classroom-hero #intro .icue svg{animation:ch-icuebob 1.8s ease-in-out infinite}
 @keyframes ch-icuebob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+
+/* Global (un-scoped): the site navbar fades out while the 3D hero owns the
+   screen, and fades back in as the hero dissolves into the page. !important
+   beats framer-motion's inline opacity:1. Only toggled on the homepage. */
+.ft-navbar{transition:opacity .4s ease}
+body.ch-hero-active .ft-navbar{opacity:0!important;pointer-events:none}

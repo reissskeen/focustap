@@ -34,7 +34,7 @@ const Navbar = () => {
         backdropFilter: "blur(24px)",
         borderBottom: `1px solid ${navBorder}`,
       }}
-      className="fixed top-0 left-0 right-0 z-50 h-16"
+      className="ft-navbar fixed top-0 left-0 right-0 z-50 h-16"
     >
       <div className="container mx-auto flex items-center justify-between h-full px-4 max-w-6xl">
         {/* Logo */}

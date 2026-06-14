@@ -289,6 +289,7 @@ const ClassroomHero = () => {
       // renders normally instead of taking down the homepage via the error boundary.
       console.warn("ClassroomHero: WebGL unavailable — 3D hero disabled.", err);
       root.style.display = "none";
+      document.body.classList.remove("ch-hero-active");
       return;
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -706,8 +707,29 @@ const ClassroomHero = () => {
     let rafId = 0;
     function loop() {
       update(getP());
-      // hero-done: hide the pinned hero once scrolled past the spacer (reference behavior)
-      (function () { const mx = scrollEl.offsetHeight - innerHeight; experience.style.display = window.scrollY > mx + 4 ? "none" : ""; })();
+      // Smooth handoff: cross-fade the pinned hero into the page below over ~620px
+      // past the spacer end, instead of a hard display:none cut. While the hero owns
+      // the screen, hide the site navbar (so full-screen overlays like the analytics
+      // board aren't clipped by it); it fades back in as the hero dissolves.
+      (function () {
+        const mx = scrollEl.offsetHeight - innerHeight;
+        const over = window.scrollY - mx;
+        const FADE = 620;
+        if (over <= 0) {
+          experience.style.display = "";
+          experience.style.opacity = "1";
+          experience.style.pointerEvents = "";
+          document.body.classList.add("ch-hero-active");
+        } else if (over < FADE) {
+          experience.style.display = "";
+          experience.style.opacity = String(1 - over / FADE);
+          experience.style.pointerEvents = "none";
+          document.body.classList.remove("ch-hero-active");
+        } else {
+          experience.style.display = "none";
+          document.body.classList.remove("ch-hero-active");
+        }
+      })();
       renderer.render(scene, camera);
       rafId = requestAnimationFrame(loop);
     }
@@ -728,6 +750,7 @@ const ClassroomHero = () => {
 
     return () => {
       disposed = true;
+      document.body.classList.remove("ch-hero-active");
       cancelAnimationFrame(rafId);
       clearTimeout(zoomTO);
       removeEventListener("resize", setZoomOrigin);
