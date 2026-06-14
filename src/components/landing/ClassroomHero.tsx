@@ -546,7 +546,6 @@ const ClassroomHero = () => {
     const _p = new THREE.Vector3(), _t = new THREE.Vector3();
 
     const pbar = q("#pbar");
-    const hint = q("#hint");
     const cap = q("#cap");
     const capHead = q("#capHead");
     const chNum = q("#chNum");
@@ -601,7 +600,6 @@ const ClassroomHero = () => {
     let lastBoard = false;
     function update(p) {
       pbar.style.width = (p * 100).toFixed(1) + "%";
-      hint.style.opacity = String(p > 0.04 ? 0 : 0.7);
       let num = "01", name = "Tap in";
       if (p >= 0.40) { num = "02"; name = "The room"; }
       if (p >= 0.52) { num = "03"; name = "The signal"; }
@@ -780,7 +778,6 @@ const ClassroomHero = () => {
         </div>
         <div className="pbar" id="pbar" />
         <div className="cap" id="cap"><div className="mono">08:59 &middot; Accounting 212 &middot; Desk A1</div><h2 id="capHead">Tap to focus.</h2></div>
-        <div className="hint" id="hint"><span>Scroll</span><span className="ar" /></div>
         <div id="pagebg" />
         <div id="analytics">
           <div className="ahead">

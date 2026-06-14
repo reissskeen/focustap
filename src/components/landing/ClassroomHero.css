@@ -116,7 +116,7 @@
 .classroom-hero #outro .obtn.primary{color:#fff;background:#8b6cff;box-shadow:0 12px 30px rgba(139,108,255,.35)}
 .classroom-hero #outro .obtn.ghost{color:#15182c;background:#fff;border-color:rgba(21,24,44,.12);box-shadow:0 6px 18px rgba(21,24,44,.06)}
 .classroom-hero #outro .ofoot{margin-top:16px;font-size:13.5px;color:#9aa1b2;font-family:"IBM Plex Mono",ui-monospace,monospace;letter-spacing:.05em}
-.classroom-hero #intro{position:fixed;inset:0;z-index:4;display:flex;align-items:flex-end;justify-content:center;text-align:center;pointer-events:none;font-family:"Plus Jakarta Sans",system-ui,sans-serif;padding-bottom:clamp(7vh,12vh,15vh);background:linear-gradient(180deg,transparent 36%,rgba(6,9,20,.68) 100%)}
+.classroom-hero #intro{position:fixed;inset:0;z-index:4;display:flex;align-items:flex-end;justify-content:center;text-align:center;pointer-events:none;font-family:"Plus Jakarta Sans",system-ui,sans-serif;padding-bottom:clamp(2.5vh,4vh,6vh);background:linear-gradient(180deg,transparent 30%,rgba(6,9,20,.78) 100%)}
 .classroom-hero #intro .icard{display:flex;flex-direction:column;align-items:center;gap:16px;padding:0 28px;max-width:880px}
 .classroom-hero #intro .iplate{background:#fff;border-radius:16px;padding:12px 22px;box-shadow:0 14px 36px rgba(0,0,0,.45);display:inline-flex}
 .classroom-hero #intro .iplate img{height:38px;width:auto;display:block}
