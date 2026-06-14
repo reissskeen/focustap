@@ -280,7 +280,17 @@ const ClassroomHero = () => {
     }
 
     const container = q("#stage");
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    } catch (err) {
+      // WebGL unavailable (hardware acceleration off, GPU blocklisted, etc.):
+      // hide the whole hero (incl. its scroll spacer) so the rest of the page
+      // renders normally instead of taking down the homepage via the error boundary.
+      console.warn("ClassroomHero: WebGL unavailable — 3D hero disabled.", err);
+      root.style.display = "none";
+      return;
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(innerWidth, innerHeight);
     renderer.setClearColor(0x040406, 1);
