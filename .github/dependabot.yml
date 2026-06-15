@@ -1,0 +1,26 @@
+# Dependabot — automated dependency & security-update PRs.
+# Closes HECVAT VULN-01 (vulnerable-dependency detection) and supports
+# CHNG-06 (verify third-party libraries are still supported each change).
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+    groups:
+      # Batch low-risk minor/patch bumps into one PR to reduce noise.
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "github-actions"

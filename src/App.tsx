@@ -32,6 +32,8 @@ import Consent from "./pages/Consent";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import HecvatAssessment from "./pages/HecvatAssessment";
+import ResetPassword from "./pages/ResetPassword";
+import Security from "./pages/Security";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +68,8 @@ const App = () => (
               } />
               <Route path="/login" element={<Login />} />
               <Route path="/teacher-login" element={<TeacherLogin />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/security" element={<ProtectedRoute><Security /></ProtectedRoute>} />
               <Route path="/admin" element={<PinProtectedRoute><AdminHub /></PinProtectedRoute>} />
               <Route path="/financials" element={<PinProtectedRoute><Financials /></PinProtectedRoute>} />
               <Route path="/pitch-deck" element={<PinProtectedRoute><PitchDeck /></PinProtectedRoute>} />

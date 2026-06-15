@@ -9,6 +9,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { mfaFactorIfRequired, getUserRoles, routePathForRoles } from "@/lib/authFlow";
+import { MfaChallenge } from "@/components/MfaChallenge";
 
 type AuthMode = "login" | "signup";
 
@@ -24,25 +26,31 @@ const TeacherLogin = () => {
   const [accessCode, setAccessCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
+  // After sign-in: require a verified second factor (if enrolled) before routing.
   useEffect(() => {
     if (!user) return;
-    const checkRole = async () => {
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id);
-      const roles = (data || []).map((r) => r.role);
-      if (roles.includes("teacher") || roles.includes("admin")) {
-        navigate("/teacher", { replace: true });
-      } else {
-        navigate("/student", { replace: true });
-      }
-    };
-    checkRole();
+    let cancelled = false;
+    (async () => {
+      const fid = await mfaFactorIfRequired();
+      if (cancelled) return;
+      if (fid) { setMfaFactorId(fid); return; }
+      const roles = await getUserRoles(user.id);
+      if (cancelled) return;
+      navigate(routePathForRoles(roles), { replace: true });
+    })();
+    return () => { cancelled = true; };
   }, [user, navigate]);
+
+  const finishAfterMfa = async () => {
+    if (!user) return;
+    const roles = await getUserRoles(user.id);
+    navigate(routePathForRoles(roles), { replace: true });
+  };
+  const cancelMfa = async () => { setMfaFactorId(null); await supabase.auth.signOut(); };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -273,6 +281,9 @@ const TeacherLogin = () => {
             boxShadow: "0 0 0 1px rgba(34,211,238,0.05), 0 4px 24px rgba(17,24,39,0.06)",
           }}
         >
+          {mfaFactorId ? (
+            <MfaChallenge factorId={mfaFactorId} onVerified={finishAfterMfa} onCancel={cancelMfa} accent="#22d3ee" />
+          ) : (
           <motion.div
             key={mode}
             initial={{ opacity: 0, x: mode === "login" ? -10 : 10 }}
@@ -353,6 +364,12 @@ const TeacherLogin = () => {
                   </button>
                 </div>
               </div>
+
+              {mode === "login" && (
+                <div style={{ textAlign: "right", marginTop: -4 }}>
+                  <Link to="/reset-password" style={{ color: "#22d3ee", fontSize: "0.76rem", textDecoration: "none", fontWeight: 500 }}>Forgot password?</Link>
+                </div>
+              )}
 
               {mode === "signup" && (
                 <>
@@ -442,6 +459,7 @@ const TeacherLogin = () => {
               </p>
             </form>
           </motion.div>
+          )}
         </div>
 
         <p style={{ color: "#667085", fontSize: "0.78rem", textAlign: "center", marginTop: 16 }}>

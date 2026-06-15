@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   GraduationCap, BarChart3, Presentation, LogOut, Play,
-  BookOpen, Users, ClipboardList, TrendingUp, DollarSign, Shield,
+  BookOpen, Users, ClipboardList, TrendingUp, DollarSign, Shield, Lock,
 } from "lucide-react";
 import { PIN_KEY } from "@/components/PinProtectedRoute";
 
@@ -155,6 +155,7 @@ export default function AdminHub() {
               <NavCard icon={Presentation} label="Pitch Deck" description="Investor presentation" accent="muted" onClick={() => navigate("/pitch-deck")} />
               <NavCard icon={BarChart3} label="Poster Board" description="Academic poster with financial data" accent="muted" onClick={() => navigate("/poster")} />
               <NavCard icon={Shield} label="HECVAT Security Assessment" description="HECVAT 4.1.5 self-assessment & gaps (admin only)" accent="muted" onClick={() => navigate("/hecvat")} />
+              <NavCard icon={Lock} label="Account Security (MFA)" description="Enable two-factor authentication on your account" accent="muted" onClick={() => navigate("/security")} />
             </div>
           </div>
 
