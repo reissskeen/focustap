@@ -20,6 +20,10 @@
 .classroom-hero .chapter{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.7);display:flex;gap:12px;margin-left:auto}
 .classroom-hero .chapter b{color:#22d3ee;font-weight:600}
 .classroom-hero .pbar{position:fixed;bottom:0;left:0;height:2px;background:linear-gradient(90deg,#8b6cff,#22d3ee);width:0%;z-index:7;box-shadow:0 0 12px #8b6cff}
+.classroom-hero #skip{position:fixed;z-index:7;bottom:18px;right:clamp(18px,4vw,40px);display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.66);background:transparent;border:0;padding:8px 6px;cursor:pointer;pointer-events:auto;transition:color .22s ease}
+.classroom-hero #skip:hover{color:#22d3ee}
+.classroom-hero #skip svg{opacity:.8;transition:transform .22s ease}
+.classroom-hero #skip:hover svg{transform:translateX(3px)}
 .classroom-hero .cap{position:fixed;z-index:3;top:13%;left:50%;transform:translateX(-50%);text-align:center;width:90%;pointer-events:none;transition:opacity 160ms ease}
 .classroom-hero .cap .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#22d3ee;text-shadow:0 2px 18px rgba(0,0,0,.9)}
 .classroom-hero .cap h2{font-size:clamp(25px,3.4vw,44px);font-weight:800;letter-spacing:0;line-height:1.08;margin-top:12px;text-shadow:0 3px 24px rgba(0,0,0,.9)}

@@ -568,6 +568,7 @@ const ClassroomHero = () => {
     const introEl = q("#intro");
     const experience = q("#experience");
     const scrollEl = q("#scroll");
+    const skip = q("#skip");
     const rb = q("#rosterBody");
     if (rb) {
       rb.innerHTML = roster.map(function (r, i) {
@@ -626,6 +627,11 @@ const ClassroomHero = () => {
       camera.lookAt(_t);
       introEl.style.opacity = (1 - ease(range(p, 0.03, 0.16))).toFixed(3);
       introEl.style.transform = "translateY(" + (-ease(range(p, 0.03, 0.16)) * 3).toFixed(2) + "vh)";
+      // "Skip to sign in" lives only at the very start of the scroll; fade it out
+      // (and stop intercepting clicks) the moment the journey begins.
+      const skipOut = ease(range(p, 0.015, 0.12));
+      skip.style.opacity = (1 - skipOut).toFixed(3);
+      skip.style.pointerEvents = skipOut > 0.9 ? "none" : "auto";
       pagebg.style.opacity = ease(range(p, 0.62, 0.70)).toFixed(3);
       const aIn = ease(range(p, 0.64, 0.72));
       const aOut = ease(range(p, 0.85, 0.905));
@@ -776,6 +782,10 @@ const ClassroomHero = () => {
         <div className="hud">
           <div className="chapter"><span id="chNum">01</span><b id="chName">Tap in</b></div>
         </div>
+        <button id="skip" type="button" onClick={() => navigate("/login")} aria-label="Skip intro and go to sign in">
+          Skip to sign in
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        </button>
         <div className="pbar" id="pbar" />
         <div className="cap" id="cap"><div className="mono">08:59 &middot; Accounting 212 &middot; Desk A1</div><h2 id="capHead">Tap to focus.</h2></div>
         <div id="pagebg" />
