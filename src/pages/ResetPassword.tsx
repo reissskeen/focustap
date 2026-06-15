@@ -6,6 +6,7 @@ import focustapLogo from "@/assets/focustap-logo.png";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 const inputStyle = { background: "rgba(17,24,39,0.04)", border: "1px solid rgba(17,24,39,0.09)", color: "#111827", borderRadius: 8 };
@@ -19,9 +20,13 @@ const PURPLE = "#8b6cff";
  */
 export default function ResetPassword() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<"request" | "reset">(
-    typeof window !== "undefined" && window.location.hash.includes("type=recovery") ? "reset" : "request"
-  );
+  const { passwordRecovery, clearPasswordRecovery } = useAuth();
+  const recoveryInUrl =
+    typeof window !== "undefined" &&
+    (window.location.hash.includes("type=recovery") ||
+      window.location.search.includes("type=recovery") ||
+      window.location.search.includes("code="));
+  const [step, setStep] = useState<"request" | "reset">(recoveryInUrl ? "reset" : "request");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -29,12 +34,11 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
+  // PASSWORD_RECOVERY is captured at the app root (AuthProvider) so it can't be
+  // missed while this page is still mounting; switch to "reset" when it lands.
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") setStep("reset");
-    });
-    return () => subscription.unsubscribe();
-  }, []);
+    if (passwordRecovery) setStep("reset");
+  }, [passwordRecovery]);
 
   const sendReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +62,7 @@ export default function ResetPassword() {
     setLoading(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Password updated. Please log in.");
+    clearPasswordRecovery();
     await supabase.auth.signOut();
     navigate("/login", { replace: true });
   };

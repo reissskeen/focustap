@@ -7,6 +7,10 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  /** True once a password-recovery link has been processed (captured here at the
+   *  app root so the /reset-password page can't miss the event during startup). */
+  passwordRecovery: boolean;
+  clearPasswordRecovery: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -14,6 +18,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   signOut: async () => {},
+  passwordRecovery: false,
+  clearPasswordRecovery: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -21,6 +27,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -28,6 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (_event, session) => {
         setSession(session);
         setLoading(false);
+        if (_event === "PASSWORD_RECOVERY") setPasswordRecovery(true);
       }
     );
 
@@ -51,6 +59,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user: session?.user ?? null,
         loading,
         signOut,
+        passwordRecovery,
+        clearPasswordRecovery: () => setPasswordRecovery(false),
       }}
     >
       {children}
