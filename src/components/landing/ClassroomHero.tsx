@@ -782,7 +782,25 @@ const ClassroomHero = () => {
         <div className="hud">
           <div className="chapter"><span id="chNum">01</span><b id="chName">Tap in</b></div>
         </div>
-        <button id="skip" type="button" onClick={() => navigate("/login")} aria-label="Skip intro and go to sign in">
+        <button
+          id="skip"
+          type="button"
+          onClick={() => {
+            // Skip the 3D scroll: jump past the spacer so the static homepage
+            // hero (Sign Up / Log in) sits at the top of the viewport. The rAF
+            // loop then fades the experience out and restores the navbar.
+            // html has scroll-behavior:smooth, which would otherwise scrub the
+            // whole ~12000px animation; override it inline for one instant jump.
+            const sp = document.getElementById("scroll");
+            const top = sp ? window.scrollY + sp.getBoundingClientRect().bottom : window.innerHeight * 15;
+            const html = document.documentElement;
+            const prevBehavior = html.style.scrollBehavior;
+            html.style.scrollBehavior = "auto";
+            window.scrollTo(0, top);
+            html.style.scrollBehavior = prevBehavior;
+          }}
+          aria-label="Skip the intro animation"
+        >
           Skip to sign in
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
         </button>
