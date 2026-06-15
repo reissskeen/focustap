@@ -31,6 +31,7 @@ import CourseDetail from "./pages/CourseDetail";
 import Consent from "./pages/Consent";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import HecvatAssessment from "./pages/HecvatAssessment";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ const App = () => (
               <Route path="/admin" element={<PinProtectedRoute><AdminHub /></PinProtectedRoute>} />
               <Route path="/financials" element={<PinProtectedRoute><Financials /></PinProtectedRoute>} />
               <Route path="/pitch-deck" element={<PinProtectedRoute><PitchDeck /></PinProtectedRoute>} />
+              <Route path="/hecvat" element={<PinProtectedRoute><HecvatAssessment /></PinProtectedRoute>} />
               <Route path="/institutions" element={
                 <RoleProtectedRoute allowedRoles={["admin"]} redirectTo="/"><Institutions /></RoleProtectedRoute>
               } />

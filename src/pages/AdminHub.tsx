@@ -154,6 +154,7 @@ export default function AdminHub() {
               <NavCard icon={DollarSign} label="Financials" description="Financial model and projections" accent="muted" onClick={() => navigate("/financials")} />
               <NavCard icon={Presentation} label="Pitch Deck" description="Investor presentation" accent="muted" onClick={() => navigate("/pitch-deck")} />
               <NavCard icon={BarChart3} label="Poster Board" description="Academic poster with financial data" accent="muted" onClick={() => navigate("/poster")} />
+              <NavCard icon={Shield} label="HECVAT Security Assessment" description="HECVAT 4.1.5 self-assessment & gaps (admin only)" accent="muted" onClick={() => navigate("/hecvat")} />
             </div>
           </div>
 
